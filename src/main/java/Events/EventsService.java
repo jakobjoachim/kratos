@@ -10,15 +10,7 @@ public class EventsService {
 
     public static void main(String[] args) {
 
-        List eventsList = new ArrayList<>();
-
-        eventsList.add("dice_rolled");
-        eventsList.add("rent");
-        eventsList.add("bank_transfer");
-        eventsList.add("go_to_jail");
-        eventsList.add("estate_transfer");
-
-        EventsManager eventsManager = new EventsManager(eventsList);
+        EventsManager eventsManager = new EventsManager();
 
         before(((request, response) -> response.type("application/json")));
         before(((request, response) -> {

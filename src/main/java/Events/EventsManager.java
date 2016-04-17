@@ -8,9 +8,8 @@ import java.util.List;
 
 class EventsManager {
 
-    private List<EventPayload> eventList;
-    EventsManager(List<String> eventNames) {
-        eventList = new ArrayList<>();
+    EventsManager() {
+        
     }
 
     /**
