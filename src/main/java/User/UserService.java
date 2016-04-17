@@ -87,5 +87,19 @@ public class UserService {
                 return model.editUser(uri, name, uri);
             }
         });
+
+        delete("/users/:userId", (request, response) -> {
+            response.status(OK);
+            response.type("application/json");
+
+            String id = request.params(":userId");
+            try {
+                UserModel.deleteUser(id);
+            } catch (UserDoesNotExistException e) {
+                response.status(RESOURCE_NOT_FOUND);
+                return "";
+            }
+            return "{ \"status\": \"success\" }";
+        });
     }
 }
