@@ -6,7 +6,7 @@ import Exceptions.UserDoesNotExistException;
 import java.util.*;
 
 public class UserModel {
-    private Map<String, User> userMap = new HashMap<>();
+    private static Map<String, User> userMap = new HashMap<>();
 
     public String createUser(String name, String uri) throws UserAlreadyExistsException {
         User user = new User();
@@ -39,5 +39,13 @@ public class UserModel {
     }
     public String editUser(String url, String name, String uri) {
         return null;
+    }
+
+    public static void deleteUser(String id) throws UserDoesNotExistException {
+        String searching = "\"/users/" + id + "\"";
+        if (!(userMap.containsKey(searching))) {
+            throw new UserDoesNotExistException();
+        }
+        userMap.remove(searching);
     }
 }
