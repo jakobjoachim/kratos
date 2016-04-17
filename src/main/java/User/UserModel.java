@@ -28,7 +28,8 @@ public class UserModel {
         String searching = "\"/users/" + user + "\"";
         if (userMap.keySet().contains(searching)) {
             UserInfoPayload result = new UserInfoPayload();
-            result.setId(searching);
+            String id = "/users/" + user;
+            result.setId(id);
             result.setName(userMap.get(searching).getName().toLowerCase());
             result.setUri(userMap.get(searching).getUri());
             return UserService.dataToJson(result);
