@@ -26,7 +26,7 @@ public class EventPayload implements Validable {
     // The uri of the player triggering it
     private String player;
 
-    // A timestamp when this event was given to the events service
+    // A timestamp when this event was given to the eventPayloadList service
     private String time;
 
     @Override

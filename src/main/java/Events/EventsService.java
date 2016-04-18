@@ -20,12 +20,12 @@ public class EventsService {
                     return;
                 }
 
-                response.header("Description", "An events manager for RESTopoly");
+                response.header("Description", "An eventPayloadList manager for RESTopoly");
                 response.type("application/json");
             }
         ));
 
-//        get("/events", (request, response) -> {
+//        get("/eventPayloadList", (request, response) -> {
 //
 //            String game = request.queryMap().get("game").value();
 //            String type = request.queryMap().get("type").value();
@@ -36,8 +36,8 @@ public class EventsService {
 //
 //        });
 
-        // Create a new events resource
-        post("/events", (request, response) -> {
+        // Create a new eventPayloadList resource
+        post("/eventPayloadList", (request, response) -> {
             try {
                 return eventsManager.createNewEvent(request.body());
             }

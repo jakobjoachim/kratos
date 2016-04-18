@@ -9,8 +9,10 @@ import java.util.List;
 
 class EventsManager {
 
+    List<EventPayload> eventPayloadList;
+
     EventsManager() {
-        
+        this.eventPayloadList = new ArrayList<>();
     }
 
     /**
@@ -24,11 +26,13 @@ class EventsManager {
         ObjectMapper objectMapper = new ObjectMapper();
         EventPayload event = objectMapper.readValue(payload, EventPayload.class);
 
+        this.eventPayloadList.add(event);
+
         if (!(event.isValid())) {
             throw new EventPayloadIsInvalidException();
         }
 
-        return event.toString(); //TODO
+        return Tools.Helper.dataToJson(event); //TODO
     }
 
 }
