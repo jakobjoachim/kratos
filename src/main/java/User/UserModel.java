@@ -2,11 +2,12 @@ package User;
 
 import Exceptions.UserAlreadyExistsException;
 import Exceptions.UserDoesNotExistException;
+import Tools.Helper;
 
 import java.util.*;
 
 public class UserModel {
-    private Map<String, User> userMap = new HashMap<>();
+    private static Map<String, User> userMap = new HashMap<>();
 
     public String createUser(String name, String uri) throws UserAlreadyExistsException {
         User user = new User();
@@ -24,14 +25,15 @@ public class UserModel {
         return userMap.keySet();
     }
 
-    public List<String> getUserInfo(String user) throws UserDoesNotExistException {
+    public String getUserInfo(String user) throws UserDoesNotExistException {
         String searching = "\"/users/" + user + "\"";
-        List<String> result = new ArrayList<>();
         if (userMap.keySet().contains(searching)) {
-            result.add(userMap.get(searching).getUri());
-            result.add(userMap.get(searching).getName());
-            result.add(searching);
-            return result;
+            UserInfoPayload result = new UserInfoPayload();
+            String id = "/users/" + user;
+            result.setId(id);
+            result.setName(userMap.get(searching).getName().toLowerCase());
+            result.setUri(userMap.get(searching).getUri());
+            return Helper.dataToJson(result);
         } else {
             throw new UserDoesNotExistException();
         }
@@ -39,5 +41,13 @@ public class UserModel {
     }
     public String editUser(String url, String name, String uri) {
         return null;
+    }
+
+    public static void deleteUser(String id) throws UserDoesNotExistException {
+        String searching = "\"/users/" + id + "\"";
+        if (!(userMap.containsKey(searching))) {
+            throw new UserDoesNotExistException();
+        }
+        userMap.remove(searching);
     }
 }
