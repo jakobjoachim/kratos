@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="kratos-user-service:jar">
+  <artifact type="jar" build-on-make="true" name="kratos-user-service:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/kratos_user_service_jar</output-path>
     <root id="archive" name="kratos.jar">
       <element id="directory" name="META-INF">
