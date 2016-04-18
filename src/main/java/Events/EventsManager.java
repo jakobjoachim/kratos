@@ -1,5 +1,6 @@
 package Events;
 
+import Exceptions.EventPayloadIsInvalidException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -18,12 +19,16 @@ class EventsManager {
      * @param payload JSON String payload
      * @return The created payload
      */
-    String createNewEvent(String payload) throws IOException {
+    String createNewEvent(String payload) throws IOException, EventPayloadIsInvalidException {
 
         ObjectMapper objectMapper = new ObjectMapper();
         EventPayload event = objectMapper.readValue(payload, EventPayload.class);
 
-        return "";
+        if (!(event.isValid())) {
+            throw new EventPayloadIsInvalidException();
+        }
+
+        return event.toString(); //TODO
     }
 
 }

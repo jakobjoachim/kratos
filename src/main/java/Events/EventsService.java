@@ -37,7 +37,14 @@ public class EventsService {
 //        });
 
         // Create a new events resource
-        post("/events", (request, response) -> eventsManager.createNewEvent(request.body()));
+        post("/events", (request, response) -> {
+            try {
+                return eventsManager.createNewEvent(request.body());
+            }
+            catch (Exception e) {
+            }
+            return "LMAO";
+        });
 
     }
 

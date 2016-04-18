@@ -31,6 +31,10 @@ public class EventPayload implements Validable {
 
     @Override
     public boolean isValid() {
+        if (this.id != null && this.name != null && this.game != null && this.type != null && this.reason != null) {
+            return true;
+        }
+
         return false;
     }
 }
