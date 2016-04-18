@@ -1,6 +1,12 @@
 package Events;
+import Exceptions.EventPayloadIsInvalidException;
+import com.google.gson.Gson;
+
+import javax.naming.directory.InvalidSearchFilterException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static spark.Spark.*;
 
@@ -20,31 +26,81 @@ public class EventsService {
                     return;
                 }
 
-                response.header("Description", "An eventPayloadList manager for RESTopoly");
+                response.header("Description", "An events manager for RESTopoly");
                 response.type("application/json");
             }
         ));
 
-//        get("/eventPayloadList", (request, response) -> {
-//
-//            String game = request.queryMap().get("game").value();
-//            String type = request.queryMap().get("type").value();
-//            String name = request.queryMap().get("name").value();
-//            String reason = request.queryMap().get("reason").value();
-//            String resource = request.queryMap().get("resource").value();
-//            String player = request.queryMap().get("player").value();
-//
-//        });
+        // get events based on search params
+        get("/events", (request, response) -> {
+
+            try {
+
+                Map<String, String> queryMap = new HashMap<>();
+
+                queryMap.put("game", request.queryMap().get("game").value());
+                queryMap.put("type", request.queryMap().get("type").value());
+                queryMap.put("name", request.queryMap().get("name").value());
+                queryMap.put("reason", request.queryMap().get("reason").value());
+                queryMap.put("resource", request.queryMap().get("resource").value());
+                queryMap.put("player", request.queryMap().get("player").value());
+
+                return new Gson().toJson(eventsManager.searchEvent(queryMap));
+
+            }
+            catch (Exception e ) {
+                if (e instanceof InvalidSearchFilterException) {
+                    response.status(HTTP_BAD_REQUEST);
+                }
+            }
+            return "";
+
+        });
+
+        delete("/events", ((request, response) -> {
+
+            try {
+
+                Map<String, String> queryMap = new HashMap<>();
+
+                queryMap.put("game", request.queryMap().get("game").value());
+                queryMap.put("type", request.queryMap().get("type").value());
+                queryMap.put("name", request.queryMap().get("name").value());
+                queryMap.put("reason", request.queryMap().get("reason").value());
+                queryMap.put("resource", request.queryMap().get("resource").value());
+                queryMap.put("player", request.queryMap().get("player").value());
+
+                eventsManager.deleteEvent(queryMap);
+
+            }
+            catch (Exception e ) {
+                if (e instanceof InvalidSearchFilterException) {
+                    response.status(HTTP_BAD_REQUEST);
+                    return "ERROR";
+                }
+            }
+
+            return "DELETED";
+
+        }));
 
         // Create a new eventPayloadList resource
-        post("/eventPayloadList", (request, response) -> {
+        post("/events", (request, response) -> {
             try {
                 return eventsManager.createNewEvent(request.body());
             }
             catch (Exception e) {
+                if (e instanceof EventPayloadIsInvalidException) {
+                    response.status(HTTP_BAD_REQUEST);
+                }
             }
-            return "LMAO";
+            return "";
         });
+
+//        get("/events/:eventid", ((request, response) -> {
+//
+//        }));
+
 
     }
 
