@@ -1,8 +1,10 @@
 package Events;
+import Exceptions.EventDoesNotExistException;
 import Exceptions.EventPayloadIsInvalidException;
 import com.google.gson.Gson;
 
 import javax.naming.directory.InvalidSearchFilterException;
+import java.beans.Expression;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,14 +23,14 @@ public class EventsService {
         before(((request, response) -> response.type("application/json")));
         before(((request, response) -> {
 
-                if (!request.contentType().equals("application/json")) {
-                    response.status(HTTP_BAD_REQUEST);
-                    return;
-                }
-
-                response.header("Description", "An events manager for RESTopoly");
-                response.type("application/json");
+            if (!request.contentType().equals("application/json")) {
+                response.status(HTTP_BAD_REQUEST);
+                return;
             }
+
+            response.header("Description", "An events manager for RESTopoly");
+            response.type("application/json");
+        }
         ));
 
         // get events based on search params
@@ -47,8 +49,7 @@ public class EventsService {
 
                 return new Gson().toJson(eventsManager.searchEvent(queryMap));
 
-            }
-            catch (Exception e ) {
+            } catch (Exception e) {
                 if (e instanceof InvalidSearchFilterException) {
                     response.status(HTTP_BAD_REQUEST);
                 }
@@ -72,8 +73,7 @@ public class EventsService {
 
                 eventsManager.deleteEvent(queryMap);
 
-            }
-            catch (Exception e ) {
+            } catch (Exception e) {
                 if (e instanceof InvalidSearchFilterException) {
                     response.status(HTTP_BAD_REQUEST);
                     return "ERROR";
@@ -88,8 +88,7 @@ public class EventsService {
         post("/events", (request, response) -> {
             try {
                 return eventsManager.createNewEvent(request.body());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 if (e instanceof EventPayloadIsInvalidException) {
                     response.status(HTTP_BAD_REQUEST);
                 }
@@ -97,9 +96,14 @@ public class EventsService {
             return "";
         });
 
-//        get("/events/:eventid", ((request, response) -> {
-//
-//        }));
+        get("/events/:eventid", (request, response) -> {
+            try {
+                return new Gson().toJson(eventsManager.searchID(request.params(":eventid")));
+            } catch (EventDoesNotExistException e) {
+                response.status(HTTP_BAD_REQUEST);
+            }
+            return "";
+        });
 
 
     }
