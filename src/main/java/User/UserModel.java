@@ -2,6 +2,7 @@ package User;
 
 import Exceptions.UserAlreadyExistsException;
 import Exceptions.UserDoesNotExistException;
+import Tools.Helper;
 
 import java.util.*;
 
@@ -32,7 +33,7 @@ public class UserModel {
             result.setId(id);
             result.setName(userMap.get(searching).getName().toLowerCase());
             result.setUri(userMap.get(searching).getUri());
-            return UserService.dataToJson(result);
+            return Helper.dataToJson(result);
         } else {
             throw new UserDoesNotExistException();
         }
