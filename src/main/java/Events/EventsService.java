@@ -1,6 +1,7 @@
 package Events;
 import Exceptions.EventDoesNotExistException;
 import Exceptions.EventPayloadIsInvalidException;
+import Tools.Helper;
 import com.google.gson.Gson;
 
 import javax.naming.directory.InvalidSearchFilterException;
@@ -47,7 +48,7 @@ public class EventsService {
                 queryMap.put("resource", request.queryMap().get("resource").value());
                 queryMap.put("player", request.queryMap().get("player").value());
 
-                return new Gson().toJson(eventsManager.searchEvent(queryMap));
+                return Tools.Helper.dataToJson(eventsManager.searchEvent(queryMap));
 
             } catch (Exception e) {
                 if (e instanceof InvalidSearchFilterException) {
