@@ -72,7 +72,7 @@ public class UserService {
                 return model.createUser(name, uri);
             }
             catch (UserAlreadyExistsException e) {
-                return model.editUser(uri, name, uri);
+                return model.editUser(url, name, uri);
             }
         });
 
