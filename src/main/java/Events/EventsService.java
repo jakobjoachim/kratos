@@ -99,7 +99,7 @@ public class EventsService {
 
         get("/events/:eventid", (request, response) -> {
             try {
-                return new Gson().toJson(eventsManager.searchID(request.params(":eventid")));
+                return Tools.Helper.dataToJson(eventsManager.searchID(request.params(":eventid")));
             } catch (EventDoesNotExistException e) {
                 response.status(HTTP_BAD_REQUEST);
             }
