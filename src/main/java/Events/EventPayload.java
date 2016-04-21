@@ -29,9 +29,10 @@ public class EventPayload implements Validable {
     // A timestamp when this event was given to the eventPayloadList service
     private String time;
 
+
     @Override
     public boolean isValid() {
-        if (this.id != null && this.name != null && this.game != null && this.type != null && this.reason != null) {
+        if (this.name != null && this.game != null && this.type != null && this.reason != null) {
             return true;
         }
 
