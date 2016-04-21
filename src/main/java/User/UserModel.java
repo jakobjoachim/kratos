@@ -39,8 +39,13 @@ public class UserModel {
         }
 
     }
-    public String editUser(String url, String name, String uri) {
-        return null;
+    public String editUser(String url, String name, String uri) throws UserDoesNotExistException {
+        String searching = "\"/users/" + url + "\"";
+        if (userMap.containsKey(searching)){
+            userMap.get(searching).setName(name);
+            userMap.get(searching).setUri(uri);
+        }
+        return getUserInfo(url);
     }
 
     public static void deleteUser(String id) throws UserDoesNotExistException {
