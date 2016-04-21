@@ -2,7 +2,6 @@ package Events;
 import Exceptions.EventDoesNotExistException;
 import Exceptions.EventPayloadIsInvalidException;
 import Tools.Helper;
-import com.google.gson.Gson;
 
 import javax.naming.directory.InvalidSearchFilterException;
 import java.beans.Expression;
