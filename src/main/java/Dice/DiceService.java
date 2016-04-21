@@ -13,7 +13,7 @@ public class DiceService {
     static final String reason = "dice roll occured";
     static final String type = "dice roll";
     static final String name = "dice roll";
-    static final String eventCreationUrl = "http://172.18.0.42:4567/events";
+    static final String eventCreationUrl = "http://172.18.0.49:4567/events";
 
 
 

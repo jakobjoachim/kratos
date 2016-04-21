@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.naming.directory.InvalidSearchFilterException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class EventsManager {
 
@@ -29,7 +26,8 @@ class EventsManager {
 
         ObjectMapper objectMapper = new ObjectMapper();
         EventPayload event = objectMapper.readValue(payload, EventPayload.class);
-        event.setId(event.getGame() + "/" + event.getType() + "/" + event.getPlayer());
+        event.setId("/events/" + Tools.RandomIDGenerator.nextId());
+
 
         this.eventPayloadList.add(event);
 
