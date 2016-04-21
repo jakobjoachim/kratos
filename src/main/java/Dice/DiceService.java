@@ -13,7 +13,7 @@ public class DiceService {
     static final String reason = "dice roll occured";
     static final String type = "dice roll";
     static final String name = "dice roll";
-    static final String eventCreationUrl = "https://172.18.0.42:4567/events";
+    static final String eventCreationUrl = "http://172.18.0.42:4567/events";
 
 
 
@@ -37,7 +37,8 @@ public class DiceService {
     }
 
 
-    public static void createEvent(String player, String game) throws Exception {
+    public static void createEvent(String player, String game) {
+
         try {
             System.out.println("Trying: create event");
             URL url = new URL(eventCreationUrl);
@@ -61,6 +62,8 @@ public class DiceService {
             out.write(Tools.Helper.dataToJson(send));
         }
         catch (Exception e) {
+
+            System.out.print(e.getMessage());
 
         }
 

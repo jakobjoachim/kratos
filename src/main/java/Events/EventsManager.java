@@ -37,7 +37,7 @@ class EventsManager {
             throw new EventPayloadIsInvalidException();
         }
 
-        return Tools.Helper.dataToJson(event); //TODO
+        return Tools.Helper.dataToJson(event);
     }
 
     ArrayList<EventPayload> searchEvent(Map<String, String> searchValues) throws InvalidSearchFilterException {
@@ -109,30 +109,21 @@ class EventsManager {
 
 
     EventPayload searchID(String searchedID) throws EventDoesNotExistException {
-
         EventPayload searchedEvent = null;
 
         if (searchedID.equals("")) {
-
         }
         for (EventPayload event : eventPayloadList) {
 
             if (event.getId().equals(searchedID)) {
-
                 searchedEvent = event;
-
             }
-
         }
-
         if (searchedEvent != null) {
             return searchedEvent;
         }
         else {
             throw new EventDoesNotExistException();
-
         }
-
-
     }
 }
