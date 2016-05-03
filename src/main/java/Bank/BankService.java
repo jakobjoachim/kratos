@@ -40,7 +40,7 @@ public class BankService {
 
         get("/banks/:gameid/players/:playerid", (request, response) -> {
             try {
-                return Tools.Helper.dataToJson(bankManager.getBankAccountBalance(request.params(":eventid"),request.params(":playerid")));
+                return Tools.Helper.dataToJson(bankManager.getBankAccountBalance(request.params(":gameid"),request.params(":playerid")));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
@@ -50,12 +50,25 @@ public class BankService {
         post("/banks/:gameid/transfer/to/:to/:amount", (request, response) -> {
 
             try {
-                return Tools.Helper.dataToJson(bankManager.bankToPlayerTransfer(request.params(":eventid"),request.params(":playerid"), request.params(":amount")));
+                return Tools.Helper.dataToJson(bankManager.bankToPlayerTransfer(request.params(":gameid"),request.params(":to"), request.params(":amount")));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
 
             return "";
+
+        });
+
+        post("/banks/:gameid/transfer/from/:from/:amount", (request, response) -> {
+
+            try {
+                return Tools.Helper.dataToJson(bankManager.playerToBankTransfer(request.params(":gameid"),request.params(":to"), request.params(":amount")));
+            } catch (Exception e) {
+                response.status(HTTP_BAD_REQUEST);
+            }
+
+            return "";
+
 
         });
 

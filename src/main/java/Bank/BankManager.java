@@ -30,7 +30,6 @@ public class BankManager {
     }
 
     String getBankAccountBalance(String gameID, String playerID) {
-
         for (BankAccount bankaccount : bankAccountlist) {
             if (bankaccount.getGameID().equals(gameID) && bankaccount.getUserID().equals(playerID)) {
                 return Tools.Helper.dataToJson(bankaccount.getBalance());
@@ -44,10 +43,19 @@ public class BankManager {
 
 
     String bankToPlayerTransfer(String gameID, String playerID, String amount) {
-
         for (BankAccount bankaccount:bankAccountlist) {
             if (bankaccount.getGameID().equals(gameID) && bankaccount.getUserID().equals(playerID)) {
                 bankaccount.setBalance(bankaccount.getBalance() + Integer.parseInt(amount));
+            }
+        }
+
+        return "";
+    }
+
+    String playerToBankTransfer(String gameID, String playerID, String amount) {
+        for (BankAccount bankaccount:bankAccountlist) {
+            if (bankaccount.getGameID().equals(gameID) && bankaccount.getUserID().equals(playerID)) {
+                bankaccount.setBalance(bankaccount.getBalance() - Integer.parseInt(amount));
             }
         }
 
