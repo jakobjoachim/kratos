@@ -2,6 +2,7 @@ package Bank;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static spark.Spark.before;
+import static spark.Spark.get;
 import static spark.Spark.post;
 
 public class BankService {
@@ -26,7 +27,7 @@ public class BankService {
 
         post("/banks/:gameid/players", (request, response) -> {
             try {
-          //      return Tools.Helper.dataToJson(bankManager.createNewBankAccount(request.params(":gameid")));
+                return Tools.Helper.dataToJson(bankManager.createNewBankAccount(request.params(":gameid")));
             } catch (Exception e) {
                 if (e instanceof Exception) {
                     response.status(HTTP_BAD_REQUEST);
@@ -34,6 +35,30 @@ public class BankService {
             }
             return "";
         });
+
+
+
+        get("/banks/:gameid/players/:playerid", (request, response) -> {
+            try {
+                return Tools.Helper.dataToJson(bankManager.getBankAccountBalance(request.params(":eventid"),request.params(":playerid")));
+            } catch (Exception e) {
+                response.status(HTTP_BAD_REQUEST);
+            }
+            return "";
+        });
+
+        post("/banks/:gameid/transfer/to/:to/:amount", (request, response) -> {
+
+            try {
+                return Tools.Helper.dataToJson(bankManager.bankToPlayerTransfer(request.params(":eventid"),request.params(":playerid"), request.params(":amount")));
+            } catch (Exception e) {
+                response.status(HTTP_BAD_REQUEST);
+            }
+
+            return "";
+
+        });
+
 
     }
 
