@@ -35,7 +35,7 @@ public class GameService {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
-                String createdUrl = model.createUser(creation.getName(), creation.getUri());
+                String createdUrl = model.createGame(creation.getName(), creation.getUri());
                 response.status(OK);
                 response.type("application/json");
                 return createdUrl;
