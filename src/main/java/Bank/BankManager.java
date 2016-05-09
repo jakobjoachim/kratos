@@ -62,4 +62,20 @@ public class BankManager {
         return "";
     }
 
+    String playerToPlayerTransfer(String gameID, String fromID, String toID, String amount) {
+        for (BankAccount bankaccount:bankAccountlist) {
+            if (bankaccount.getGameID().equals(gameID)) {
+                if (bankaccount.getUserID().equals(fromID)) {
+                    bankaccount.setBalance(bankaccount.getBalance() - Integer.parseInt(amount));
+                }
+                if (bankaccount.getUserID().equals(toID)) {
+                    bankaccount.setBalance(bankaccount.getBalance() + Integer.parseInt(amount));
+                }
+            }
+        }
+
+        return "";
+    }
+
+
 }

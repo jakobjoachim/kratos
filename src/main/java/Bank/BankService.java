@@ -18,26 +18,22 @@ public class BankService {
                 response.status(HTTP_BAD_REQUEST);
                 return;
             }
-
             response.header("Description", "An BankService for RESTopoly");
             response.type("application/json");
         }
         ));
 
-
+        //Neues Konto erstellen.
         post("/banks/:gameid/players", (request, response) -> {
             try {
                 return Tools.Helper.dataToJson(bankManager.createNewBankAccount(request.params(":gameid")));
             } catch (Exception e) {
-                if (e instanceof Exception) {
                     response.status(HTTP_BAD_REQUEST);
-                }
             }
             return "";
         });
 
-
-
+        //Kontostand abfragen
         get("/banks/:gameid/players/:playerid", (request, response) -> {
             try {
                 return Tools.Helper.dataToJson(bankManager.getBankAccountBalance(request.params(":gameid"),request.params(":playerid")));
@@ -47,6 +43,7 @@ public class BankService {
             return "";
         });
 
+        //Geld von Bank zum Spieler überweisen
         post("/banks/:gameid/transfer/to/:to/:amount", (request, response) -> {
 
             try {
@@ -54,11 +51,10 @@ public class BankService {
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
-
             return "";
-
         });
 
+        //Geld vom Spieler einziehen
         post("/banks/:gameid/transfer/from/:from/:amount", (request, response) -> {
 
             try {
@@ -66,10 +62,18 @@ public class BankService {
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
-
             return "";
+        });
 
+        //Geld vom Spieler zu Spieler überweisen
+        post("/banks/:gameid/transfer/from/:from/to/:to/:amount", (request, response) -> {
 
+            try {
+                return Tools.Helper.dataToJson(bankManager.playerToPlayerTransfer(request.params(":gameid"),request.params(":from"), request.params(":to"), request.params(":amount")));
+            } catch (Exception e) {
+                response.status(HTTP_BAD_REQUEST);
+            }
+            return "";
         });
 
 
