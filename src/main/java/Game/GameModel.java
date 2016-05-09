@@ -74,4 +74,23 @@ public class GameModel {
             throw new WrongDataTypeException();
         }
     }
+
+    public String getPlayers(String game) throws GameDoesNotExistException {
+        String searching = "\"/users/" + game + "\"";
+        if (gameMap.keySet().contains(searching)) {
+            return Helper.dataToJson(gameMap.get(searching).getPlayers());
+        } else {
+            throw new GameDoesNotExistException();
+        }
+    }
+
+    public String addUser(String name, boolean ready, String game) throws GameDoesNotExistException {
+        String searching = "\"/users/" + game + "\"";
+        if (gameMap.keySet().contains(searching)) {
+            gameMap.get(searching).getPlayers().put(name, ready);
+            return "";
+        } else {
+            throw new GameDoesNotExistException();
+        }
+    }
 }

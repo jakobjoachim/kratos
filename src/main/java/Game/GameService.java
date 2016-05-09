@@ -27,10 +27,10 @@ public class GameService {
         });
 
         post("/games", (request, response) -> {
-            try{
+            try {
                 ObjectMapper mapper = new ObjectMapper();
                 GamePayload creation = mapper.readValue(request.body(), GamePayload.class);
-                if (!(creation.isValid())){
+                if (!(creation.isValid())) {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
@@ -38,7 +38,7 @@ public class GameService {
                 response.status(OK);
                 response.type("application/json");
                 return createdUrl;
-            }catch(Exception e){
+            } catch (Exception e) {
                 if (e instanceof GameAlreadyExistsException) {
                     response.status(UNPROCESSABLE_ENTITY);
                 }
@@ -54,8 +54,7 @@ public class GameService {
             response.type("application/json");
             try {
                 return model.getGameInfo(request.params(":gameId"));
-            }
-            catch (GameDoesNotExistException e) {
+            } catch (GameDoesNotExistException e) {
                 response.status(RESOURCE_NOT_FOUND);
                 return "";
             }
@@ -66,8 +65,7 @@ public class GameService {
             response.type("application/json");
             try {
                 return model.getGameStatus(request.params(":gameId"));
-            }
-            catch (GameDoesNotExistException e) {
+            } catch (GameDoesNotExistException e) {
                 response.status(RESOURCE_NOT_FOUND);
                 return "";
             }
@@ -81,8 +79,7 @@ public class GameService {
             String status = request.queryMap().get("status").value();
             try {
                 return model.setStatus(game, status);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 if (e instanceof WrongDataTypeException) {
                     response.status(UNPROCESSABLE_ENTITY);
                 }
@@ -93,7 +90,28 @@ public class GameService {
             }
         });
 
-        
+        get("/games/:gameId/player", (request, response) -> {
+            response.status(OK);
+            response.type("application/json");
+            try {
+                return model.getPlayers(request.params(":gameId"));
+            } catch (GameDoesNotExistException e) {
+                response.status(RESOURCE_NOT_FOUND);
+                return "";
+            }
+        });
 
+        post("/games/:gameId/players", (request, response) -> {
+            ObjectMapper mapper = new ObjectMapper();
+            PlayerPayload creation = mapper.readValue(request.body(), PlayerPayload.class);
+            if (!(creation.isValid())) {
+                response.status(HTTP_BAD_REQUEST);
+                return "";
+            }
+            String result = model.addUser(creation.getName(), creation.isReady(), request.params(":gameId"));
+            response.status(OK);
+            response.type("application/json");
+            return ""; //TODO
+        });
     }
 }
