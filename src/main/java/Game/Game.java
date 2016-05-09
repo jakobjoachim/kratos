@@ -12,4 +12,5 @@ public class Game {
     private List<String> players;
     private Map<String, String> services;
     private List<String> components;
+    private String status;
 }

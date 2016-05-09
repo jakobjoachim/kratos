@@ -37,8 +37,8 @@ public class UserModel {
         } else {
             throw new UserDoesNotExistException();
         }
-
     }
+
     public String editUser(String url, String name, String uri) {
         return null;
     }
