@@ -17,6 +17,7 @@ public class BankManager {
     String createNewBankAccount(String gameID) throws InputMismatchException {
         //TODO: Request für playerID
 
+
         BankAccount bankAccount = new BankAccount();
         bankAccount.setId(gameID);
         bankAccount.setBalance(0);

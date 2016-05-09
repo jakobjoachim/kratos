@@ -18,13 +18,14 @@ public class BankService {
                 response.status(HTTP_BAD_REQUEST);
                 return;
             }
-            response.header("Description", "An BankService for RESTopoly");
+            response.header("Description", "A BankService for RESTopoly");
             response.type("application/json");
         }
         ));
 
         //Neues Konto erstellen.
         post("/banks/:gameid/players", (request, response) -> {
+
             try {
                 return Tools.Helper.dataToJson(bankManager.createNewBankAccount(request.params(":gameid")));
             } catch (Exception e) {
