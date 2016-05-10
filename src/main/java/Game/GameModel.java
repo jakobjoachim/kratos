@@ -62,6 +62,12 @@ public class GameModel {
             String searching = "\"/games/" + game + "\"";
             if (gameMap.keySet().contains(searching)) {
                 gameMap.get(searching).setStatus(status);
+                if (status.equals(GameStatus.running)) {
+                    Set<String> players = gameMap.get(searching).getPlayers().keySet();
+                    for (String player : players) {
+                        gameMap.get(searching).getPlayerQueue().add(player);
+                    }
+                }
                 return Helper.dataToJson(gameMap.get(searching).getStatus());
             } else {
                 throw new GameDoesNotExistException();
@@ -156,5 +162,42 @@ public class GameModel {
         } else {
             throw new GameDoesNotExistException();
         }
+    }
+
+    public String getCurrentPlayer(String game) throws GameDoesNotExistException {
+        String searchingGame = "\"/games/" + game + "\"";
+        if (gameMap.keySet().contains(searchingGame)) {
+            return Helper.dataToJson(gameMap.get(searchingGame).getPlayerQueue().peek());
+        } else {
+            throw new GameDoesNotExistException();
+        }
+    }
+
+    public String endTurn(String game) throws GameDoesNotExistException {
+        String searchingGame = "\"/games/" + game + "\"";
+        if (gameMap.keySet().contains(searchingGame)) {
+            String end = gameMap.get(searchingGame).getPlayerQueue().poll();
+            gameMap.get(searchingGame).getPlayerQueue().add(end);
+            return Helper.dataToJson(end);
+        } else {
+            throw new GameDoesNotExistException();
+        }
+    }
+
+    public String nextPlayer(String game, String player) throws Exception {
+        String searchingGame = "\"/games/" + game + "\"";
+        String searchingPlayer = "\"/players/" + player + "\"";
+        if (gameMap.keySet().contains(searchingGame)) {
+            if (gameMap.get(searchingGame).getPlayers().keySet().contains(searchingPlayer)) {
+                if (player.equals(gameMap.get(searchingGame).getPlayerQueue().peek())) {
+                    return "";
+                }
+            } else {
+                throw new UserDoesNotExistException();
+            }
+        } else {
+            throw new GameDoesNotExistException();
+        }
+        return "";
     }
 }
