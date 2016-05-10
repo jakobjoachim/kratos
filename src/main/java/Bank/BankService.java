@@ -1,5 +1,9 @@
 package Bank;
 
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static spark.Spark.before;
 import static spark.Spark.get;
@@ -23,7 +27,8 @@ public class BankService {
         }
         ));
 
-        //Neues Konto erstellen.
+        //Neue Konten erstellen.
+        //TODO: Request für PlayerIDs zum erstellen der Konten
         post("/banks/:gameid/players", (request, response) -> {
 
             try {
@@ -79,5 +84,4 @@ public class BankService {
 
 
     }
-
 }

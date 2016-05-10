@@ -14,20 +14,22 @@ public class BankManager {
         this.bankAccountlist = new ArrayList<>();
     }
 
-    String createNewBankAccount(String gameID) throws InputMismatchException {
-        //TODO: Request für playerID
+    String createNewBankAccount(String gameID, List<String> playerIDs) throws InputMismatchException {
 
+        for (String playerID: playerIDs) {
+            BankAccount bankAccount = new BankAccount();
+            bankAccount.setId(gameID);
+            bankAccount.setBalance(0);
+            bankAccount.setUserID(playerID);
 
-        BankAccount bankAccount = new BankAccount();
-        bankAccount.setId(gameID);
-        bankAccount.setBalance(0);
+            this.bankAccountlist.add(bankAccount);
 
-        this.bankAccountlist.add(bankAccount);
-
-        if (!(bankAccount.isValid())) {
-            throw new InputMismatchException();
+            if (!(bankAccount.isValid())) {
+                throw new InputMismatchException();
+            }
         }
-        return Tools.Helper.dataToJson(bankAccount);
+
+        return "";
     }
 
     String getBankAccountBalance(String gameID, String playerID) {
