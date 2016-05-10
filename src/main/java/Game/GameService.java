@@ -6,9 +6,7 @@ import Exceptions.WrongDataTypeException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static spark.Spark.get;
-import static spark.Spark.post;
-import static spark.Spark.put;
+import static spark.Spark.*;
 
 public class GameService {
 
@@ -111,7 +109,62 @@ public class GameService {
             String result = model.addUser(creation.getName(), creation.isReady(), request.params(":gameId"));
             response.status(OK);
             response.type("application/json");
-            return ""; //TODO
+            return result;
+        });
+
+        get("/games/:gameId/services", (request, response) -> {
+            response.status(OK);
+            response.type("application/json");
+            try {
+                return model.getServices(request.params(":gameId"));
+            } catch (GameDoesNotExistException e) {
+                response.status(RESOURCE_NOT_FOUND);
+                return "";
+            }
+        });
+
+        get("/games/:gameId/components", (request, response) -> {
+            response.status(OK);
+            response.type("application/json");
+            try {
+                return model.getComponents(request.params(":gameId"));
+            } catch (GameDoesNotExistException e) {
+                response.status(RESOURCE_NOT_FOUND);
+                return "";
+            }
+        });
+
+        delete("/games/:gameId/players/:playerId", (request, response) -> {
+            response.status(OK);
+            response.type("application/json");
+            try {
+                return model.removePlayer(request.params(":gameId"), request.params(":playerId"));
+            } catch (Exception e) {
+                response.status(RESOURCE_NOT_FOUND);
+                return "";
+            }
+        });
+
+        get("/games/:gameId/players/:playerId/ready", (request, response) -> {
+            response.status(OK);
+            response.type("application/json");
+            try {
+                return model.getPlayerReady(request.params(":gameId"), request.params(":playerId"));
+            } catch (Exception e) {
+                response.status(RESOURCE_NOT_FOUND);
+                return "";
+            }
+        });
+
+        post("/games/:gameId/players/:playerId/ready", (request, response) -> {
+            response.status(OK);
+            response.type("application/json");
+            try {
+                return model.putPlayerReady(request.params(":gameId"), request.params(":playerId"));
+            } catch (Exception e) {
+                response.status(RESOURCE_NOT_FOUND);
+                return "";
+            }
         });
     }
 }

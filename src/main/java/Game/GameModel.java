@@ -2,6 +2,7 @@ package Game;
 
 import Exceptions.GameAlreadyExistsException;
 import Exceptions.GameDoesNotExistException;
+import Exceptions.UserDoesNotExistException;
 import Exceptions.WrongDataTypeException;
 import Tools.Helper;
 
@@ -9,9 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by jakob on 09/05/16.
- */
 public class GameModel {
 
     private final String RUNNING = "running";
@@ -38,7 +36,7 @@ public class GameModel {
     }
 
     public String getGameInfo(String game) throws GameDoesNotExistException {
-        String searching = "\"/users/" + game + "\"";
+        String searching = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searching)) {
             Game result = new Game();
             String id = "/games/" + game;
@@ -53,7 +51,7 @@ public class GameModel {
     }
 
     public String getGameStatus(String game) throws GameDoesNotExistException {
-        String searching = "\"/users/" + game + "\"";
+        String searching = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searching)) {
             return Helper.dataToJson(gameMap.get(searching).getStatus());
         } else {
@@ -63,7 +61,7 @@ public class GameModel {
 
     public String setStatus(String game, String status) throws Exception {
         if ((status.equals(RUNNING))||(status.equals(FINISHED))) {
-            String searching = "\"/users/" + game + "\"";
+            String searching = "\"/games/" + game + "\"";
             if (gameMap.keySet().contains(searching)) {
                 gameMap.get(searching).setStatus(status);
                 return Helper.dataToJson(gameMap.get(searching).getStatus());
@@ -76,7 +74,7 @@ public class GameModel {
     }
 
     public String getPlayers(String game) throws GameDoesNotExistException {
-        String searching = "\"/users/" + game + "\"";
+        String searching = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searching)) {
             return Helper.dataToJson(gameMap.get(searching).getPlayers());
         } else {
@@ -85,10 +83,78 @@ public class GameModel {
     }
 
     public String addUser(String name, boolean ready, String game) throws GameDoesNotExistException {
-        String searching = "\"/users/" + game + "\"";
+        String searching = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searching)) {
             gameMap.get(searching).getPlayers().put(name, ready);
             return "";
+        } else {
+            throw new GameDoesNotExistException();
+        }
+    }
+
+    public String getServices(String game) throws GameDoesNotExistException {
+        String searching = "\"/users/" + game + "\"";
+        if (gameMap.keySet().contains(searching)) {
+            return Helper.dataToJson(gameMap.get(searching).getServices());
+        } else {
+            throw new GameDoesNotExistException();
+        }
+    }
+
+    public String getComponents(String game) throws GameDoesNotExistException {
+        String searching = "\"/users/" + game + "\"";
+        if (gameMap.keySet().contains(searching)) {
+            return Helper.dataToJson(gameMap.get(searching).getComponents());
+        } else {
+            throw new GameDoesNotExistException();
+        }
+    }
+
+    public String removePlayer(String game, String player) throws Exception {
+        String searchingGame = "\"/games/" + game + "\"";
+        if (gameMap.keySet().contains(searchingGame)) {
+            String searchingPlayer = "\"/users/" + player + "\"";
+            if (gameMap.get(searchingGame).getPlayers().containsKey(searchingPlayer)) {
+                gameMap.get(searchingGame).getPlayers().remove(searchingPlayer);
+                return Helper.dataToJson(searchingPlayer);
+            } else {
+                throw new UserDoesNotExistException();
+            }
+        } else {
+            throw new GameDoesNotExistException();
+        }
+    }
+
+    public String getPlayerReady(String game, String player) throws Exception {
+        String searchingGame = "\"/games/" + game + "\"";
+        if (gameMap.keySet().contains(searchingGame)) {
+            String searchingPlayer = "\"/users/" + player + "\"";
+            if (gameMap.get(searchingGame).getPlayers().containsKey(searchingPlayer)) {
+                return (gameMap.get(searchingGame).getPlayers().get(searchingPlayer).toString());
+            } else {
+                throw new UserDoesNotExistException();
+            }
+        } else {
+            throw new GameDoesNotExistException();
+        }
+    }
+
+    public String putPlayerReady(String game, String player) throws Exception {
+        String searchingGame = "\"/games/" + game + "\"";
+        if (gameMap.keySet().contains(searchingGame)) {
+            String searchingPlayer = "\"/users/" + player + "\"";
+            if (gameMap.get(searchingGame).getPlayers().containsKey(searchingPlayer)) {
+                if (gameMap.get(searchingGame).getPlayers().get(searchingPlayer).equals(true)) {
+                    gameMap.get(searchingGame).getPlayers().remove(searchingPlayer);
+                    gameMap.get(searchingGame).getPlayers().put(searchingPlayer, false);
+                } else {
+                    gameMap.get(searchingGame).getPlayers().remove(searchingPlayer);
+                    gameMap.get(searchingGame).getPlayers().put(searchingPlayer, true);
+                }
+                return Helper.dataToJson(searchingPlayer);
+            } else {
+                throw new UserDoesNotExistException();
+            }
         } else {
             throw new GameDoesNotExistException();
         }
