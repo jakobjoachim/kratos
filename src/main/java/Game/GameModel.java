@@ -23,6 +23,7 @@ public class GameModel {
         Game game = new Game();
         game.setName(name);
         game.setServices(services);
+        game.setStatus(GameStatus.registration);
         String url = ("\"/games/" + name + "\"").toLowerCase();
         if (gameMap.containsKey(url)) {
             throw new GameAlreadyExistsException();
@@ -56,7 +57,7 @@ public class GameModel {
         }
     }
 
-    public String setStatus(String game, String status) throws Exception {
+    public String setStatus(String game, GameStatus status) throws Exception {
         if ((status.equals(GameStatus.running))||(status.equals(GameStatus.finished))) {
             String searching = "\"/games/" + game + "\"";
             if (gameMap.keySet().contains(searching)) {

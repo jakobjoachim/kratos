@@ -1,5 +1,6 @@
 package Game;
 
+import Enums.GameStatus;
 import lombok.Data;
 
 import java.util.Map;
@@ -11,5 +12,5 @@ public class Game {
     private Map<String, Boolean> players;
     private Map<String, String> services;
     private Map<String, String> components;
-    private String status;
+    private GameStatus status;
 }
