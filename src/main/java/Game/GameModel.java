@@ -1,5 +1,6 @@
 package Game;
 
+import Enums.GameStatus;
 import Exceptions.GameAlreadyExistsException;
 import Exceptions.GameDoesNotExistException;
 import Exceptions.UserDoesNotExistException;
@@ -11,10 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class GameModel {
-
-    private final String RUNNING = "running";
-    private final String FINISHED = "finished";
-
 
     private static Map<String, Game> gameMap = new HashMap<>();
 
@@ -60,7 +57,7 @@ public class GameModel {
     }
 
     public String setStatus(String game, String status) throws Exception {
-        if ((status.equals(RUNNING))||(status.equals(FINISHED))) {
+        if ((status.equals(GameStatus.running))||(status.equals(GameStatus.finished))) {
             String searching = "\"/games/" + game + "\"";
             if (gameMap.keySet().contains(searching)) {
                 gameMap.get(searching).setStatus(status);
