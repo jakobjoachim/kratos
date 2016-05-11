@@ -1,6 +1,14 @@
 package Events;
+import Exceptions.EventDoesNotExistException;
+import Exceptions.EventPayloadIsInvalidException;
+import Tools.Helper;
+
+import javax.naming.directory.InvalidSearchFilterException;
+import java.beans.Expression;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static spark.Spark.*;
 
@@ -10,42 +18,93 @@ public class EventsService {
 
     public static void main(String[] args) {
 
-        List eventsList = new ArrayList<>();
-
-        eventsList.add("dice_rolled");
-        eventsList.add("rent");
-        eventsList.add("bank_transfer");
-        eventsList.add("go_to_jail");
-        eventsList.add("estate_transfer");
-
-        EventsManager eventsManager = new EventsManager(eventsList);
+        EventsManager eventsManager = new EventsManager();
 
         before(((request, response) -> response.type("application/json")));
         before(((request, response) -> {
 
-                if (!request.contentType().equals("application/json")) {
-                    response.status(HTTP_BAD_REQUEST);
-                    return;
-                }
-
-                response.header("Description", "An events manager for RESTopoly");
-                response.type("application/json");
+            if (!request.contentType().equals("application/json")) {
+                response.status(HTTP_BAD_REQUEST);
+                return;
             }
+
+            response.header("Description", "An events manager for RESTopoly");
+            response.type("application/json");
+        }
         ));
 
-//        get("/events", (request, response) -> {
-//
-//            String game = request.queryMap().get("game").value();
-//            String type = request.queryMap().get("type").value();
-//            String name = request.queryMap().get("name").value();
-//            String reason = request.queryMap().get("reason").value();
-//            String resource = request.queryMap().get("resource").value();
-//            String player = request.queryMap().get("player").value();
-//
-//        });
+        // get events based on search params
+        get("/events", (request, response) -> {
 
-        // Create a new events resource
-        post("/events", (request, response) -> eventsManager.createNewEvent(request.body()));
+            try {
+
+                Map<String, String> queryMap = new HashMap<>();
+
+                queryMap.put("game", request.queryMap().get("game").value());
+                queryMap.put("type", request.queryMap().get("type").value());
+                queryMap.put("name", request.queryMap().get("name").value());
+                queryMap.put("reason", request.queryMap().get("reason").value());
+                queryMap.put("resource", request.queryMap().get("resource").value());
+                queryMap.put("player", request.queryMap().get("player").value());
+
+                return Tools.Helper.dataToJson(eventsManager.searchEvent(queryMap));
+
+            } catch (Exception e) {
+                if (e instanceof InvalidSearchFilterException) {
+                    response.status(HTTP_BAD_REQUEST);
+                }
+            }
+            return "";
+
+        });
+
+        delete("/events", ((request, response) -> {
+
+            try {
+
+                Map<String, String> queryMap = new HashMap<>();
+
+                queryMap.put("game", request.queryMap().get("game").value());
+                queryMap.put("type", request.queryMap().get("type").value());
+                queryMap.put("name", request.queryMap().get("name").value());
+                queryMap.put("reason", request.queryMap().get("reason").value());
+                queryMap.put("resource", request.queryMap().get("resource").value());
+                queryMap.put("player", request.queryMap().get("player").value());
+
+                eventsManager.deleteEvent(queryMap);
+
+            } catch (Exception e) {
+                if (e instanceof InvalidSearchFilterException) {
+                    response.status(HTTP_BAD_REQUEST);
+                    return "ERROR";
+                }
+            }
+
+            return "DELETED";
+
+        }));
+
+        // Create a new eventPayloadList resource
+        post("/events", (request, response) -> {
+            try {
+                return eventsManager.createNewEvent(request.body());
+            } catch (Exception e) {
+                if (e instanceof EventPayloadIsInvalidException) {
+                    response.status(HTTP_BAD_REQUEST);
+                }
+            }
+            return "";
+        });
+
+        get("/events/:eventid", (request, response) -> {
+            try {
+                return Tools.Helper.dataToJson(eventsManager.searchID(request.params(":eventid")));
+            } catch (EventDoesNotExistException e) {
+                response.status(HTTP_BAD_REQUEST);
+            }
+            return "";
+        });
+
 
     }
 

@@ -17,18 +17,6 @@ public class UserService {
     private static final int RESOURCE_NOT_FOUND = 404;
     private static final int OK = 200;
 
-    public static String dataToJson(Object data){
-        try{
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-            StringWriter sw = new StringWriter();
-            mapper.writeValue(sw,data);
-            return sw.toString();
-        }catch(IOException e){
-            throw new RuntimeException("IOException from a StringWriter??");
-        }
-    }
-
     public static void main(String[] args){
         UserModel model = new UserModel();
 
@@ -54,6 +42,8 @@ public class UserService {
                 return "";
             }
         });
+
+        //TODO: exception(UserAlreadyExistsException.class, );
 
         get("/users", (request, response) -> {
             response.status(OK);
@@ -84,8 +74,22 @@ public class UserService {
                 return model.createUser(name, uri);
             }
             catch (UserAlreadyExistsException e) {
-                return model.editUser(uri, name, uri);
+                return model.editUser(url, name, uri);
             }
+        });
+
+        delete("/users/:userId", (request, response) -> {
+            response.status(OK);
+            response.type("application/json");
+
+            String id = request.params(":userId");
+            try {
+                UserModel.deleteUser(id);
+            } catch (UserDoesNotExistException e) {
+                response.status(RESOURCE_NOT_FOUND);
+                return "";
+            }
+            return "{ \"status\": \"success\" }";
         });
     }
 }
