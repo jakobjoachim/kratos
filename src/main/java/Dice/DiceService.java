@@ -7,6 +7,7 @@ import Yellow.YellowService;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
+import org.json.JSONObject;
 
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -17,6 +18,7 @@ import static spark.Spark.*;
 public class DiceService {
 
     public static void main(String[] args) {
+
         before((request, response) -> response.type("application/json"));
         before((request, response) -> response.header("Desciption", "Gives you a single dice roll"));
         get("/dice", (request, response) -> {
@@ -24,7 +26,6 @@ public class DiceService {
 
             return randomDice();
         });
-
 
     }
 
@@ -40,14 +41,14 @@ public class DiceService {
         String eventCreationUrl = YellowService.getServiceUrlForType(ServiceType.EVENTS);
         System.out.println(eventCreationUrl);
 
+        DicePayload dicePayload = new DicePayload();
+        dicePayload.setGame(game);
+        dicePayload.setPlayer(player);
+
         try {
             Unirest.post(eventCreationUrl)
-                    .header("accept", "application/json")
-                    .field("player", player)
-                    .field("game", game)
-                    .field("reason", "dice roll occured")
-                    .field("type", "dice_roll")
-                    .field("name", "Dice Roll")
+                    .header("Content-Type", "application/json")
+                    .body(Helper.dataToJson(dicePayload))
                     .asJson();
 
         } catch (Exception e) {

@@ -14,13 +14,15 @@ public class YellowService {
 
     public static String getServiceUrlForType(ServiceType type) {
 
+        String result = "";
+
         switch (type) {
 
             case EVENTS:
                 String eventTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSEventsService";
 
                 try {
-                    getServiceUrl(eventTypeServiceURL);
+                    result = getServiceUrl(eventTypeServiceURL);
                 } catch (UnirestException e) {
                     e.printStackTrace();
                 }
@@ -31,7 +33,7 @@ public class YellowService {
                 String diceTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSDiceService";
 
                 try {
-                    getServiceUrl(diceTypeServiceURL);
+                    result = getServiceUrl(diceTypeServiceURL);
                 } catch (UnirestException e) {
                     e.printStackTrace();
                 }
@@ -41,7 +43,7 @@ public class YellowService {
                 String gameTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSGameService";
 
                 try {
-                    getServiceUrl(gameTypeServiceURL);
+                    result = getServiceUrl(gameTypeServiceURL);
                 } catch (UnirestException e) {
                     e.printStackTrace();
                 }
@@ -51,7 +53,7 @@ public class YellowService {
                 String boardTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSBoardService";
 
                 try {
-                    getServiceUrl(boardTypeServiceURL);
+                    result = getServiceUrl(boardTypeServiceURL);
                 } catch (UnirestException e) {
                     e.printStackTrace();
                 }
@@ -61,7 +63,7 @@ public class YellowService {
                 String userTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSUserService";
 
                 try {
-                    getServiceUrl(userTypeServiceURL);
+                    result = getServiceUrl(userTypeServiceURL);
                 } catch (UnirestException e) {
                     e.printStackTrace();
                 }
@@ -71,7 +73,7 @@ public class YellowService {
             default: break;
         }
 
-        return "";
+        return result;
     }
 
     private static String getServiceUrl(String url) throws UnirestException {
