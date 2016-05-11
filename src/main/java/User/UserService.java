@@ -43,6 +43,8 @@ public class UserService {
             }
         });
 
+        //TODO: exception(UserAlreadyExistsException.class, );
+
         get("/users", (request, response) -> {
             response.status(OK);
             response.type("application/json");

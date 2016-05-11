@@ -23,7 +23,7 @@ public class DiceService {
         before((request, response) -> response.header("Desciption", "Gives you a single dice roll"));
         get("/dice", (request, response) -> {
             createEvent(request.queryMap().get("player").value(), request.queryMap().get("game").value());
-
+            //TODO: without queryParams
             return randomDice();
         });
 
