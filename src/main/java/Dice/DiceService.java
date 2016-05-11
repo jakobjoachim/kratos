@@ -1,6 +1,10 @@
 package Dice;
 
 import Events.EventPayload;
+import Tools.Helper;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
 
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -10,10 +14,8 @@ import static spark.Spark.*;
 
 public class DiceService {
 
-    static final String reason = "dice roll occured";
-    static final String type = "dice roll";
-    static final String name = "dice roll";
-    static final String eventCreationUrl = "http://172.18.0.49:4567/events";
+
+    static final String eventCreationUrl = "http://172.18.0.44:4567/events";
 
 
 
@@ -38,28 +40,14 @@ public class DiceService {
 
 
     public static void createEvent(String player, String game) {
-
+        DicePayload payload = new DicePayload();
+        payload.setPlayer(player);
+        payload.setGame(game);
         try {
-            System.out.println("Trying: create event");
-            URL url = new URL(eventCreationUrl);
-            System.out.println("Done: create URL");
-            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-            httpCon.setDoOutput(true);
-            System.out.println("Done: openConnection");
-            httpCon.setRequestMethod("POST");
-            System.out.println("Done: setRequestmethod");
-            OutputStreamWriter out = new OutputStreamWriter(httpCon.getOutputStream()); //TODO
-            System.out.println("Done: new Outputstream");
-            EventPayload send = new EventPayload();
-            System.out.println("Done: OutputStream created");
-            send.setPlayer(player);
-            send.setGame(game);
-            send.setType(type);
-            send.setName(name);
-            send.setReason(reason);
-            String ukuku = Tools.Helper.dataToJson(send);
-            System.out.print(ukuku);
-            out.write(Tools.Helper.dataToJson(send));
+            HttpResponse<JsonNode> jsonResponse = Unirest.post(eventCreationUrl)
+                    .header("accept", "application/json")
+                    .body(Helper.dataToJson(payload))
+                    .asJson();
         }
         catch (Exception e) {
 
