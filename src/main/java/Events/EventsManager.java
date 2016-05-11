@@ -69,6 +69,8 @@ class EventsManager {
                 matching.remove(i);
             }
 
+            // TODO add all matching instead of removing
+
         }
 
         return matching;
