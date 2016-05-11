@@ -38,7 +38,7 @@ public class UserModel {
             throw new UserDoesNotExistException();
         }
     }
-    
+
     public String editUser(String url, String name, String uri) throws UserDoesNotExistException {
         String searching = "\"/users/" + url + "\"";
         if (userMap.containsKey(searching)){
