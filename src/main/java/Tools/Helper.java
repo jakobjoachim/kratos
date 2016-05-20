@@ -5,8 +5,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 
 public class Helper {
+    private static SecureRandom random = new SecureRandom();
 
     public static String dataToJson(Object data){
         try{
@@ -19,4 +22,9 @@ public class Helper {
             throw new RuntimeException("IOException from a StringWriter??");
         }
     }
+
+    public static String nextId() {
+        return new BigInteger(130, random).toString(32);
+    }
 }
+

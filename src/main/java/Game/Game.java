@@ -1,6 +1,7 @@
 package Game;
 
 import Enums.GameStatus;
+import Tools.Mutex;
 import lombok.Data;
 
 import java.util.Map;
@@ -15,4 +16,5 @@ public class Game {
     private Map<String, String> components;
     private GameStatus status;
     private Queue<String> playerQueue;
+    private Mutex playerMutex;
 }

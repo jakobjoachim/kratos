@@ -180,7 +180,7 @@ public class GameService {
             response.status(OK);
             response.type("application/json");
             try {
-                return model.getCurrentPlayer(request.params(":gameId"));
+                return model.getTurnHolder(request.params(":gameId"));
             } catch (Exception e) {
                 response.status(RESOURCE_NOT_FOUND);
                 return "";
@@ -203,7 +203,13 @@ public class GameService {
             response.type("application/json");
             try {
                 String id = request.queryMap().get("id").value();
-                return model.nextPlayer(request.params(":gameId"), id);
+                int status = model.putTurn(request.params(":gameId"), id);
+                response.status(status);
+                if (status == 200) return "already holding the mutex";
+                if (status == 201) return "aquired the mutex";
+                if (status == 409) return "already aquired by an other player";
+                return "";
+
             } catch (Exception e) {
                 response.status(RESOURCE_NOT_FOUND);
                 return "";

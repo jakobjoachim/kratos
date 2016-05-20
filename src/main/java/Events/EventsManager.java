@@ -10,9 +10,9 @@ import java.util.*;
 
 class EventsManager {
 
-    List<EventPayload> eventPayloadList;
+    private List<EventPayload> eventPayloadList;
 
-    EventsManager() {
+    private EventsManager() {
         this.eventPayloadList = new ArrayList<>();
     }
 
@@ -26,7 +26,7 @@ class EventsManager {
 
         ObjectMapper objectMapper = new ObjectMapper();
         EventPayload event = objectMapper.readValue(payload, EventPayload.class);
-        event.setId("/events/" + Tools.RandomIDGenerator.nextId());
+        event.setId("/events/" + Tools.Helper.nextId());
 
 
         this.eventPayloadList.add(event);

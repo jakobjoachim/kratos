@@ -6,6 +6,7 @@ import Exceptions.GameDoesNotExistException;
 import Exceptions.UserDoesNotExistException;
 import Exceptions.WrongDataTypeException;
 import Tools.Helper;
+import Tools.Mutex;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -173,24 +174,54 @@ public class GameModel {
         }
     }
 
-    public String endTurn(String game) throws GameDoesNotExistException {
+    public String getTurnHolder(String game) throws GameDoesNotExistException {
         String searchingGame = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searchingGame)) {
-            String end = gameMap.get(searchingGame).getPlayerQueue().poll();
-            gameMap.get(searchingGame).getPlayerQueue().add(end);
-            return Helper.dataToJson(end);
+            String holder = gameMap.get(searchingGame).getPlayerMutex().getLockHolder();
+            if (holder == null){
+                return Helper.dataToJson("No one holding the turn, "+ gameMap.get(searchingGame).getPlayerQueue().peek() + "should take the turn");
+            } else {
+                return holder;
+            }
         } else {
             throw new GameDoesNotExistException();
         }
     }
 
-    public String nextPlayer(String game, String player) throws Exception {
+    public String endTurn(String game) throws GameDoesNotExistException {
+        String searchingGame = "\"/games/" + game + "\"";
+        if (gameMap.keySet().contains(searchingGame)) {
+            Mutex playerMutex = gameMap.get(searchingGame).getPlayerMutex();
+            if (playerMutex.getLockHolder().equals(gameMap.get(searchingGame).getPlayerQueue().peek())) {
+                playerMutex.unlock();
+                String toAdd = gameMap.get(searchingGame).getPlayerQueue().poll();
+                gameMap.get(searchingGame).getPlayerQueue().add(toAdd);
+            } else {
+                String returnMessage = playerMutex.getLockHolder() + "stole the turn! Mutex unlocked now";
+                playerMutex.unlock();
+                return returnMessage;
+            }
+            return "";
+        } else {
+            throw new GameDoesNotExistException();
+        }
+    }
+
+    public int putTurn(String game, String player) throws Exception {
         String searchingGame = "\"/games/" + game + "\"";
         String searchingPlayer = "\"/players/" + player + "\"";
         if (gameMap.keySet().contains(searchingGame)) {
             if (gameMap.get(searchingGame).getPlayers().keySet().contains(searchingPlayer)) {
-                if (player.equals(gameMap.get(searchingGame).getPlayerQueue().peek())) {
-                    return "";
+                Mutex playerMutex = gameMap.get(searchingGame).getPlayerMutex();
+                if (playerMutex.getLockHolder()==null) {
+                    playerMutex.lock(searchingPlayer);
+                    return 201;
+                } else {
+                    if (playerMutex.getLockHolder().equals(searchingPlayer)) {
+                        return 200;
+                    } else {
+                        return 409;
+                    }
                 }
             } else {
                 throw new UserDoesNotExistException();
@@ -198,6 +229,5 @@ public class GameModel {
         } else {
             throw new GameDoesNotExistException();
         }
-        return "";
     }
 }
