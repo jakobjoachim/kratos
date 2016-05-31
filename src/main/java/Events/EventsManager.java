@@ -12,7 +12,7 @@ class EventsManager {
 
     private List<EventPayload> eventPayloadList;
 
-    private EventsManager() {
+    protected EventsManager() {
         this.eventPayloadList = new ArrayList<>();
     }
 
