@@ -156,7 +156,7 @@ public class BankService {
         //Liste aller Konten
         get("/banks/:bankid/accounts", (request, response) -> {
             try {
-                return Tools.Helper.dataToJson(bankManager.getAllAccounts(request.params(":bankid")));
+                return bankManager.getAllAccounts(request.params(":bankid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }

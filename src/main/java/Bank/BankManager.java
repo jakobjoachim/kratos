@@ -62,23 +62,30 @@ public class BankManager {
     }
 
     //Transfer von einem zum anderen Spieler
-    String playerToPlayerTransfer(String bankId, String fromId, String toId, String amount, String searchingTransaction) throws BankDoesNotExistException {
+    String playerToPlayerTransfer(String bankId, String fromId, String toId, String amount, String searchingTransaction) throws Exception {
         String searching = ("\"/banks/" + bankId + "\"");
         Transfer transfer = new Transfer();
         transfer.setAmount(Integer.parseInt(amount));
         if (bankMap.containsKey(searching)) {
-            for (BankAccount bankaccount: bankMap.get(searching).getAccounts()) {
-                if (bankaccount.getPlayerId().equals(fromId)) {
-                    transfer.setFrom(fromId);
-                    transfer.setAmount(Integer.parseInt(amount));
-                    bankaccount.setBalance(bankaccount.getBalance() + Integer.parseInt(amount));
-                    transfer.setFrom(fromId);
+            for (Map.Entry<String, BankAccount> entry: bankMap.get(searching).getAccounts().entrySet()) {
+                if (entry.getValue().getPlayerId().equals(fromId)) {
+                    String fromAccount = entry.getKey();
+                    transfer.setFrom(fromAccount);
+                } else {
+                    throw new BankAccountDoesNotExistException();
                 }
-                if (bankaccount.getPlayerId().equals(toId)) {
-                    bankaccount.setBalance(bankaccount.getBalance() + Integer.parseInt(amount));
-                    transfer.setTo(toId);
+                if (entry.getValue().getPlayerId().equals(toId)) {
+                    String toAccount = entry.getKey();
+                    transfer.setTo(toAccount);
+                } else {
+                    throw new BankAccountDoesNotExistException();
                 }
             }
+            bankMap.get(searching).getTransactionMap().get(searchingTransaction).setTransferInTransaction(transfer);
+            int oldBalanceFrom = bankMap.get(searching).getAccounts().get(transfer.getFrom()).getBalance();
+            bankMap.get(searching).getAccounts().get(transfer.getFrom()).setBalance(oldBalanceFrom - Integer.parseInt(amount));
+            int oldBalanceTo = bankMap.get(searching).getAccounts().get(transfer.getTo()).getBalance();
+            bankMap.get(searching).getAccounts().get(transfer.getTo()).setBalance(oldBalanceTo + Integer.parseInt(amount));
             bankMap.get(searching).getTransfers().add(transfer);
         } else {
             throw new BankDoesNotExistException();
@@ -91,13 +98,14 @@ public class BankManager {
         String searching = ("\"/banks/" + bankId + "\"");
         Transfer transfer = new Transfer();
         if (bankMap.containsKey(searching)) {
-            for (BankAccount bankaccount: bankMap.get(searching).getAccounts()) {
-                if (bankaccount.getPlayerId().equals(playerId)) {
+            for (Map.Entry<String, BankAccount> entry: bankMap.get(searching).getAccounts().entrySet()) {
+                if (entry.getValue().getPlayerId().equals(playerId)) {
+                    String toAccount = entry.getKey();
                     transfer.setFrom(searching);
-                    transfer.setTo(playerId);
+                    transfer.setTo(toAccount);
                     transfer.setAmount(Integer.parseInt(amount));
                     bankMap.get(searching).getTransactionMap().get(searchingTransaction).setTransferInTransaction(transfer);
-                    bankaccount.setBalance(bankaccount.getBalance() + Integer.parseInt(amount));
+                    entry.getValue().setBalance(entry.getValue().getBalance() + Integer.parseInt(amount));
                     bankMap.get(searching).getTransfers().add(transfer);
                 }
             }
@@ -112,13 +120,15 @@ public class BankManager {
         String searching = ("\"/banks/" + bankId + "\"");
         Transfer transfer = new Transfer();
         if (bankMap.containsKey(searching)) {
-            for (BankAccount bankaccount: bankMap.get(searching).getAccounts()) {
-                if (bankaccount.getPlayerId().equals(playerId)) {
-                    transfer.setFrom(playerId);
+            for (Map.Entry<String,BankAccount> entry: bankMap.get(searching).getAccounts().entrySet()) {
+                if (entry.getValue().getPlayerId().equals(playerId)) {
+                    String fromAccount = entry.getKey();
+
+                    transfer.setFrom(fromAccount);
                     transfer.setTo(searching);
                     transfer.setAmount(Integer.parseInt(amount));
                     bankMap.get(searching).getTransactionMap().get(searchingTransaction).setTransferInTransaction(transfer);
-                    bankaccount.setBalance(bankaccount.getBalance() - Integer.parseInt(amount));
+                    entry.getValue().setBalance(entry.getValue().getBalance() - Integer.parseInt(amount));
                     bankMap.get(searching).getTransfers().add(transfer);
                 }
             }
@@ -191,10 +201,10 @@ public class BankManager {
     }
 
     //Gibt alle Konten wieder
-    List<BankAccount> getAllAccounts(String bankId) throws BankDoesNotExistException{
+    String getAllAccounts(String bankId) throws BankDoesNotExistException{
         String searching = ("\"/banks/" + bankId + "\"");
         if (bankMap.containsKey(searching)) {
-            return bankMap.get(searching).getAccounts();
+            return Tools.Helper.dataToJson(bankMap.get(searching).getAccounts());
         } else {
             throw new BankDoesNotExistException();
         }
@@ -207,7 +217,10 @@ public class BankManager {
             BankAccount bankAccount = new BankAccount();
             bankAccount.setBalance(Integer.parseInt(accountinfo.get("saldo")));
             bankAccount.setPlayerId(accountinfo.get("player"));
-            bankAccount.setId(Tools.Helper.nextId());
+            String id = Tools.Helper.nextId();
+            String accountUri = ("\"/accounts/" + id + "\"");
+            bankAccount.setId(id);
+            bankMap.get(searching).getAccounts().put(accountUri,bankAccount);
         } else {
             throw new BankDoesNotExistException();
         }
@@ -217,11 +230,10 @@ public class BankManager {
     //Gibt das Saldo einen Kontos wieder
     String getBankAccountBalance(String bankId, String accountId) throws BankDoesNotExistException {
         String searching = ("\"/banks/" + bankId + "\"");
+        String accountUri = ("\"/accounts/" + accountId + "\"");
         if (bankMap.containsKey(searching)) {
-            for (BankAccount bankaccount : bankMap.get(searching).getAccounts()) {
-                if (bankaccount.getId().equals(accountId)) {
-                    return Tools.Helper.dataToJson(bankaccount.getBalance());
-                }
+            if (bankMap.get(searching).getAccounts().containsKey(accountUri)) {
+               return Tools.Helper.dataToJson(bankMap.get(searching).getAccounts().get(accountUri).getBalance());
             }
         } else {
             throw new BankDoesNotExistException();
