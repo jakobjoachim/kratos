@@ -22,6 +22,11 @@ public class BankManager {
         return bankMap.keySet();
     }
 
+    Transaction getTransaction(String bankId, String transactionId) {
+        String url = ("\"/banks/" + bankId + "\"");
+        return bankMap.get(url).getTransactionMap().get(transactionId);
+    }
+
     //Erstellt eine neue Bank
     String createNewBank(String bankId) throws BankAlreadyExistsException {
         Bank bank = new Bank();
@@ -64,31 +69,35 @@ public class BankManager {
     //Transfer von einem zum anderen Spieler
     String playerToPlayerTransfer(String bankId, String fromId, String toId, String amount, String searchingTransaction) throws Exception {
         String searching = ("\"/banks/" + bankId + "\"");
-        Transfer transfer = new Transfer();
-        transfer.setAmount(Integer.parseInt(amount));
-        if (bankMap.containsKey(searching)) {
-            for (Map.Entry<String, BankAccount> entry: bankMap.get(searching).getAccounts().entrySet()) {
-                if (entry.getValue().getPlayerId().equals(fromId)) {
-                    String fromAccount = entry.getKey();
-                    transfer.setFrom(fromAccount);
-                } else {
-                    throw new BankAccountDoesNotExistException();
+        if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
+            int money = Integer.parseInt(amount);
+            Transfer transfer = new Transfer();
+            transfer.setAmount(money);
+            if (bankMap.containsKey(searching)) {
+                for (Map.Entry<String, BankAccount> entry: bankMap.get(searching).getAccounts().entrySet()) {
+                    if (entry.getValue().getPlayerId().equals(fromId)) {
+                        String fromAccount = entry.getKey();
+                        transfer.setFrom(fromAccount);
+                    } else {
+                        throw new BankAccountDoesNotExistException();
+                    }
+                    if (entry.getValue().getPlayerId().equals(toId)) {
+                        String toAccount = entry.getKey();
+                        transfer.setTo(toAccount);
+                    } else {
+                        throw new BankAccountDoesNotExistException();
+                    }
                 }
-                if (entry.getValue().getPlayerId().equals(toId)) {
-                    String toAccount = entry.getKey();
-                    transfer.setTo(toAccount);
-                } else {
-                    throw new BankAccountDoesNotExistException();
-                }
+                getTransaction(searching,searchingTransaction).getTransferInTransaction().add(transfer);
+                bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
+                bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
+                bankMap.get(searching).getTransfers().add(transfer);
+            } else {
+                throw new BankDoesNotExistException();
             }
-            bankMap.get(searching).getTransactionMap().get(searchingTransaction).setTransferInTransaction(transfer);
-            int oldBalanceFrom = bankMap.get(searching).getAccounts().get(transfer.getFrom()).getBalance();
-            bankMap.get(searching).getAccounts().get(transfer.getFrom()).setBalance(oldBalanceFrom - Integer.parseInt(amount));
-            int oldBalanceTo = bankMap.get(searching).getAccounts().get(transfer.getTo()).getBalance();
-            bankMap.get(searching).getAccounts().get(transfer.getTo()).setBalance(oldBalanceTo + Integer.parseInt(amount));
-            bankMap.get(searching).getTransfers().add(transfer);
+
         } else {
-            throw new BankDoesNotExistException();
+            
         }
         return "";
     }
@@ -104,7 +113,7 @@ public class BankManager {
                     transfer.setFrom(searching);
                     transfer.setTo(toAccount);
                     transfer.setAmount(Integer.parseInt(amount));
-                    bankMap.get(searching).getTransactionMap().get(searchingTransaction).setTransferInTransaction(transfer);
+                    getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
                     entry.getValue().setBalance(entry.getValue().getBalance() + Integer.parseInt(amount));
                     bankMap.get(searching).getTransfers().add(transfer);
                 }
@@ -127,7 +136,7 @@ public class BankManager {
                     transfer.setFrom(fromAccount);
                     transfer.setTo(searching);
                     transfer.setAmount(Integer.parseInt(amount));
-                    bankMap.get(searching).getTransactionMap().get(searchingTransaction).setTransferInTransaction(transfer);
+                    bankMap.get(searching).getTransactionMap().get(searchingTransaction).getTransferInTransaction().add(transfer);
                     entry.getValue().setBalance(entry.getValue().getBalance() - Integer.parseInt(amount));
                     bankMap.get(searching).getTransfers().add(transfer);
                 }

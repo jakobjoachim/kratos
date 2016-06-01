@@ -21,4 +21,12 @@ public class BankAccount implements Validable {
     public boolean isValid() {
         return  (this.id != null && this.balance >= 0 && playerId != null);
     }
+
+    public void addMoney(int amount) {
+        this.balance += amount;
+    }
+
+    public void subMoney(int amount) {
+        this.balance -= amount;
+    }
 }
