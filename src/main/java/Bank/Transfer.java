@@ -9,5 +9,4 @@ public class Transfer {
     private String to;
     private int amount;
     private String reason;
-    private boolean transactionStatus;
 }

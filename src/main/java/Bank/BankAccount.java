@@ -15,10 +15,10 @@ public class BankAccount implements Validable {
     private int balance;
 
     // the player ID for this bank account
-    private String userId;
+    private String playerId;
 
     @Override
     public boolean isValid() {
-        return  (this.id != null && this.balance >= 0 && userId != null);
+        return  (this.id != null && this.balance >= 0 && playerId != null);
     }
 }

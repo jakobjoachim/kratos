@@ -1,5 +1,8 @@
 package Bank;
 
+import Enums.TransactionPhase;
+import Enums.TransactionStatus;
+
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -65,56 +68,8 @@ public class BankService {
             return "";
         });
 
-
-
-//        //Neue Konten erstellen.
-//        //TODO: Request für PlayerIDs zum erstellen der Konten
-//        post("/banks/:bankid/:gameid/players", (request, response) -> {
-//            try {
-//              return Tools.Helper.dataToJson(bankManager.createNewBankAccounts(request.params(":bankid"), request.params(":gameid")));
-//            } catch (Exception e) {
-//                    response.status(HTTP_BAD_REQUEST);
-//            }
-//            return "";
-//        });
-
-        //Kontostand abfragen
-        get("/banks/:bankid/:gameid/players/:playerid", (request, response) -> {
-            try {
-                return Tools.Helper.dataToJson(bankManager.getBankAccountBalance(request.params(":bankid"),request.params(":gameid"),request.params(":playerid")));
-            } catch (Exception e) {
-                response.status(HTTP_BAD_REQUEST);
-            }
-            return "";
-        });
-
-        //Geld von Bank zum Spieler überweisen
-        post("/banks/:bankid/transfer/to/:to/:amount", (request, response) -> {
-
-            try {
-                String transaction = request.queryMap().get("transaction").value();
-                return Tools.Helper.dataToJson(bankManager.bankToPlayerTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount")));
-            } catch (Exception e) {
-                response.status(HTTP_BAD_REQUEST);
-            }
-            return "";
-        });
-
-        //Geld vom Spieler einziehen
-        post("/banks/:bankid/transfer/from/:from/:amount", (request, response) -> {
-
-            try {
-                String transaction = request.queryMap().get("transaction").value();
-                return Tools.Helper.dataToJson(bankManager.playerToBankTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount")));
-            } catch (Exception e) {
-                response.status(HTTP_BAD_REQUEST);
-            }
-            return "";
-        });
-
         //Geld vom Spieler zu Spieler überweisen
         post("/banks/:bankid/transfer/from/:from/to/:to/:amount", (request, response) -> {
-
             try {
                 String transaction = request.queryMap().get("transaction").value();
                 return Tools.Helper.dataToJson(bankManager.playerToPlayerTransfer(request.params(":bankid"), request.params(":from"), request.params(":to"), request.params(":amount"), transaction));
@@ -124,18 +79,38 @@ public class BankService {
             return "";
         });
 
+        //Geld von Bank zum Spieler überweisen
+        post("/banks/:bankid/transfer/to/:to/:amount", (request, response) -> {
+            try {
+                String transaction = request.queryMap().get("transaction").value();
+                return Tools.Helper.dataToJson(bankManager.bankToPlayerTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction));
+            } catch (Exception e) {
+                response.status(HTTP_BAD_REQUEST);
+            }
+            return "";
+        });
+
+        //Geld vom Spieler einziehen
+        post("/banks/:bankid/transfer/from/:from/:amount", (request, response) -> {
+            try {
+                String transaction = request.queryMap().get("transaction").value();
+                return Tools.Helper.dataToJson(bankManager.playerToBankTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction));
+            } catch (Exception e) {
+                response.status(HTTP_BAD_REQUEST);
+            }
+            return "";
+        });
+
         //Beginnt neue Transaktion
         post("/banks/:bankid/transaction", (request, response) -> {
-
             try {
-                String phases;
+                TransactionPhase phases;
                 if (request.queryMap().hasValue()) {
-                    phases = request.queryMap().get("phases").value();
+                    phases = TransactionPhase.fromInteger(Integer.parseInt(request.queryMap().get("phases").value()));
                 } else {
-                    phases = "1";
+                    phases = TransactionPhase.Eins;
                 }
-                //TODO
-                return Tools.Helper.dataToJson(bankManager);
+                return Tools.Helper.dataToJson(bankManager.beginOfTransaction(request.params(":bankid"), phases));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
@@ -155,8 +130,13 @@ public class BankService {
         //Commited Transaktion
         put("/banks/:bankid/transaction/:tid", (request, response) -> {
             try {
-                String state = request.queryMap().get("state").value();
-                return Tools.Helper.dataToJson(bankManager.commitTransaction(request.params(":bankid"),request.params(":tid")));
+                TransactionStatus state;
+                if (request.queryMap().get("state").hasValue()) {
+                    state = TransactionStatus.valueOf(request.queryMap().get("state").value());
+                } else {
+                    state = TransactionStatus.commit;
+                }
+                return Tools.Helper.dataToJson(bankManager.commitTransaction(request.params(":bankid"),request.params(":tid"), state));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
@@ -166,7 +146,6 @@ public class BankService {
         // Rollback einer Transaktion
         delete("/banks/:bankid/transaction/:tid", (request, response) -> {
             try {
-                String state = request.queryMap().get("state").value();
                 return Tools.Helper.dataToJson(bankManager.rollbackTransaction(request.params(":bankid"),request.params(":tid")));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
@@ -184,17 +163,27 @@ public class BankService {
             return "";
         });
 
+        //Erstellt neues Bankkonto
         post("/banks/:bankid/accounts", (request, response) -> {
             try {
                 HashMap<String,String> queryMap = new HashMap<>();
                 queryMap.put("player", request.queryMap().get("player").value());
                 queryMap.put("saldo", request.queryMap().get("saldo").value());
-                return Tools.Helper.dataToJson(bankManager.createNewAccount(request.params(":bankid"), queryMap));
+                return bankManager.createNewAccount(request.params(":bankid"), queryMap);
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
             return "";
         });
 
+        //Kontostand abfragen
+        get("/banks/:bankid/accounts/:accountid", (request, response) -> {
+            try {
+                return Tools.Helper.dataToJson(bankManager.getBankAccountBalance(request.params(":bankid"),request.params(":accountid")));
+            } catch (Exception e) {
+                response.status(HTTP_BAD_REQUEST);
+            }
+            return "";
+        });
     }
 }
