@@ -3,6 +3,7 @@ package Game;
 import Enums.GameStatus;
 import Exceptions.GameAlreadyExistsException;
 import Exceptions.GameDoesNotExistException;
+import Exceptions.WrongDataTypeException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -14,6 +15,7 @@ public class GameService {
     private static final int UNPROCESSABLE_ENTITY = 422;
     private static final int RESOURCE_NOT_FOUND = 404;
     private static final int OK = 200;
+    private static final int TEAPOT = 418;
 
     public static void main(String[] args) {
         GameModel model = new GameModel();
@@ -75,12 +77,17 @@ public class GameService {
             String game = request.params(":gameId");
             try {
                 GameStatus status = GameStatus.valueOf(request.queryMap().get("status").value());
+
                 return model.setStatus(game, status);
             } catch (Exception e) {
                 if (e instanceof GameDoesNotExistException) {
                     response.status(RESOURCE_NOT_FOUND);
-                } else {
+                } else if (e instanceof WrongDataTypeException){
+                    response.status(TEAPOT);
+                } else if (e instanceof IllegalArgumentException) {
                     response.status(UNPROCESSABLE_ENTITY);
+                } else {
+                    response.status(HTTP_BAD_REQUEST);
                 }
                 return "";
             }
