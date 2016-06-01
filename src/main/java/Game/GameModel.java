@@ -84,7 +84,7 @@ public class GameModel {
         if (gameMap.keySet().contains(searching)) {
             ArrayList<String> playerArray = new ArrayList<>();
             for (String id : gameMap.get(searching).getPlayers().keySet()) {
-                String toAdd = "/games/ "+ game + "/players/" + id;
+                String toAdd = "/games/"+ game + "/players/" + id;
                 playerArray.add(toAdd);
             }
             return Helper.dataToJson(playerArray);
