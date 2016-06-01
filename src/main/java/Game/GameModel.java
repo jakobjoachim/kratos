@@ -8,6 +8,7 @@ import Exceptions.WrongDataTypeException;
 import Tools.Helper;
 import Tools.Mutex;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -81,7 +82,12 @@ public class GameModel {
     public String getPlayers(String game) throws GameDoesNotExistException {
         String searching = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searching)) {
-            return Helper.dataToJson(gameMap.get(searching).getPlayers());
+            ArrayList<String> playerArray = new ArrayList<>();
+            for (String id : gameMap.get(searching).getPlayers().keySet()) {
+                String toAdd = "/games/ "+ game + "/players/" + id;
+                playerArray.add(toAdd);
+            }
+            return Helper.dataToJson(playerArray);
         } else {
             throw new GameDoesNotExistException();
         }

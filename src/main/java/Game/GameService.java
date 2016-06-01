@@ -86,7 +86,7 @@ public class GameService {
             }
         });
 
-        get("/games/:gameId/player", (request, response) -> {
+        get("/games/:gameId/players", (request, response) -> {
             response.status(OK);
             response.type("application/json");
             try {
@@ -104,10 +104,15 @@ public class GameService {
                 response.status(HTTP_BAD_REQUEST);
                 return "";
             }
-            String result = model.addUser(creation.getName(), creation.isReady(), request.params(":gameId"));
-            response.status(OK);
-            response.type("application/json");
-            return result;
+            try {
+                String result = model.addUser(creation.getName(), creation.isReady(), request.params(":gameId"));
+                response.status(OK);
+                response.type("application/json");
+                return result;
+            } catch (GameDoesNotExistException e) {
+                response.status(RESOURCE_NOT_FOUND);
+                return "";
+            }
         });
 
         get("/games/:gameId/services", (request, response) -> {
