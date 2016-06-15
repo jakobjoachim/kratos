@@ -1,5 +1,6 @@
 package Bank;
 
+import Exceptions.PlayerIsBrokeException;
 import Interfaces.Validable;
 import lombok.Data;
 
@@ -26,7 +27,11 @@ public class BankAccount implements Validable {
         this.balance += amount;
     }
 
-    public void subMoney(int amount) {
-        this.balance -= amount;
+    public void subMoney(int amount) throws Exception {
+        if (this.balance >= amount) {
+            this.balance -= amount;
+        } else {
+            throw new PlayerIsBrokeException();
+        }
     }
 }
