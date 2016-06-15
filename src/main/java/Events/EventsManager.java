@@ -77,7 +77,6 @@ class EventsManager {
     }
 
     void deleteEvent(Map<String, String> searchValues) throws InvalidSearchFilterException {
-
         if (searchValues.size() == 0) {
             throw new InvalidSearchFilterException("Please enter some search values");
         }
@@ -104,7 +103,6 @@ class EventsManager {
             }
 
         }
-
     }
 
 
