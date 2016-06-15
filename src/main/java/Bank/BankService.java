@@ -47,7 +47,7 @@ public class BankService {
         });
 
         //Alle möglichen Transfers
-        get("/banks/:bankid/transfers", (request, response) -> {
+        get("/banks/:bankid/moneyTransferInTransaction", (request, response) -> {
             try {
                 return Tools.Helper.dataToJson(bankManager.getAllTransfers(request.params(":bankid")));
             } catch (Exception e) {
@@ -56,8 +56,8 @@ public class BankService {
             return "";
         });
 
-        //Gibt einen Transfer wieder
-        get("/banks/{bankid}/transfers/:transferid", (request, response) -> {
+        //Gibt einen MoneyTransfer wieder
+        get("/banks/{bankid}/moneyTransferInTransaction/:transferid", (request, response) -> {
             try {
                 return bankManager.getTransfer(request.params(":bankid"), request.params(":transferid"));
             } catch (Exception e) {

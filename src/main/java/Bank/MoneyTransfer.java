@@ -3,7 +3,7 @@ package Bank;
 import lombok.Data;
 
 @Data
-public class Transfer {
+public class MoneyTransfer {
     private String transferId;
     private String from;
     private String to;

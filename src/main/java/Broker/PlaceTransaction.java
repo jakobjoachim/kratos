@@ -1,15 +1,15 @@
-package Bank;
+package Broker;
 
+import Bank.MoneyTransfer;
 import Enums.TransactionPhase;
 import Enums.TransactionStatus;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class Transaction {
+public class PlaceTransaction {
     String id;
     TransactionStatus status;
     TransactionPhase phases;
-    List<MoneyTransfer> moneyTransferInTransaction;
+    MoneyTransfer moneyTransfer;
+    PlaceTransfer placeTransfer;
 }

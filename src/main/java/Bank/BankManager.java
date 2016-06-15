@@ -37,23 +37,23 @@ public class BankManager {
     }
 
     //Alle Transfers
-    List<Transfer> getAllTransfers(String bankId) throws BankDoesNotExistException {
+    List<MoneyTransfer> getAllTransfers(String bankId) throws BankDoesNotExistException {
         String searching = ("\"/banks/" + bankId + "\"");
         if (bankMap.containsKey(searching)) {
-            return bankMap.get(searching).getTransfers();
+            return bankMap.get(searching).getMoneyTransfers();
         } else {
             throw new BankDoesNotExistException();
         }
     }
 
-    //Gibt einen Transfer wieder
+    //Gibt einen MoneyTransfer wieder
     String getTransfer(String bankId, String tranferId) throws BankDoesNotExistException {
         String searching = ("\"/banks/" + bankId + "\"");
         if (bankMap.containsKey(searching)) {
 
-            for (Transfer transfer : bankMap.get(searching).getTransfers()) {
-                if (transfer.getTransferId().equals(tranferId)) {
-                    return Tools.Helper.dataToJson(transfer);
+            for (MoneyTransfer moneyTransfer : bankMap.get(searching).getMoneyTransfers()) {
+                if (moneyTransfer.getTransferId().equals(tranferId)) {
+                    return Tools.Helper.dataToJson(moneyTransfer);
                 }
             }
         } else {
@@ -62,30 +62,30 @@ public class BankManager {
         return "";
     }
 
-    //Transfer von einem zum anderen Spieler
+    //MoneyTransfer von einem zum anderen Spieler
     String playerToPlayerTransfer(String bankId, String fromId, String toId, String amount, String searchingTransaction) throws Exception {
         String searching = ("\"/banks/" + bankId + "\"");
         String fromUri = ("\"/accounts/" + fromId + "\"");
         String toUri = ("\"/accounts/" + toId + "\"");
         if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
             int money = Integer.parseInt(amount);
-            Transfer transfer = new Transfer();
-            transfer.setAmount(money);
+            MoneyTransfer moneyTransfer = new MoneyTransfer();
+            moneyTransfer.setAmount(money);
             if (bankMap.containsKey(searching)) {
                 if (bankMap.get(searching).getAccounts().containsKey(fromUri)) {
-                    transfer.setFrom(fromUri);
+                    moneyTransfer.setFrom(fromUri);
                 } else {
                     throw new BankAccountDoesNotExistException();
                 }
                 if (bankMap.get(searching).getAccounts().containsKey(toUri)) {
-                    transfer.setTo(toUri);
+                    moneyTransfer.setTo(toUri);
                 } else {
                     throw new BankAccountDoesNotExistException();
                 }
-                getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
-                bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
-                bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
-                bankMap.get(searching).getTransfers().add(transfer);
+                getTransaction(searching, searchingTransaction).getMoneyTransferInTransaction().add(moneyTransfer);
+                bankMap.get(searching).getAccounts().get(moneyTransfer.getFrom()).subMoney(money);
+                bankMap.get(searching).getAccounts().get(moneyTransfer.getTo()).addMoney(money);
+                bankMap.get(searching).getMoneyTransfers().add(moneyTransfer);
             } else {
                 throw new BankDoesNotExistException();
             }
@@ -96,54 +96,54 @@ public class BankManager {
         return "";
     }
 
-    //Transfer von der Bank zu einem Spieler
+    //MoneyTransfer von der Bank zu einem Spieler
     String bankToPlayerTransfer(String bankId, String playerId, String amount, String searchingTransaction) throws Exception {
         String searching = ("\"/banks/" + bankId + "\"");
         String playerUri = ("\"/accounts/" + playerId + "\"");
         if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
-            Transfer transfer = new Transfer();
+            MoneyTransfer moneyTransfer = new MoneyTransfer();
             int money = Integer.parseInt(amount);
-            transfer.setAmount(money);
+            moneyTransfer.setAmount(money);
             if (bankMap.containsKey(searching)) {
-                transfer.setFrom(searching);
+                moneyTransfer.setFrom(searching);
                 if (bankMap.get(searching).getAccounts().containsKey(playerUri)) {
-                    transfer.setTo(playerUri);
+                    moneyTransfer.setTo(playerUri);
                 } else {
                     throw new BankAccountDoesNotExistException();
                 }
             } else {
                 throw new BankDoesNotExistException();
             }
-            getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
-            bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
-            bankMap.get(searching).getTransfers().add(transfer);
+            getTransaction(searching, searchingTransaction).getMoneyTransferInTransaction().add(moneyTransfer);
+            bankMap.get(searching).getAccounts().get(moneyTransfer.getTo()).addMoney(money);
+            bankMap.get(searching).getMoneyTransfers().add(moneyTransfer);
         } else {
             throw new TransactionIsNotReadyException();
         }
         return "";
     }
 
-    //Transfer von dem Spieler zur Bank
+    //MoneyTransfer von dem Spieler zur Bank
     String playerToBankTransfer(String bankId, String playerId, String amount, String searchingTransaction) throws Exception {
         String searching = ("\"/banks/" + bankId + "\"");
         String playerUri = ("\"/accounts/" + playerId + "\"");
         if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
-            Transfer transfer = new Transfer();
+            MoneyTransfer moneyTransfer = new MoneyTransfer();
             int money = Integer.parseInt(amount);
-            transfer.setAmount(money);
+            moneyTransfer.setAmount(money);
             if (bankMap.containsKey(searching)) {
-                transfer.setTo(searching);
+                moneyTransfer.setTo(searching);
                 if (bankMap.get(searching).getAccounts().containsKey(playerUri)) {
-                    transfer.setFrom(playerUri);
+                    moneyTransfer.setFrom(playerUri);
                 } else {
                     throw new BankAccountDoesNotExistException();
                 }
             } else {
                 throw new BankDoesNotExistException();
             }
-            getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
-            bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
-            bankMap.get(searching).getTransfers().add(transfer);
+            getTransaction(searching, searchingTransaction).getMoneyTransferInTransaction().add(moneyTransfer);
+            bankMap.get(searching).getAccounts().get(moneyTransfer.getFrom()).subMoney(money);
+            bankMap.get(searching).getMoneyTransfers().add(moneyTransfer);
         } else {
             throw new TransactionIsNotReadyException();
         }
