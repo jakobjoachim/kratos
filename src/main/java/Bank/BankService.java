@@ -174,18 +174,9 @@ public class BankService {
         });
 
         //Erstellt neues Bankkonto
-        post("/banks/:bankid/accounts", (request, response) -> bankManager.createNewAccount(request.params(":bankid"),request.body()));
-//        post("/banks/:bankid/accounts", (request, response) -> {
-//            try {
-//                HashMap<String,String> queryMap = new HashMap<>();
-//                queryMap.put("player", request.queryMap().get("player").value());
-//                queryMap.put("saldo", request.queryMap().get("saldo").value());
-//                return bankManager.createNewAccount(request.params(":bankid"), queryMap);
-//            } catch (Exception e) {
-//                response.status(HTTP_BAD_REQUEST);
-//            }
-//            return "";
-//        });
+        post("/banks/:bankid/accounts", (request, response) ->
+                bankManager.createNewAccount(request.params(":bankid"),request.body())
+        );
 
         //Kontostand abfragen
         get("/banks/:bankid/accounts/:accountid", (request, response) -> {
