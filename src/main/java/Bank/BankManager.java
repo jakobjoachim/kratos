@@ -4,6 +4,7 @@ package Bank;
 import Enums.TransactionPhase;
 import Enums.TransactionStatus;
 import Exceptions.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 import java.util.*;
@@ -223,20 +224,20 @@ public class BankManager {
     }
 
     //Erstellung eines neuen Bankkontos
-    String createNewAccount(String bankId, HashMap<String, String> accountinfo) throws BankDoesNotExistException {
+    String createNewAccount(String bankId, String payload) throws Exception {
         String searching = ("\"/banks/" + bankId + "\"");
         if (bankMap.containsKey(searching)) {
-            BankAccount bankAccount = new BankAccount();
-            bankAccount.setBalance(Integer.parseInt(accountinfo.get("saldo")));
-            bankAccount.setPlayerId(accountinfo.get("player"));
+            ObjectMapper objectMapper = new ObjectMapper();
+            BankAccount bankAccount = objectMapper.readValue(payload, BankAccount.class);
             String id = Tools.Helper.nextId();
             String accountUri = ("\"/accounts/" + id + "\"");
             bankAccount.setId(id);
             bankMap.get(searching).getAccounts().put(accountUri, bankAccount);
+
+            return Tools.Helper.dataToJson(bankMap.get(searching).getAccounts().get(accountUri));
         } else {
             throw new BankDoesNotExistException();
         }
-        return "";
     }
 
     //Gibt das Saldo einen Kontos wieder

@@ -7,12 +7,14 @@ import Enums.TransactionStatus;
 import java.util.HashMap;
 
 
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+
 import static spark.Spark.*;
 
 public class BankService {
 
-    public void main(String[] args) {
+    private static final int HTTP_BAD_REQUEST = 400;
+
+    public static void main(String[] args) {
         BankManager bankManager = new BankManager();
 
         before(((request, response) -> response.type("application/json")));
@@ -30,6 +32,16 @@ public class BankService {
         get("/banks", (request, response) -> {
             try {
                 return Tools.Helper.dataToJson(bankManager.getAllBanks());
+            } catch (Exception e) {
+                response.status(HTTP_BAD_REQUEST);
+            }
+            return "";
+        });
+
+        //Neue Bank erstellen mit random Id
+        post("/banks", (request, response) -> {
+            try {
+                return Tools.Helper.dataToJson(bankManager.createNewBank(Tools.Helper.nextId()));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
@@ -162,17 +174,18 @@ public class BankService {
         });
 
         //Erstellt neues Bankkonto
-        post("/banks/:bankid/accounts", (request, response) -> {
-            try {
-                HashMap<String,String> queryMap = new HashMap<>();
-                queryMap.put("player", request.queryMap().get("player").value());
-                queryMap.put("saldo", request.queryMap().get("saldo").value());
-                return bankManager.createNewAccount(request.params(":bankid"), queryMap);
-            } catch (Exception e) {
-                response.status(HTTP_BAD_REQUEST);
-            }
-            return "";
-        });
+        post("/banks/:bankid/accounts", (request, response) -> bankManager.createNewAccount(request.params(":bankid"),request.body()));
+//        post("/banks/:bankid/accounts", (request, response) -> {
+//            try {
+//                HashMap<String,String> queryMap = new HashMap<>();
+//                queryMap.put("player", request.queryMap().get("player").value());
+//                queryMap.put("saldo", request.queryMap().get("saldo").value());
+//                return bankManager.createNewAccount(request.params(":bankid"), queryMap);
+//            } catch (Exception e) {
+//                response.status(HTTP_BAD_REQUEST);
+//            }
+//            return "";
+//        });
 
         //Kontostand abfragen
         get("/banks/:bankid/accounts/:accountid", (request, response) -> {
