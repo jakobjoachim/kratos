@@ -3,6 +3,9 @@ package Events;
 import Interfaces.Validable;
 import lombok.Data;
 
+import java.security.Timestamp;
+import java.util.Date;
+
 @Data
 public class EventPayload implements Validable {
     // the url to the event on the event server
@@ -27,8 +30,7 @@ public class EventPayload implements Validable {
     private String player;
 
     // A timestamp when this event was given to the eventPayloadList service
-    private String time;
-
+    private String time = new java.util.Date().toString();
 
     @Override
     public boolean isValid() {

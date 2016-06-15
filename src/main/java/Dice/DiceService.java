@@ -11,24 +11,23 @@ public class DiceService {
 
     public static void main(String[] args) {
 
-        before((request, response) -> response.type("application/json"));
         before((request, response) -> response.header("Desciption", "Gives you a single dice roll"));
+
         get("/dice", (request, response) -> {
             createEvent(request.queryMap().get("player").value(), request.queryMap().get("game").value());
-            //TODO: without queryParams
+            response.header("Content-Type", "application/json");
             return randomDice();
         });
 
     }
 
-    public static String randomDice() {
+    private static String randomDice() {
         int random = (int) (Math.random() * 6) + 1;
-        String result = ("{ \"number\": " + random + " }");
-        return result;
+        return ("{ \"number\": " + random + " }");
     }
 
 
-    public static void createEvent(String player, String game) {
+    private static void createEvent(String player, String game) {
 
         String eventCreationUrl = YellowService.getServiceUrlForType(ServiceType.EVENTS);
         System.out.println(eventCreationUrl);
@@ -44,9 +43,7 @@ public class DiceService {
                     .asJson();
 
         } catch (Exception e) {
-
             System.out.print(e.getMessage());
-
         }
 
     }
