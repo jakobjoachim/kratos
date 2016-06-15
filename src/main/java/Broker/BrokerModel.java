@@ -6,11 +6,11 @@ import Tools.Helper;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BrokerModel {
+class BrokerModel {
 
     private static Map<String, Broker> brokerMap = new HashMap<>();
 
-    public String createNewGame(String game) throws GameAlreadyExistsException{
+    String createNewGame(String game) throws GameAlreadyExistsException{
         if (!(brokerMap.containsKey(game))) {
             Broker broker = new Broker();
             broker.setGameId(game);
@@ -20,7 +20,7 @@ public class BrokerModel {
         }
     }
 
-    public String createPlace(String placeId, String type, String description, String gameId) throws Exception {
+    String createPlace(String placeId, String type, String description, String gameId) throws Exception {
         if (brokerMap.containsKey(gameId)) {
             Broker broker = brokerMap.get(gameId);
             if (!(brokerMap.get(gameId).getPlaces().keySet().contains(placeId))) {
@@ -35,7 +35,7 @@ public class BrokerModel {
         }
     }
 
-    public String buyPlace(String placeId, String gameId, String playerUri, String placeType) throws Exception {
+    String buyPlace(String placeId, String gameId, String playerUri, String placeType) throws Exception {
         if (brokerMap.containsKey(gameId)) {
             if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
@@ -54,7 +54,7 @@ public class BrokerModel {
         }
     }
 
-    public String tradePlace(String placeId, String gameId, String playerUri) throws Exception{
+    String tradePlace(String placeId, String gameId, String playerUri) throws Exception{
         if (brokerMap.containsKey(gameId)) {
             if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
@@ -72,7 +72,7 @@ public class BrokerModel {
         }
     }
 
-    public String takeHypothecarycredit(String placeId, String gameId) throws Exception {
+    String takeHypothecarycredit(String placeId, String gameId) throws Exception {
         if (brokerMap.containsKey(gameId)) {
             if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
@@ -91,7 +91,7 @@ public class BrokerModel {
         }
     }
 
-    public String payHypothecarycredit(String placeId, String gameId) throws Exception {
+    String payHypothecarycredit(String placeId, String gameId) throws Exception {
         if (brokerMap.containsKey(gameId)) {
             if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
@@ -110,7 +110,7 @@ public class BrokerModel {
         }
     }
 
-    public String visitPlace(String placeId, String gameId, String playerUri, String placeType) throws Exception{
+    String visitPlace(String placeId, String gameId, String playerUri, String placeType) throws Exception{
         if (brokerMap.containsKey(gameId)) {
             if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
