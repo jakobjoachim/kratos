@@ -1,14 +1,13 @@
 package Tools;
 
-import java.util.concurrent.locks.Lock;
-
 public class Mutex{
     private String idHoldingLock;
-    private Lock lock;
+    private boolean lock = false;
 
     public boolean lock(String id) {
-        if (lock.tryLock()){
+        if (!lock){
             idHoldingLock = id;
+            lock = true;
             return true;
         } else {
             return false;
@@ -16,7 +15,7 @@ public class Mutex{
     }
 
     public boolean unlock() {
-        lock.unlock();
+        lock = false;
         idHoldingLock = null;
         return true;
     }
