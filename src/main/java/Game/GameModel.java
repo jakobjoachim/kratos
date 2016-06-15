@@ -1,10 +1,7 @@
 package Game;
 
 import Enums.GameStatus;
-import Exceptions.GameAlreadyExistsException;
-import Exceptions.GameDoesNotExistException;
-import Exceptions.UserDoesNotExistException;
-import Exceptions.WrongDataTypeException;
+import Exceptions.*;
 import Tools.Helper;
 import Tools.Mutex;
 
@@ -17,7 +14,7 @@ public class GameModel {
 
     private static Map<String, Game> gameMap = new HashMap<>();
 
-    public Set<String> getAllGames(){
+    public Set<String> getAllGames() {
         return gameMap.keySet();
     }
 
@@ -60,7 +57,7 @@ public class GameModel {
     }
 
     public String setStatus(String game, GameStatus status) throws Exception {
-        if ((status.equals(GameStatus.running))||(status.equals(GameStatus.finished))) {
+        if ((status.equals(GameStatus.running)) || (status.equals(GameStatus.finished))) {
             String searching = "\"/games/" + game + "\"";
             if (gameMap.keySet().contains(searching)) {
                 gameMap.get(searching).setStatus(status);
@@ -84,7 +81,7 @@ public class GameModel {
         if (gameMap.keySet().contains(searching)) {
             ArrayList<String> playerArray = new ArrayList<>();
             for (String id : gameMap.get(searching).getPlayers().keySet()) {
-                String toAdd = "/games/"+ game + "/players/" + id;
+                String toAdd = "/games/" + game + "/players/" + id;
                 playerArray.add(toAdd);
             }
             return Helper.dataToJson(playerArray);
@@ -104,7 +101,7 @@ public class GameModel {
     }
 
     public String getServices(String game) throws GameDoesNotExistException {
-        String searching = "\"/users/" + game + "\"";
+        String searching = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searching)) {
             return Helper.dataToJson(gameMap.get(searching).getServices());
         } else {
@@ -113,7 +110,7 @@ public class GameModel {
     }
 
     public String getComponents(String game) throws GameDoesNotExistException {
-        String searching = "\"/users/" + game + "\"";
+        String searching = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searching)) {
             return Helper.dataToJson(gameMap.get(searching).getComponents());
         } else {
@@ -124,10 +121,9 @@ public class GameModel {
     public String removePlayer(String game, String player) throws Exception {
         String searchingGame = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searchingGame)) {
-            String searchingPlayer = "\"/users/" + player + "\"";
-            if (gameMap.get(searchingGame).getPlayers().containsKey(searchingPlayer)) {
-                gameMap.get(searchingGame).getPlayers().remove(searchingPlayer);
-                return Helper.dataToJson(searchingPlayer);
+            if (gameMap.get(searchingGame).getPlayers().containsKey(player)) {
+                gameMap.get(searchingGame).getPlayers().remove(player);
+                return Helper.dataToJson(player);
             } else {
                 throw new UserDoesNotExistException();
             }
@@ -139,9 +135,8 @@ public class GameModel {
     public String getPlayerReady(String game, String player) throws Exception {
         String searchingGame = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searchingGame)) {
-            String searchingPlayer = "\"/users/" + player + "\"";
-            if (gameMap.get(searchingGame).getPlayers().containsKey(searchingPlayer)) {
-                return (gameMap.get(searchingGame).getPlayers().get(searchingPlayer).toString());
+            if (gameMap.get(searchingGame).getPlayers().containsKey(player)) {
+                return (gameMap.get(searchingGame).getPlayers().get(player).toString());
             } else {
                 throw new UserDoesNotExistException();
             }
@@ -153,16 +148,15 @@ public class GameModel {
     public String putPlayerReady(String game, String player) throws Exception {
         String searchingGame = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searchingGame)) {
-            String searchingPlayer = "\"/users/" + player + "\"";
-            if (gameMap.get(searchingGame).getPlayers().containsKey(searchingPlayer)) {
-                if (gameMap.get(searchingGame).getPlayers().get(searchingPlayer).equals(true)) {
-                    gameMap.get(searchingGame).getPlayers().remove(searchingPlayer);
-                    gameMap.get(searchingGame).getPlayers().put(searchingPlayer, false);
+            if (gameMap.get(searchingGame).getPlayers().containsKey(player)) {
+                if (gameMap.get(searchingGame).getPlayers().get(player).equals(true)) {
+                    gameMap.get(searchingGame).getPlayers().remove(player);
+                    gameMap.get(searchingGame).getPlayers().put(player, false);
                 } else {
-                    gameMap.get(searchingGame).getPlayers().remove(searchingPlayer);
-                    gameMap.get(searchingGame).getPlayers().put(searchingPlayer, true);
+                    gameMap.get(searchingGame).getPlayers().remove(player);
+                    gameMap.get(searchingGame).getPlayers().put(player, true);
                 }
-                return Helper.dataToJson(searchingPlayer);
+                return Helper.dataToJson(player);
             } else {
                 throw new UserDoesNotExistException();
             }
@@ -180,12 +174,12 @@ public class GameModel {
         }
     }
 
-    public String getTurnHolder(String game) throws GameDoesNotExistException {
+    String getTurnHolder(String game) throws GameDoesNotExistException {
         String searchingGame = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searchingGame)) {
             String holder = gameMap.get(searchingGame).getPlayerMutex().getLockHolder();
-            if (holder == null){
-                return Helper.dataToJson("No one holding the turn, "+ gameMap.get(searchingGame).getPlayerQueue().peek() + "should take the turn");
+            if (holder == null) {
+                return Helper.dataToJson("No one holding the turn, " + gameMap.get(searchingGame).getPlayerQueue().peek() + " should take the turn");
             } else {
                 return holder;
             }
@@ -194,16 +188,19 @@ public class GameModel {
         }
     }
 
-    public String endTurn(String game) throws GameDoesNotExistException {
+    String endTurn(String game) throws Exception {
         String searchingGame = "\"/games/" + game + "\"";
         if (gameMap.keySet().contains(searchingGame)) {
             Mutex playerMutex = gameMap.get(searchingGame).getPlayerMutex();
+            if (playerMutex.getLockHolder() == null) {
+                throw new NoTurnActiveException();
+            }
             if (playerMutex.getLockHolder().equals(gameMap.get(searchingGame).getPlayerQueue().peek())) {
                 playerMutex.unlock();
                 String toAdd = gameMap.get(searchingGame).getPlayerQueue().poll();
                 gameMap.get(searchingGame).getPlayerQueue().add(toAdd);
             } else {
-                String returnMessage = playerMutex.getLockHolder() + "stole the turn! Mutex unlocked now";
+                String returnMessage = playerMutex.getLockHolder() + " stole the turn! Mutex unlocked now";
                 playerMutex.unlock();
                 return returnMessage;
             }
@@ -213,17 +210,16 @@ public class GameModel {
         }
     }
 
-    public int putTurn(String game, String player) throws Exception {
+    int putTurn(String game, String player) throws Exception {
         String searchingGame = "\"/games/" + game + "\"";
-        String searchingPlayer = "\"/players/" + player + "\"";
         if (gameMap.keySet().contains(searchingGame)) {
-            if (gameMap.get(searchingGame).getPlayers().keySet().contains(searchingPlayer)) {
+            if (gameMap.get(searchingGame).getPlayers().keySet().contains(player)) {
                 Mutex playerMutex = gameMap.get(searchingGame).getPlayerMutex();
-                if (playerMutex.getLockHolder()==null) {
-                    playerMutex.lock(searchingPlayer);
+                if (playerMutex.getLockHolder() == null) {
+                    playerMutex.lock(player);
                     return 201;
                 } else {
-                    if (playerMutex.getLockHolder().equals(searchingPlayer)) {
+                    if (playerMutex.getLockHolder().equals(player)) {
                         return 200;
                     } else {
                         return 409;
