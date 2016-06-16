@@ -28,7 +28,7 @@ public class BankService {
         }
         ));
 
-        //Liste aller Banken
+        //Liste aller Banken TODO checked
         get("/banks", (request, response) -> {
             try {
                 return Tools.Helper.dataToJson(bankManager.getAllBanks());
@@ -38,7 +38,7 @@ public class BankService {
             return "";
         });
 
-        //Neue Bank erstellen mit random Id
+        //Neue Bank erstellen mit random Id TODO checked
         post("/banks", (request, response) -> {
             try {
                 return Tools.Helper.dataToJson(bankManager.createNewBank(Tools.Helper.nextId()));
@@ -48,7 +48,7 @@ public class BankService {
             return "";
         });
 
-        //Neue Bank erstellen
+        //Neue Bank erstellen TODO checked
         put("/banks/:bankid", (request, response) -> {
             try {
                 return Tools.Helper.dataToJson(bankManager.createNewBank(request.params(":bankid")));
@@ -58,7 +58,7 @@ public class BankService {
             return "";
         });
 
-        //Alle möglichen Transfers
+        //Alle möglichen Transfers todo checked without content
         get("/banks/:bankid/transfers", (request, response) -> {
             try {
                 return Tools.Helper.dataToJson(bankManager.getAllTransfers(request.params(":bankid")));
@@ -81,19 +81,24 @@ public class BankService {
         //Geld vom Spieler zu Spieler überweisen
         post("/banks/:bankid/transfer/from/:from/to/:to/:amount", (request, response) -> {
             try {
-                String transaction = request.queryMap().get("transaction").value();
-                return Tools.Helper.dataToJson(bankManager.playerToPlayerTransfer(request.params(":bankid"), request.params(":from"), request.params(":to"), request.params(":amount"), transaction));
+                String transaction;
+                if (request.queryMap().hasValue()) {
+                    transaction = request.queryMap().get("transaction").value();
+                } else {
+                    transaction = "withoutTransaction";
+                }
+                return Tools.Helper.dataToJson(bankManager.playerToPlayerTransfer(request.params(":bankid"), request.params(":from"), request.params(":to"), request.params(":amount"), transaction, request.body()));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
             return "";
         });
 
-        //Geld von Bank zum Spieler überweisen
+        //Geld von der Bank zum Spieler überweisen
         post("/banks/:bankid/transfer/to/:to/:amount", (request, response) -> {
             try {
                 String transaction = request.queryMap().get("transaction").value();
-                return Tools.Helper.dataToJson(bankManager.bankToPlayerTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction));
+                return Tools.Helper.dataToJson(bankManager.bankToPlayerTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction, request.body()));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
@@ -104,14 +109,14 @@ public class BankService {
         post("/banks/:bankid/transfer/from/:from/:amount", (request, response) -> {
             try {
                 String transaction = request.queryMap().get("transaction").value();
-                return Tools.Helper.dataToJson(bankManager.playerToBankTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction));
+                return Tools.Helper.dataToJson(bankManager.playerToBankTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction, request.body()));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
             return "";
         });
 
-        //Beginnt neue Transaktion
+        //Beginnt neue Transaktion todo check again
         post("/banks/:bankid/transaction", (request, response) -> {
             try {
                 TransactionPhase phases;
@@ -127,7 +132,7 @@ public class BankService {
             return "";
         });
 
-        //Gibt Status einer Transaktion wieder
+        //Gibt Status einer Transaktion wieder todo checked
         get("/banks/:bankid/transaction/:tid", (request, response) -> {
             try {
                 return Tools.Helper.dataToJson(bankManager.getTransactionStatus(request.params(":bankid"),request.params(":tid")));
@@ -163,7 +168,7 @@ public class BankService {
             return "";
         });
 
-        //Liste aller Konten
+        //Liste aller Konten todo checked
         get("/banks/:bankid/accounts", (request, response) -> {
             try {
                 return bankManager.getAllAccounts(request.params(":bankid"));
@@ -173,12 +178,12 @@ public class BankService {
             return "";
         });
 
-        //Erstellt neues Bankkonto
+        //Erstellt neues Bankkonto todo checked
         post("/banks/:bankid/accounts", (request, response) ->
                 bankManager.createNewAccount(request.params(":bankid"),request.body())
         );
 
-        //Kontostand abfragen
+        //Kontostand abfragen todo check again with full account response
         get("/banks/:bankid/accounts/:accountid", (request, response) -> {
             try {
                 return Tools.Helper.dataToJson(bankManager.getBankAccountBalance(request.params(":bankid"),request.params(":accountid")));
