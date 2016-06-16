@@ -193,7 +193,7 @@ public class BankService {
                 bankManager.createNewAccount(request.params(":bankid"),request.body())
         );
 
-        //Kontostand abfragen todo check again with full account response
+        //Kontostand abfragen todo checked
         get("/banks/:bankid/accounts/:accountid", (request, response) -> {
             try {
                 return Tools.Helper.dataToJson(bankManager.getBankAccountBalance(request.params(":bankid"),request.params(":accountid")));
