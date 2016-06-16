@@ -97,7 +97,12 @@ public class BankService {
         //Geld von der Bank zum Spieler überweisen
         post("/banks/:bankid/transfer/to/:to/:amount", (request, response) -> {
             try {
-                String transaction = request.queryMap().get("transaction").value();
+                String transaction;
+                if (request.queryMap().hasValue()) {
+                    transaction = request.queryMap().get("transaction").value();
+                } else {
+                    transaction = "withoutTransaction";
+                }
                 return Tools.Helper.dataToJson(bankManager.bankToPlayerTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction, request.body()));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
@@ -108,7 +113,12 @@ public class BankService {
         //Geld vom Spieler einziehen
         post("/banks/:bankid/transfer/from/:from/:amount", (request, response) -> {
             try {
-                String transaction = request.queryMap().get("transaction").value();
+                String transaction;
+                if (request.queryMap().hasValue()) {
+                    transaction = request.queryMap().get("transaction").value();
+                } else {
+                    transaction = "withoutTransaction";
+                }
                 return Tools.Helper.dataToJson(bankManager.playerToBankTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction, request.body()));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);

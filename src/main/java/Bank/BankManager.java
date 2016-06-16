@@ -69,22 +69,26 @@ public class BankManager {
         String fromUri = ("\"/accounts/" + fromId + "\"");
         String toUri = ("\"/accounts/" + toId + "\"");
         if (bankMap.containsKey(searching)) {
-            if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
-                if (bankMap.get(searching).getAccounts().containsKey(fromUri) && bankMap.get(searching).getAccounts().containsKey(toUri)) {
-                    int money = Integer.parseInt(amount);
-                    Transfer transfer = new Transfer();
-                    transfer.setAmount(money);
-                    transfer.setFrom(fromUri);
-                    transfer.setTo(toUri);
-                    transfer.setReason(reason);
+            if (bankMap.get(searching).getAccounts().containsKey(fromUri) && bankMap.get(searching).getAccounts().containsKey(toUri)) {
+                int money = Integer.parseInt(amount);
+                Transfer transfer = new Transfer();
+                transfer.setAmount(money);
+                transfer.setFrom(fromUri);
+                transfer.setTo(toUri);
+                transfer.setReason(reason);
+                if (searchingTransaction.equals("withoutTransaction")) {
+                    bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
+                    bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
+                    bankMap.get(searching).getTransfers().add(transfer);
+                } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
                     getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
                     bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
                     bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
                     bankMap.get(searching).getTransfers().add(transfer);
-                    return Tools.Helper.dataToJson(transfer);
                 } else {
                     throw new BankAccountDoesNotExistException();
                 }
+                return Tools.Helper.dataToJson(transfer);
             } else {
                 throw new TransactionIsNotReadyException();
             }
@@ -99,23 +103,26 @@ public class BankManager {
         String searching = ("\"/banks/" + bankId + "\"");
         String playerUri = ("\"/accounts/" + playerId + "\"");
         if (bankMap.containsKey(searching)) {
-            if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
-                if (bankMap.get(searching).getAccounts().containsKey(playerUri)) {
-                    int money = Integer.parseInt(amount);
-                    Transfer transfer = new Transfer();
-                    transfer.setAmount(money);
-                    transfer.setFrom(searching);
-                    transfer.setTo(playerUri);
-                    transfer.setReason(reason);
+            if (bankMap.get(searching).getAccounts().containsKey(playerUri)) {
+                int money = Integer.parseInt(amount);
+                Transfer transfer = new Transfer();
+                transfer.setAmount(money);
+                transfer.setFrom(searching);
+                transfer.setTo(playerUri);
+                transfer.setReason(reason);
+                if (searchingTransaction.equals("withoutTransaction")) {
+                    bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
+                    bankMap.get(searching).getTransfers().add(transfer);
+                } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
                     getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
                     bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
                     bankMap.get(searching).getTransfers().add(transfer);
-                    return Tools.Helper.dataToJson(transfer);
                 } else {
-                    throw new BankAccountDoesNotExistException();
+                    throw new TransactionIsNotReadyException();
                 }
+                return Tools.Helper.dataToJson(transfer);
             } else {
-                throw new TransactionIsNotReadyException();
+                throw new BankAccountDoesNotExistException();
             }
         } else {
             throw new BankDoesNotExistException();
