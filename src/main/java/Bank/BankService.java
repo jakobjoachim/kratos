@@ -2,6 +2,8 @@ package Bank;
 
 import Enums.TransactionPhase;
 import Enums.TransactionStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import static spark.Spark.*;
 
 public class BankService {
@@ -79,12 +81,15 @@ public class BankService {
         post("/banks/:bankid/transfer/from/:from/to/:to/:amount", (request, response) -> {
             try {
                 String transaction;
+                ObjectMapper mapper = new ObjectMapper();
+                ReasonPayload reason = mapper.readValue(request.body(), ReasonPayload.class);
+
                 if (request.queryMap().get("transaction").hasValue()) {
                     transaction = request.queryMap().get("transaction").value();
                 } else {
                     transaction = "withoutTransaction";
                 }
-                return bankManager.playerToPlayerTransfer(request.params(":bankid"), request.params(":from"), request.params(":to"), request.params(":amount"), transaction, request.body());
+                return bankManager.playerToPlayerTransfer(request.params(":bankid"), request.params(":from"), request.params(":to"), request.params(":amount"), transaction, reason.reason);
             } catch (Exception e) {
                 e.printStackTrace();
                 response.status(HTTP_BAD_REQUEST);
@@ -96,12 +101,15 @@ public class BankService {
         post("/banks/:bankid/transfer/to/:to/:amount", (request, response) -> {
             try {
                 String transaction;
+                ObjectMapper mapper = new ObjectMapper();
+                ReasonPayload reason = mapper.readValue(request.body(), ReasonPayload.class);
+
                 if (request.queryMap().get("transaction").hasValue()) {
                     transaction = request.queryMap().get("transaction").value();
                 } else {
                     transaction = "withoutTransaction";
                 }
-                return bankManager.bankToPlayerTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction, request.body());
+                return bankManager.bankToPlayerTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction, reason.reason);
             } catch (Exception e) {
                 e.printStackTrace();
                 response.status(INSUFFICENT_FONDS);
@@ -113,12 +121,15 @@ public class BankService {
         post("/banks/:bankid/transfer/from/:from/:amount", (request, response) -> {
             try {
                 String transaction;
+                ObjectMapper mapper = new ObjectMapper();
+                ReasonPayload reason = mapper.readValue(request.body(), ReasonPayload.class);
+
                 if (request.queryMap().get("transaction").hasValue()) {
                     transaction = request.queryMap().get("transaction").value();
                 } else {
                     transaction = "withoutTransaction";
                 }
-                return bankManager.playerToBankTransfer(request.params(":bankid"), request.params(":from"), request.params(":amount"), transaction, request.body());
+                return bankManager.playerToBankTransfer(request.params(":bankid"), request.params(":from"), request.params(":amount"), transaction, reason.reason);
             } catch (Exception e) {
                 e.printStackTrace();
                 response.status(INSUFFICENT_FONDS);
