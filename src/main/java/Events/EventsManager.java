@@ -1,8 +1,15 @@
 package Events;
 
+import Enums.ServiceType;
 import Exceptions.EventDoesNotExistException;
 import Exceptions.EventPayloadIsInvalidException;
+import Tools.Helper;
+import Tools.YellowService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 
 import javax.naming.directory.InvalidSearchFilterException;
 import java.io.IOException;
@@ -33,7 +40,8 @@ class EventsManager {
         }
 
         this.eventPayloadList.add(event);
-
+        this.submitToClient(event);
+        
         return Tools.Helper.dataToJson(event);
     }
 
@@ -125,8 +133,21 @@ class EventsManager {
     }
 
     boolean submitToClient(EventPayload eventPayload) {
+        String clientServiceURL = YellowService.getServiceUrlForType(ServiceType.CLIENT);
+        clientServiceURL = clientServiceURL + "/event";
 
+        try {
+            HttpResponse<JsonNode> response = Unirest.post(clientServiceURL)
+                    .body(Helper.dataToJson(eventPayload))
+                    .asJson();
 
+            if (response.getStatus() == 200) {
+                return true;
+            }
+
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
 
         return false;
     }
