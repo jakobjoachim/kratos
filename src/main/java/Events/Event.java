@@ -31,6 +31,8 @@ public class Event implements Validable {
     // The uri of the player triggering it
     private String player;
 
+    private boolean submitted;
+
     // A timestamp when this event was given to the eventPayloadList service
     private String time = new java.util.Date().toString();
 

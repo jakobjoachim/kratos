@@ -39,9 +39,9 @@ class EventsManager {
             throw new EventPayloadIsInvalidException();
         }
 
+        event.setSubmitted(this.submitToClient(event));
         this.eventList.add(event);
-        this.submitToClient(event);
-        
+
         return Tools.Helper.dataToJson(event);
     }
 
@@ -112,7 +112,6 @@ class EventsManager {
         }
     }
 
-
     Event searchID(String searchedID) throws EventDoesNotExistException {
         Event searchedEvent = null;
 
@@ -132,12 +131,13 @@ class EventsManager {
         }
     }
 
-    boolean submitToClient(Event event) {
+    private boolean submitToClient(Event event) {
         String clientServiceURL = YellowService.getServiceUrlForType(ServiceType.CLIENT);
         clientServiceURL = clientServiceURL + "/event";
 
         try {
             HttpResponse<JsonNode> response = Unirest.post(clientServiceURL)
+                    .header("Content-Type", "application/json")
                     .body(Helper.dataToJson(event))
                     .asJson();
 
