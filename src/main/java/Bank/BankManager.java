@@ -265,7 +265,12 @@ public class BankManager {
             ObjectMapper objectMapper = new ObjectMapper();
             BankAccount bankAccount = objectMapper.readValue(payload, BankAccount.class);
             String accountUri = ("/accounts/" + bankAccount.getPlayer());
-            bankMap.get(searching).getAccounts().put(accountUri, bankAccount);
+            if (bankMap.get(searching).getAccounts().containsKey(accountUri)) {
+                throw new BankAccountDoesAlreadyExistException();
+            } else {
+                bankMap.get(searching).getAccounts().put(accountUri, bankAccount);
+
+            }
 
             return Tools.Helper.dataToJson(bankMap.get(searching).getAccounts().get(accountUri));
         } else {
