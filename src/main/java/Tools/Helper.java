@@ -1,7 +1,13 @@
 package Tools;
 
+import Enums.ServiceType;
+import Tools.SharedPayloads.EventPayload;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -25,6 +31,27 @@ public class Helper {
 
     public static String nextId() {
         return new BigInteger(130, random).toString(32);
+    }
+
+    public static boolean broadcastEvent(EventPayload eventPayload) {
+
+        String eventServiceUrl = YellowService.getServiceUrlForType(ServiceType.EVENTS);
+
+        try {
+            HttpResponse<JsonNode> response = Unirest.post(eventServiceUrl)
+                    .body(Helper.dataToJson(eventPayload))
+                    .asJson();
+
+            if (response.getStatus() == 200) {
+                return true;
+            }
+
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+
     }
 }
 

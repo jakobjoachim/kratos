@@ -77,6 +77,25 @@ public class YellowService {
                 } catch (UnirestException e) {
                     e.printStackTrace();
                 }
+            case BROKER:
+                String brokerTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSBrokerService";
+
+                try {
+                    result = getServiceUrl(brokerTypeServiceURL);
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
+
+                break;
+
+            case CLIENT:
+                String clientTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSClientService";
+
+                try {
+                    result = getServiceUrl(clientTypeServiceURL);
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
 
                 break;
 
