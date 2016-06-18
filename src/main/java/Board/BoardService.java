@@ -1,7 +1,7 @@
 package Board;
 
 
-import Exceptions.PlayerDoesNotExistException;
+import Exceptions.*;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -40,6 +40,12 @@ public class BoardService {
                 if (e instanceof JsonParseException) {
                     response.status(HTTP_BAD_REQUEST);
                 }
+                if (e instanceof BoardAlreadyExistException) {
+                    response.status(UNPROCESSABLE_ENTITY);
+                }
+                if (e instanceof PlaceAlreadyExistException) {
+                    response.status(UNPROCESSABLE_ENTITY);
+                }
                 return "";
             }
         });
@@ -52,11 +58,12 @@ public class BoardService {
 
         delete("/boards/:gameId", (request, response) -> {
             response.status(OK);
-            response.type("application/json");
             try {
                 return model.removeBoard(request.params(":gameId"));
             } catch (Exception e) {
-                response.status(RESOURCE_NOT_FOUND);
+                if (e instanceof BoardAlreadyExistException) {
+                    response.status(UNPROCESSABLE_ENTITY);
+                }
                 return "";
             }
         });
@@ -95,11 +102,13 @@ public class BoardService {
 
         delete("/boards/:gameId/pawns/:pawnId", (request, response) -> {
             response.status(OK);
-            response.type("application/json");
             try {
                 return model.removePawn(request.params(":gameId"), request.params(":pawnId"));
             } catch (Exception e) {
-                if (e instanceof PlayerDoesNotExistException) {
+                if (e instanceof PawnDoesNotExistException) {
+                    response.status(RESOURCE_NOT_FOUND);
+                }
+                if (e instanceof BoardDoesNotExistException) {
                     response.status(RESOURCE_NOT_FOUND);
                 }
                 return "";
