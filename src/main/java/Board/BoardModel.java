@@ -107,8 +107,8 @@ public class BoardModel {
     }
 
 
-    public Set<String> getAllGames() {
-        return boards.keySet();
+    public String getAllGames() {
+        return Tools.Helper.dataToJson(boards.keySet());
     }
 
 
