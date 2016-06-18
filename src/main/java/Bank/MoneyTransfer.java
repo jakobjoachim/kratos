@@ -1,12 +1,15 @@
 package Bank;
 
 import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Data
+@RequiredArgsConstructor
 public class MoneyTransfer {
-    private String transferId;
-    private String from;
-    private String to;
-    private int amount;
+    String transferId;
+    @NonNull private String from;
+    @NonNull private String to;
+    @NonNull private int amount;
     private String reason;
 }

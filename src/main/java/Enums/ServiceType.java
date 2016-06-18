@@ -1,5 +1,5 @@
 package Enums;
 
 public enum ServiceType {
-    EVENTS, DICE, GAME, USER, BOARD
+    EVENTS, DICE, GAME, USER, BOARD, BANK
 }

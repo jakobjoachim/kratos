@@ -1,22 +1,22 @@
 package Broker;
 
-public class PlaceTransfer {
+class PlaceTransfer {
     private String oldOwner;
-    private String newOwner;
-    private Place place;
+    String newOwner;
+    Place place;
 
-    public PlaceTransfer(String to, Place thePlace){
+    PlaceTransfer(String to, Place thePlace){
         place = thePlace;
         oldOwner = place.getOwner();
         newOwner = to;
     }
 
-    public boolean rollback() {
+    boolean rollback() {
         place.setOwner(oldOwner);
         return true;
     }
 
-    public boolean commit() {
+    boolean commit() {
         place.setOwner(newOwner);
         return true;
     }

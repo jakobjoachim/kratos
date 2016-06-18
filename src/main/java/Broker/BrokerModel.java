@@ -1,7 +1,14 @@
 package Broker;
 
+import Bank.MoneyTransfer;
+import Enums.ServiceType;
 import Exceptions.*;
 import Tools.Helper;
+import Tools.YellowService;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,11 +27,11 @@ class BrokerModel {
         }
     }
 
-    String createPlace(String placeId, String type, String description, String gameId) throws Exception {
+    String createPlace(String placeId, String type, String description, String gameId, int buyCost, Map<Integer, Integer> rentMap, int hypothecarycreditAmount) throws Exception {
         if (brokerMap.containsKey(gameId)) {
             Broker broker = brokerMap.get(gameId);
             if (!(brokerMap.get(gameId).getPlaces().keySet().contains(placeId))) {
-                Place place = new Place(description, type);
+                Place place = new Place(description, type, buyCost, rentMap, hypothecarycreditAmount);
                 broker.getPlaces().put(placeId, place);
                 return Helper.dataToJson(place);
             } else {
@@ -40,8 +47,9 @@ class BrokerModel {
             if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
                 if (place.getOwner() == null) {
-                    //TODO: Notify Bank and make sure place only gets sold if transaction is complete
-                    place.setOwner(playerUri);
+                    //TODO: Get correct uri for the bank
+                    String bankUri = YellowService.getServiceUrlForType(ServiceType.BANK);
+                    distributedTransaction(playerUri, "bank", place.getBuycost(), place, "bankuri");
                     return Helper.dataToJson(place);
                 } else {
                     throw new PlaceAlreadySoldException();
@@ -110,7 +118,7 @@ class BrokerModel {
         }
     }
 
-    public String visitPlace(String placeId, String gameId, String playerUri, String placeType) throws Exception{
+    String visitPlace(String placeId, String gameId, String playerUri, String placeType) throws Exception{
         if (brokerMap.containsKey(gameId)) {
             if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
@@ -126,6 +134,32 @@ class BrokerModel {
             }
         } else {
             throw new GameDoesNotExistException();
+        }
+    }
+
+    private boolean distributedTransaction(String from, String to, int amount, Place place, String bankUri) {
+        MoneyTransfer moneyTransfer = new MoneyTransfer(from, to, amount);
+        PlaceTransfer placeTransfer = new PlaceTransfer(to, place);
+        if (placeTransfer.commit()) {
+            try {
+                transferMoney(bankUri, moneyTransfer);
+            } catch (Exception e){
+                placeTransfer.rollback();
+            }
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    private String transferMoney(String bankUri, MoneyTransfer moneyTransfer) throws Exception{
+        String url = bankUri + "/transfer/from/" + moneyTransfer.getFrom() + "/to/" + moneyTransfer.getTo() + "/" + moneyTransfer.getAmount();
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.post(url).asJson();
+            JSONObject data = jsonResponse.getBody().getObject();
+            return (String) data.get("transactionId");
+        } catch (Exception e){
+            throw new MoneyTransferFailedException();
         }
     }
 }

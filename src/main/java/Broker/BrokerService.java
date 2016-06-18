@@ -43,7 +43,7 @@ public class BrokerService {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
-                String createdPlace = model.createPlace(request.params(":placeId"), creation.getDescription(), creation.getType(), request.params(":gameId"));
+                String createdPlace = model.createPlace(request.params(":placeId"), creation.getDescription(), creation.getType(), request.params(":gameId"), creation.getBuycost(), creation.getRentMap(), creation.getHypothecarycreditAmount());
                 response.status(CREATED);
                 response.type("application/json");
                 return createdPlace;
