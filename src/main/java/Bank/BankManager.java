@@ -25,14 +25,23 @@ public class BankManager {
     //Erstellt eine neue Bank
     String createNewBank(String bankId) throws BankAlreadyExistsException {
         Bank bank = new Bank();
-        String url = ("/banks/" + bankId);
-        if (!(bankMap.containsKey(url))) {
+        String bankUri = ("/banks/" + bankId);
+        if (!(bankMap.containsKey(bankUri))) {
             bank.setId(bankId);
-            bankMap.put(url, bank);
+            bankMap.put(bankUri, bank);
         } else {
             throw new BankAlreadyExistsException();
         }
-        return Tools.Helper.dataToJson(url);
+        return Tools.Helper.dataToJson(bankUri);
+    }
+
+    String getBank(String bankId) throws BankDoesNotExistException {
+        String bankUri = ("/banks/" + bankId);
+        if (bankMap.containsKey(bankUri)) {
+            return Tools.Helper.dataToJson(bankMap.get(bankUri));
+        } else {
+            throw new BankDoesNotExistException();
+        }
     }
 
     //Alle Transfers
