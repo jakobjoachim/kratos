@@ -27,7 +27,7 @@ public class BoardModel {
 
         String url = brokerUri + gameId + "/places/" + id;
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.put(url).body(Helper.dataToJson(place)).asJson();
+            HttpResponse<JsonNode> jsonResponse = Unirest.post(url).body(Helper.dataToJson(place)).asJson();
             JSONObject data = jsonResponse.getBody().getObject();
             String uri = (String) data.get("placeUri");
             board.getPlaceUri().put(fieldId, uri);

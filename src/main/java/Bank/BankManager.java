@@ -32,7 +32,7 @@ public class BankManager {
         } else {
             throw new BankAlreadyExistsException();
         }
-        return Tools.Helper.dataToJson(bank);
+        return Tools.Helper.dataToJson(url);
     }
 
     //Alle Transfers
