@@ -3,6 +3,7 @@ package User;
 import Exceptions.UserAlreadyExistsException;
 import Exceptions.UserDoesNotExistException;
 import Tools.Helper;
+import Tools.SharedPayloads.EventPayload;
 
 import java.util.*;
 
@@ -14,15 +15,27 @@ class UserModel {
         user.setName(name);
         user.setUri(uri);
         String url = ("/users/" + name).toLowerCase();
+
         if (userMap.containsKey(url)) {
             throw new UserAlreadyExistsException();
         }
+
+        Helper.broadcastEvent(
+                new EventPayload(
+                        "user created",
+                        "none",
+                        "user created",
+                        "A new user has been added to the system",
+                        url.toLowerCase(),
+                        "none"
+                )
+        );
+
         userMap.put(url, user);
-        String json = ("\""+ url + "\"").toLowerCase();
-        return json;
+        return url.toLowerCase();
     }
 
-    String getAllUsers(){
+    String getAllUsers() {
         return Helper.dataToJson(userMap.keySet());
     }
 
