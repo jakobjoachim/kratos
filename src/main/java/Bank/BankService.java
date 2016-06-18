@@ -48,7 +48,7 @@ public class BankService {
         });
 
         //Neue Bank erstellen TODO checked
-        put("/banks/:bankid", (request, response) -> {
+        post("/banks/:bankid", (request, response) -> {
             try {
                 return bankManager.createNewBank(request.params(":bankid"));
             } catch (Exception e) {
