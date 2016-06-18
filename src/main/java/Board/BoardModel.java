@@ -50,7 +50,32 @@ public class BoardModel {
             e.printStackTrace();
         }
         try {
-            createPlaceAndField("Straße zum baden", "Badstraße", 100, rent, 5, gameUri, board, 0, board.getId());
+            createPlaceAndField("a", "Badstraße", 100, rent, 5, gameUri, board, 1, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("as", "Talstrasse", 100, rent, 5, gameUri, board, 2, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("dfgdf", "Grosse Freiheit", 100, rent, 5, gameUri, board, 3, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("sdfsdf", "Korachstrasse", 100, rent, 5, gameUri, board, 4, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("jhjhj", "Unterberg", 100, rent, 5, gameUri, board, 5, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Berliner Tor", 100, rent, 5, gameUri, board, 6, board.getId());
         } catch (PlaceAlreadyExistException e) {
             e.printStackTrace();
         }
