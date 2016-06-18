@@ -79,6 +79,7 @@ public class BankManager {
                 } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
                     getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
                     bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
+                    getTransaction(searching, searchingTransaction).setPhases(TransactionPhase.Zwei);
                     bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
                     bankMap.get(searching).getTransfers().add(transfer);
                 } else {
@@ -108,6 +109,7 @@ public class BankManager {
                 } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
                     getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
                     bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
+                    getTransaction(searching, searchingTransaction).setPhases(TransactionPhase.Zwei);
                     bankMap.get(searching).getTransfers().add(transfer);
                 } else {
                     throw new TransactionIsNotReadyException();
@@ -137,6 +139,7 @@ public class BankManager {
                 } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
                     getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
                     bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
+                    getTransaction(searching, searchingTransaction).setPhases(TransactionPhase.Zwei);
                     bankMap.get(searching).getTransfers().add(transfer);
                 } else {
                     throw new TransactionIsNotReadyException();
@@ -205,6 +208,19 @@ public class BankManager {
         String searchingTransaction = ("/transaction/" + transactionId);
         if (bankMap.containsKey(searching)) {
             if (bankMap.get(searching).getTransactionMap().containsKey(searchingTransaction)) {
+                Transaction transaction = getTransaction(searching, searchingTransaction);
+                if (transaction.getPhases() == TransactionPhase.Zwei) {
+                    String toUri = transaction.getTransferInTransaction().get(0).getTo();
+                    String fromUri = transaction.getTransferInTransaction().get(0).getFrom();
+                    int amount =  transaction.getTransferInTransaction().get(0).getAmount();
+                    if (fromUri.contains("/banks/")) {
+                        bankMap.get(searching).getAccounts().get(toUri).subMoney(amount);
+                    } else {
+                        bankMap.get(searching).getAccounts().get(fromUri).addMoney(amount);
+                    }
+                    bankMap.get(searching).getTransactionMap().remove(searchingTransaction);
+                }
+
                 bankMap.get(searching).getTransactionMap().remove(searchingTransaction);
             } else {
                 throw new TransactionDoesNotExistException();
