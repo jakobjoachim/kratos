@@ -1,9 +1,16 @@
 package Game;
 
 import Enums.GameStatus;
+import Enums.ServiceType;
 import Exceptions.*;
 import Tools.Helper;
 import Tools.Mutex;
+import Tools.YellowService;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +19,7 @@ import java.util.Set;
 
 public class GameModel {
 
+    //TODO: status = null nicht gut mach mal heil! heute
     private static Map<String, Game> gameMap = new HashMap<>();
 
     public String getAllGames() {
@@ -205,6 +213,7 @@ public class GameModel {
                 playerMutex.unlock();
                 return returnMessage;
             }
+            turnMessenger(gameMap.get(searchingGame).getPlayerQueue().peek(), game);
             return "";
         } else {
             throw new GameDoesNotExistException();
@@ -232,5 +241,11 @@ public class GameModel {
         } else {
             throw new GameDoesNotExistException();
         }
+    }
+
+    private void turnMessenger(String nextPlayer, String game) throws UnirestException {
+        String uri = YellowService.getServiceUrlForType(ServiceType.CLIENT) + "/turn";
+        MessengerPayload loadDaShip = new MessengerPayload(nextPlayer, game);
+        HttpResponse<JsonNode> jsonResponse = Unirest.post(uri).body(loadDaShip).asJson();
     }
 }
