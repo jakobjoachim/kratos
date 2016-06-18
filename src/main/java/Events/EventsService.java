@@ -20,11 +20,15 @@ public class EventsService {
 
         EventsManager eventsManager = new EventsManager();
 
-        before(((request, response) -> response.type("application/json")));
         before(((request, response) -> {
             response.header("Description", "An events manager for RESTopoly");
             response.type("application/json");
         }));
+
+        get("/", (request, response) -> {
+            response.status(200);
+            return "OK";
+        });
 
         // get events based on search params
         get("/events", (request, response) -> {
