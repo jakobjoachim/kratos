@@ -6,6 +6,7 @@ import Enums.ServiceType;
 import Exceptions.*;
 import Tools.Helper;
 import Tools.YellowService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -254,6 +255,27 @@ public class BoardModel {
             jsonResponse = Unirest.post(playerName).asJson();
         }
         JSONObject data = jsonResponse.getBody().getObject();
+
+        String dice = YellowService.getServiceUrlForType(ServiceType.DICE) + "?game=" + gameId + "&player=" + pawnId;
+        HttpResponse<JsonNode>  jsonRes = Unirest.get(dice).asJson();
+        ObjectMapper mapper = new ObjectMapper();
+        RollPayload creation = mapper.readValue(jsonRes.getBody().toString(), RollPayload.class);
+        int steps = Integer.parseInt(creation.getNumber());
+
+        if (boards.containsKey(gameId)) {
+            if (boards.get(gameId).getPawnPositions().containsKey(pawnId)) {
+                for (Pawn paws : boards.get(gameId).getPawnPositions().keySet()) {
+                    if (paws.getId() == pawnId) {
+                        paws.move(steps);
+                        return Helper.dataToJson(paws);
+                    }
+                }
+            } else {
+                throw new PawnDoesNotExistException();
+            }
+        } else {
+            throw new BoardDoesNotExistException();
+        }
         return Helper.dataToJson(data);
     }
 }
