@@ -17,10 +17,10 @@ import java.util.*;
 
 class EventsManager {
 
-    private List<EventPayload> eventPayloadList;
+    private List<Event> eventList;
 
     protected EventsManager() {
-        this.eventPayloadList = new ArrayList<>();
+        this.eventList = new ArrayList<>();
     }
 
     /**
@@ -32,27 +32,27 @@ class EventsManager {
     String createNewEvent(String payload) throws IOException, EventPayloadIsInvalidException {
 
         ObjectMapper objectMapper = new ObjectMapper();
-        EventPayload event = objectMapper.readValue(payload, EventPayload.class);
+        Event event = objectMapper.readValue(payload, Event.class);
         event.setId("/events/" + Tools.Helper.nextId());
 
         if (!(event.isValid())) {
             throw new EventPayloadIsInvalidException();
         }
 
-        this.eventPayloadList.add(event);
+        this.eventList.add(event);
         this.submitToClient(event);
         
         return Tools.Helper.dataToJson(event);
     }
 
-    ArrayList<EventPayload> searchEvent(Map<String, String> searchValues) throws InvalidSearchFilterException {
+    ArrayList<Event> searchEvent(Map<String, String> searchValues) throws InvalidSearchFilterException {
 
         if (searchValues.size() == 0) {
             throw new InvalidSearchFilterException("Please enter some search values");
         }
 
-        ArrayList<EventPayload> matching = new ArrayList<>();
-        eventPayloadList.forEach(eventPayload -> matching.add(eventPayload));
+        ArrayList<Event> matching = new ArrayList<>();
+        eventList.forEach(eventPayload -> matching.add(eventPayload));
 
         // Filter down and remove those frickin' ol' bastards...
         for (int i = 0; i < matching.size(); i++) {
@@ -88,37 +88,37 @@ class EventsManager {
             throw new InvalidSearchFilterException("Please enter some search values");
         }
 
-        for (int i = 0; i < eventPayloadList.size(); i++) {
+        for (int i = 0; i < eventList.size(); i++) {
 
-            if (searchValues.get("name") != null && !(eventPayloadList.get(i).getName().equals(searchValues.get("name")))) {
-                eventPayloadList.remove(i);
+            if (searchValues.get("name") != null && !(eventList.get(i).getName().equals(searchValues.get("name")))) {
+                eventList.remove(i);
             }
-            if (searchValues.get("player") != null && !(eventPayloadList.get(i).getPlayer().equals(searchValues.get("player")))) {
-                eventPayloadList.remove(i);
+            if (searchValues.get("player") != null && !(eventList.get(i).getPlayer().equals(searchValues.get("player")))) {
+                eventList.remove(i);
             }
-            if (searchValues.get("game") != null && !(eventPayloadList.get(i).getGame().equals(searchValues.get("game")))) {
-                eventPayloadList.remove(i);
+            if (searchValues.get("game") != null && !(eventList.get(i).getGame().equals(searchValues.get("game")))) {
+                eventList.remove(i);
             }
-            if (searchValues.get("reason") != null && !(eventPayloadList.get(i).getReason().equals(searchValues.get("reason")))) {
-                eventPayloadList.remove(i);
+            if (searchValues.get("reason") != null && !(eventList.get(i).getReason().equals(searchValues.get("reason")))) {
+                eventList.remove(i);
             }
-            if (searchValues.get("resource") != null && !(eventPayloadList.get(i).getResource().equals(searchValues.get("resource")))) {
-                eventPayloadList.remove(i);
+            if (searchValues.get("resource") != null && !(eventList.get(i).getResource().equals(searchValues.get("resource")))) {
+                eventList.remove(i);
             }
-            if (searchValues.get("type") != null && !(eventPayloadList.get(i).getType().equals(searchValues.get("type")))) {
-                eventPayloadList.remove(i);
+            if (searchValues.get("type") != null && !(eventList.get(i).getType().equals(searchValues.get("type")))) {
+                eventList.remove(i);
             }
 
         }
     }
 
 
-    EventPayload searchID(String searchedID) throws EventDoesNotExistException {
-        EventPayload searchedEvent = null;
+    Event searchID(String searchedID) throws EventDoesNotExistException {
+        Event searchedEvent = null;
 
         if (searchedID.equals("")) {
         }
-        for (EventPayload event : eventPayloadList) {
+        for (Event event : eventList) {
 
             if (event.getId().equals(searchedID)) {
                 searchedEvent = event;
@@ -132,13 +132,13 @@ class EventsManager {
         }
     }
 
-    boolean submitToClient(EventPayload eventPayload) {
+    boolean submitToClient(Event event) {
         String clientServiceURL = YellowService.getServiceUrlForType(ServiceType.CLIENT);
         clientServiceURL = clientServiceURL + "/event";
 
         try {
             HttpResponse<JsonNode> response = Unirest.post(clientServiceURL)
-                    .body(Helper.dataToJson(eventPayload))
+                    .body(Helper.dataToJson(event))
                     .asJson();
 
             if (response.getStatus() == 200) {
