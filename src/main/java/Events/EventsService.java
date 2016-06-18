@@ -2,6 +2,7 @@ package Events;
 import Exceptions.EventDoesNotExistException;
 import Exceptions.EventPayloadIsInvalidException;
 import Tools.Helper;
+import Tools.JsonErrorGenerator;
 
 import javax.naming.directory.InvalidSearchFilterException;
 import java.beans.Expression;
@@ -20,11 +21,15 @@ public class EventsService {
 
         EventsManager eventsManager = new EventsManager();
 
-        before(((request, response) -> response.type("application/json")));
         before(((request, response) -> {
             response.header("Description", "An events manager for RESTopoly");
             response.type("application/json");
         }));
+
+        get("/", (request, response) -> {
+            response.status(200);
+            return "OK";
+        });
 
         // get events based on search params
         get("/events", (request, response) -> {
@@ -64,18 +69,19 @@ public class EventsService {
 
         get("/events/:eventid", (request, response) -> Tools.Helper.dataToJson(eventsManager.searchID(request.params(":eventid"))) );
 
-        // Exception Mapping
-
         exception(EventDoesNotExistException.class, (exception, request, response) -> {
             response.status(HTTP_BAD_REQUEST);
+            response.body(JsonErrorGenerator.getErrorJsonString(HTTP_BAD_REQUEST, "event does not exist"));
         });
 
         exception(EventPayloadIsInvalidException.class, (exception, request, response) -> {
             response.status(HTTP_BAD_REQUEST);
+            response.body(JsonErrorGenerator.getErrorJsonString(HTTP_BAD_REQUEST, "event payload is invalid"));
         });
 
         exception(InvalidSearchFilterException.class, (exception, request, response) -> {
             response.status(HTTP_BAD_REQUEST);
+            response.body(JsonErrorGenerator.getErrorJsonString(HTTP_BAD_REQUEST, "invalid search filter"));
         });
     }
 
