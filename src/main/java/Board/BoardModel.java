@@ -92,7 +92,7 @@ public class BoardModel {
 //        createPlaceAndField(38, "Zusatzsteuer", gameUri);
 //        createPlaceAndField(39, "Schlossallee", gameUri);
 
-        return Helper.dataToJson(board);
+        return Helper.dataToJson(board.getId());
     }
 
     public String placePawn(String player, String place, String position, String id) {
