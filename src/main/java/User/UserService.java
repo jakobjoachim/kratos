@@ -2,6 +2,9 @@ package User;
 
 import Exceptions.UserAlreadyExistsException;
 import Exceptions.UserDoesNotExistException;
+import Exceptions.UserPayloadIsInvalidException;
+import Tools.Helper;
+import Tools.JsonErrorGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,30 +20,24 @@ public class UserService {
     public static void main(String[] args){
         UserModel model = new UserModel();
 
-        post("/users", (request, response) -> {
-            try{
-                ObjectMapper mapper = new ObjectMapper();
-                UserPayload creation = mapper.readValue(request.body(), UserPayload.class);
-                if (!(creation.isValid())){
-                    response.status(HTTP_BAD_REQUEST);
-                    return "";
-                }
-                String createdUrl = model.createUser(creation.getName(), creation.getUri());
-                response.status(OK);
-                response.type("application/json");
-                return createdUrl;
-            }catch(Exception e){
-                if (e instanceof UserAlreadyExistsException) {
-                    response.status(UNPROCESSABLE_ENTITY);
-                }
-                if (e instanceof JsonParseException) {
-                    response.status(HTTP_BAD_REQUEST);
-                }
-                return "";
-            }
+        get("/", (request, response) -> {
+            response.status(200);
+            return "OK";
         });
 
-        //TODO: exception(UserAlreadyExistsException.class, );
+        post("/users", (request, response) -> {
+            ObjectMapper mapper = new ObjectMapper();
+            UserPayload creation = mapper.readValue(request.body(), UserPayload.class);
+
+            if (!(creation.isValid())){
+                throw new UserPayloadIsInvalidException();
+            }
+
+            String createdUrl = model.createUser(creation.getName(), creation.getUri());
+            response.status(OK);
+            response.type("application/json");
+            return createdUrl;
+        });
 
         get("/users", (request, response) -> {
             response.status(OK);
@@ -88,5 +85,28 @@ public class UserService {
             }
             return "{ \"status\": \"success\" }";
         });
+
+        exception(UserAlreadyExistsException.class, (e, request, response) -> {
+            response.status(UNPROCESSABLE_ENTITY);
+            response.type("application/json");
+
+            response.body(
+                    Helper.dataToJson(
+                            JsonErrorGenerator.getErrorJsonString(UNPROCESSABLE_ENTITY, "user already exists")
+                    )
+            );
+        });
+
+        exception(JsonParseException.class, (e, request, response) -> {
+            response.status(HTTP_BAD_REQUEST);
+            response.type("application/json");
+
+            response.body(
+                    Helper.dataToJson(
+                            JsonErrorGenerator.getErrorJsonString(HTTP_BAD_REQUEST, "json could not be parsed")
+                    )
+            );
+        });
+
     }
 }
