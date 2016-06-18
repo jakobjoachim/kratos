@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Data
-class PlacePayload implements Validable{
+public class PlacePayload implements Validable{
     private String type;
     private String description;
     private int buycost;

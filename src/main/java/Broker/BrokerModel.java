@@ -35,8 +35,7 @@ class BrokerModel {
             if (!(brokerMap.get(gameId).getPlaces().keySet().contains(placeId))) {
                 Place place = new Place(description, type, buyCost, rentMap, hypothecarycreditAmount);
                 broker.getPlaces().put(placeId, place);
-                String placeUriJson = "{\"placeUri\": \"/broker/" + gameId + "/places/" + placeId + "\"}";
-                return placeUriJson;
+                return "{\"placeUri\": \"/broker/" + gameId + "/places/" + placeId + "\"}";
             } else {
                 throw new PlaceAlreadyExistException();
             }
