@@ -28,7 +28,6 @@ class EventsManager {
         EventPayload event = objectMapper.readValue(payload, EventPayload.class);
         event.setId("/events/" + Tools.Helper.nextId());
 
-
         this.eventPayloadList.add(event);
 
         if (!(event.isValid())) {

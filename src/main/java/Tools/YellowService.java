@@ -19,7 +19,7 @@ public class YellowService {
         switch (type) {
 
             case EVENTS:
-                String eventTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSEventsService";
+                String eventTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSEventService";
 
                 try {
                     result = getServiceUrl(eventTypeServiceURL);
