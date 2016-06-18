@@ -68,8 +68,8 @@ public class BankService {
             return "";
         });
 
-        //Gibt einen Transfer wieder
-        get("/banks/{bankid}/transfers/:transferid", (request, response) -> {
+        //Gibt einen MoneyTransfer wieder
+        get("/banks/{bankid}/moneyTransferInTransaction/:transferid", (request, response) -> {
             try {
                 return bankManager.getTransfer(request.params(":bankid"), request.params(":transferid"));
             } catch (Exception e) {

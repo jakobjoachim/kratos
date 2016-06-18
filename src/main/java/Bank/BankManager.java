@@ -38,7 +38,7 @@ public class BankManager {
     }
 
     //Alle Transfers
-    List<Transfer> getAllTransfers(String bankId) throws BankDoesNotExistException {
+    List<MoneyTransfer> getAllTransfers(String bankId) throws BankDoesNotExistException {
         String searching = ("\"/banks/" + bankId + "\"");
         if (bankMap.containsKey(searching)) {
             return bankMap.get(searching).getTransfers();
@@ -47,14 +47,14 @@ public class BankManager {
         }
     }
 
-    //Gibt einen Transfer wieder
+    //Gibt einen MoneyTransfer wieder
     String getTransfer(String bankId, String tranferId) throws BankDoesNotExistException {
         String searching = ("\"/banks/" + bankId + "\"");
         if (bankMap.containsKey(searching)) {
 
-            for (Transfer transfer : bankMap.get(searching).getTransfers()) {
-                if (transfer.getTransferId().equals(tranferId)) {
-                    return Tools.Helper.dataToJson(transfer);
+            for (MoneyTransfer moneyTransfer : bankMap.get(searching).getTransfers()) {
+                if (moneyTransfer.getTransferId().equals(tranferId)) {
+                    return Tools.Helper.dataToJson(moneyTransfer);
                 }
             }
         } else {
@@ -62,7 +62,6 @@ public class BankManager {
         }
         return "";
     }
-
     //Transfer von einem zum anderen Spieler mit Transaction
     String playerToPlayerTransfer(String bankId, String fromId, String toId, String amount, String searchingTransaction, String reason) throws Exception {
         String searching = ("\"/banks/" + bankId + "\"");
@@ -71,10 +70,7 @@ public class BankManager {
         if (bankMap.containsKey(searching)) {
             if (bankMap.get(searching).getAccounts().containsKey(fromUri) && bankMap.get(searching).getAccounts().containsKey(toUri)) {
                 int money = Integer.parseInt(amount);
-                Transfer transfer = new Transfer();
-                transfer.setAmount(money);
-                transfer.setFrom(fromUri);
-                transfer.setTo(toUri);
+                MoneyTransfer transfer = new MoneyTransfer(fromUri, toUri, money);
                 transfer.setReason(reason);
                 if (searchingTransaction.equals("withoutTransaction")) {
                     bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
@@ -97,7 +93,6 @@ public class BankManager {
         }
     }
 
-
     //Transfer von der Bank zu einem Spieler
     String bankToPlayerTransfer(String bankId, String playerId, String amount, String searchingTransaction, String reason) throws Exception {
         String searching = ("\"/banks/" + bankId + "\"");
@@ -105,10 +100,7 @@ public class BankManager {
         if (bankMap.containsKey(searching)) {
             if (bankMap.get(searching).getAccounts().containsKey(playerUri)) {
                 int money = Integer.parseInt(amount);
-                Transfer transfer = new Transfer();
-                transfer.setAmount(money);
-                transfer.setFrom(searching);
-                transfer.setTo(playerUri);
+                MoneyTransfer transfer = new MoneyTransfer(searching, playerUri, Integer.getInteger(amount));
                 transfer.setReason(reason);
                 if (searchingTransaction.equals("withoutTransaction")) {
                     bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
@@ -124,6 +116,7 @@ public class BankManager {
             } else {
                 throw new BankAccountDoesNotExistException();
             }
+
         } else {
             throw new BankDoesNotExistException();
         }
@@ -135,11 +128,8 @@ public class BankManager {
         String playerUri = ("\"/accounts/" + playerId + "\"");
         if (bankMap.containsKey(searching)) {
             if (bankMap.get(searching).getAccounts().containsKey(playerUri)) {
-                Transfer transfer = new Transfer();
-                int money = Integer.parseInt(amount);
-                transfer.setAmount(money);
-                transfer.setTo(searching);
-                transfer.setFrom(playerUri);
+                int money = Integer.getInteger(amount);
+                MoneyTransfer transfer = new MoneyTransfer(playerUri, searching, money);
                 transfer.setReason(reason);
                 if (searchingTransaction.equals("withoutTransaction")) {
                     bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);

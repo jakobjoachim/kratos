@@ -12,5 +12,5 @@ public class Transaction {
     String id;
     TransactionStatus status;
     TransactionPhase phases;
-    List<Transfer> transferInTransaction = new ArrayList<>();
+    List<MoneyTransfer> transferInTransaction = new ArrayList<>();
 }

@@ -69,6 +69,16 @@ public class YellowService {
                 }
 
                 break;
+            case BANK:
+                String bankTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSBankService";
+
+                try {
+                    result = getServiceUrl(bankTypeServiceURL);
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
+
+                break;
 
             default: break;
         }
