@@ -2,17 +2,16 @@ package Bank;
 
 import Enums.TransactionPhase;
 import Enums.TransactionStatus;
-
-
-import java.util.HashMap;
-
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static spark.Spark.*;
 
 public class BankService {
 
     private static final int HTTP_BAD_REQUEST = 400;
+    private static final int RESOURCE_NOT_FOUND = 404;
+    private static final int INSUFFICENT_FONDS = 403;
+    private static final int PLAYER_ALREADY_GOT_A_ACCOUNT = 409;
 
     public static void main(String[] args) {
         BankManager bankManager = new BankManager();
@@ -31,7 +30,7 @@ public class BankService {
         //Liste aller Banken TODO checked
         get("/banks", (request, response) -> {
             try {
-                return Tools.Helper.dataToJson(bankManager.getAllBanks());
+                return bankManager.getAllBanks();
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
@@ -51,7 +50,7 @@ public class BankService {
         //Neue Bank erstellen TODO checked
         put("/banks/:bankid", (request, response) -> {
             try {
-                return Tools.Helper.dataToJson(bankManager.createNewBank(request.params(":bankid")));
+                return bankManager.createNewBank(request.params(":bankid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
@@ -61,7 +60,7 @@ public class BankService {
         //Alle möglichen Transfers todo checked without content
         get("/banks/:bankid/transfers", (request, response) -> {
             try {
-                return Tools.Helper.dataToJson(bankManager.getAllTransfers(request.params(":bankid")));
+                return bankManager.getAllTransfers(request.params(":bankid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
@@ -78,50 +77,62 @@ public class BankService {
             return "";
         });
 
-        //Geld vom Spieler zu Spieler überweisen
+        //Geld vom Spieler zu Spieler überweisen todo checked
         post("/banks/:bankid/transfer/from/:from/to/:to/:amount", (request, response) -> {
             try {
                 String transaction;
-                if (request.queryMap().hasValue()) {
+                ObjectMapper mapper = new ObjectMapper();
+                ReasonPayload reason = mapper.readValue(request.body(), ReasonPayload.class);
+
+                if (request.queryMap().get("transaction").hasValue()) {
                     transaction = request.queryMap().get("transaction").value();
                 } else {
                     transaction = "withoutTransaction";
                 }
-                return Tools.Helper.dataToJson(bankManager.playerToPlayerTransfer(request.params(":bankid"), request.params(":from"), request.params(":to"), request.params(":amount"), transaction, request.body()));
+                return bankManager.playerToPlayerTransfer(request.params(":bankid"), request.params(":from"), request.params(":to"), request.params(":amount"), transaction, reason.reason);
             } catch (Exception e) {
+                e.printStackTrace();
                 response.status(HTTP_BAD_REQUEST);
             }
             return "";
         });
 
-        //Geld von der Bank zum Spieler überweisen
+        //Geld von der Bank zum Spieler überweisen todo checked
         post("/banks/:bankid/transfer/to/:to/:amount", (request, response) -> {
             try {
                 String transaction;
-                if (request.queryMap().hasValue()) {
+                ObjectMapper mapper = new ObjectMapper();
+                ReasonPayload reason = mapper.readValue(request.body(), ReasonPayload.class);
+
+                if (request.queryMap().get("transaction").hasValue()) {
                     transaction = request.queryMap().get("transaction").value();
                 } else {
                     transaction = "withoutTransaction";
                 }
-                return Tools.Helper.dataToJson(bankManager.bankToPlayerTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction, request.body()));
+                return bankManager.bankToPlayerTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction, reason.reason);
             } catch (Exception e) {
-                response.status(HTTP_BAD_REQUEST);
+                e.printStackTrace();
+                response.status(INSUFFICENT_FONDS);
             }
             return "";
         });
 
-        //Geld vom Spieler einziehen
+        //Geld vom Spieler einziehen todo checked
         post("/banks/:bankid/transfer/from/:from/:amount", (request, response) -> {
             try {
                 String transaction;
-                if (request.queryMap().hasValue()) {
+                ObjectMapper mapper = new ObjectMapper();
+                ReasonPayload reason = mapper.readValue(request.body(), ReasonPayload.class);
+
+                if (request.queryMap().get("transaction").hasValue()) {
                     transaction = request.queryMap().get("transaction").value();
                 } else {
                     transaction = "withoutTransaction";
                 }
-                return Tools.Helper.dataToJson(bankManager.playerToBankTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction, request.body()));
+                return bankManager.playerToBankTransfer(request.params(":bankid"), request.params(":from"), request.params(":amount"), transaction, reason.reason);
             } catch (Exception e) {
-                response.status(HTTP_BAD_REQUEST);
+                e.printStackTrace();
+                response.status(INSUFFICENT_FONDS);
             }
             return "";
         });
@@ -135,9 +146,9 @@ public class BankService {
                 } else {
                     phases = TransactionPhase.Eins;
                 }
-                return Tools.Helper.dataToJson(bankManager.beginOfTransaction(request.params(":bankid"), phases));
+                return bankManager.beginOfTransaction(request.params(":bankid"), phases);
             } catch (Exception e) {
-                response.status(HTTP_BAD_REQUEST);
+                response.status(INSUFFICENT_FONDS);
             }
             return "";
         });
@@ -145,14 +156,14 @@ public class BankService {
         //Gibt Status einer Transaktion wieder todo checked
         get("/banks/:bankid/transaction/:tid", (request, response) -> {
             try {
-                return Tools.Helper.dataToJson(bankManager.getTransactionStatus(request.params(":bankid"),request.params(":tid")));
+                return bankManager.getTransactionStatus(request.params(":bankid"),request.params(":tid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
             return "";
         });
 
-        //Commited Transaktion
+        //Commited Transaktion todo checked
         put("/banks/:bankid/transaction/:tid", (request, response) -> {
             try {
                 TransactionStatus state;
@@ -161,17 +172,17 @@ public class BankService {
                 } else {
                     state = TransactionStatus.commit;
                 }
-                return Tools.Helper.dataToJson(bankManager.commitTransaction(request.params(":bankid"),request.params(":tid"), state));
+                return bankManager.commitTransaction(request.params(":bankid"),request.params(":tid"), state);
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
             return "";
         });
 
-        // Rollback einer Transaktion
+        // Rollback einer Transaktion todo checked
         delete("/banks/:bankid/transaction/:tid", (request, response) -> {
             try {
-                return Tools.Helper.dataToJson(bankManager.rollbackTransaction(request.params(":bankid"),request.params(":tid")));
+                return bankManager.rollbackTransaction(request.params(":bankid"),request.params(":tid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
@@ -196,7 +207,7 @@ public class BankService {
         //Kontostand abfragen todo checked
         get("/banks/:bankid/accounts/:accountid", (request, response) -> {
             try {
-                return Tools.Helper.dataToJson(bankManager.getBankAccountBalance(request.params(":bankid"),request.params(":accountid")));
+                return bankManager.getBankAccountBalance(request.params(":bankid"),request.params(":accountid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }

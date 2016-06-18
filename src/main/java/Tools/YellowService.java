@@ -88,6 +88,17 @@ public class YellowService {
 
                 break;
 
+            case CLIENT:
+                String clientTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSClientService";
+
+                try {
+                    result = getServiceUrl(clientTypeServiceURL);
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
+
+                break;
+
             default: break;
         }
 

@@ -10,6 +10,7 @@ import java.util.Map;
 public class Place {
     @NonNull String description;
     @NonNull String type;
+    private int numberHouses;
     private String owner;
     private int buycost;
     private Map<Integer, Integer> rentMap = new HashMap<>();
@@ -24,5 +25,6 @@ public class Place {
         hypothecarycreditAmount = thehypoAmount;
         rentMap = theRentMap;
         buycost = theBuyCost;
+        numberHouses = 0;
     }
 }
