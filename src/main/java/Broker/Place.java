@@ -1,13 +1,14 @@
 package Broker;
 
 import lombok.Data;
+import lombok.NonNull;
 
 import java.util.Map;
 
 @Data
 class Place {
-    private String description;
-    private String type;
+    @NonNull String description;
+    @NonNull String type;
     private String owner;
     private int buycost;
     private Map<Integer, Integer> rentMap;

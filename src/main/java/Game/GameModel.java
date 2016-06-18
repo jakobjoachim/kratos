@@ -14,8 +14,8 @@ public class GameModel {
 
     private static Map<String, Game> gameMap = new HashMap<>();
 
-    public Set<String> getAllGames() {
-        return gameMap.keySet();
+    public String getAllGames() {
+        return Helper.dataToJson(gameMap.keySet());
     }
 
     public String createGame(String name, Map<String, String> services) throws GameAlreadyExistsException {
@@ -23,17 +23,18 @@ public class GameModel {
         game.setName(name);
         game.setServices(services);
         game.setStatus(GameStatus.registration);
-        String url = ("\"/games/" + name + "\"").toLowerCase();
+        String url = ("/games/" + name).toLowerCase();
         if (gameMap.containsKey(url)) {
             throw new GameAlreadyExistsException();
         }
         game.setId(name);
         gameMap.put(url, game);
-        return url;
+        String json = ("\""+ url + "\"").toLowerCase();
+        return json;
     }
 
     public String getGameInfo(String game) throws GameDoesNotExistException {
-        String searching = "\"/games/" + game + "\"";
+        String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
             Game result = new Game();
             String id = "/games/" + game;
@@ -48,7 +49,7 @@ public class GameModel {
     }
 
     public String getGameStatus(String game) throws GameDoesNotExistException {
-        String searching = "\"/games/" + game + "\"";
+        String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
             return Helper.dataToJson(gameMap.get(searching).getStatus());
         } else {
@@ -58,7 +59,7 @@ public class GameModel {
 
     public String setStatus(String game, GameStatus status) throws Exception {
         if ((status.equals(GameStatus.running)) || (status.equals(GameStatus.finished))) {
-            String searching = "\"/games/" + game + "\"";
+            String searching = "/games/" + game;
             if (gameMap.keySet().contains(searching)) {
                 gameMap.get(searching).setStatus(status);
                 if (status.equals(GameStatus.running)) {
@@ -77,7 +78,7 @@ public class GameModel {
     }
 
     public String getPlayers(String game) throws GameDoesNotExistException {
-        String searching = "\"/games/" + game + "\"";
+        String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
             ArrayList<String> playerArray = new ArrayList<>();
             for (String id : gameMap.get(searching).getPlayers().keySet()) {
@@ -91,7 +92,7 @@ public class GameModel {
     }
 
     public String addUser(String name, boolean ready, String game) throws GameDoesNotExistException {
-        String searching = "\"/games/" + game + "\"";
+        String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
             gameMap.get(searching).getPlayers().put(name, ready);
             return "";
@@ -101,7 +102,7 @@ public class GameModel {
     }
 
     public String getServices(String game) throws GameDoesNotExistException {
-        String searching = "\"/games/" + game + "\"";
+        String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
             return Helper.dataToJson(gameMap.get(searching).getServices());
         } else {
@@ -110,7 +111,7 @@ public class GameModel {
     }
 
     public String getComponents(String game) throws GameDoesNotExistException {
-        String searching = "\"/games/" + game + "\"";
+        String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
             return Helper.dataToJson(gameMap.get(searching).getComponents());
         } else {
@@ -119,7 +120,7 @@ public class GameModel {
     }
 
     public String removePlayer(String game, String player) throws Exception {
-        String searchingGame = "\"/games/" + game + "\"";
+        String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
             if (gameMap.get(searchingGame).getPlayers().containsKey(player)) {
                 gameMap.get(searchingGame).getPlayers().remove(player);
@@ -133,10 +134,10 @@ public class GameModel {
     }
 
     public String getPlayerReady(String game, String player) throws Exception {
-        String searchingGame = "\"/games/" + game + "\"";
+        String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
             if (gameMap.get(searchingGame).getPlayers().containsKey(player)) {
-                return (gameMap.get(searchingGame).getPlayers().get(player).toString());
+                return Helper.dataToJson(gameMap.get(searchingGame).getPlayers().get(player).toString());
             } else {
                 throw new UserDoesNotExistException();
             }
@@ -146,7 +147,7 @@ public class GameModel {
     }
 
     public String putPlayerReady(String game, String player) throws Exception {
-        String searchingGame = "\"/games/" + game + "\"";
+        String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
             if (gameMap.get(searchingGame).getPlayers().containsKey(player)) {
                 if (gameMap.get(searchingGame).getPlayers().get(player).equals(true)) {
@@ -166,7 +167,7 @@ public class GameModel {
     }
 
     public String getCurrentPlayer(String game) throws GameDoesNotExistException {
-        String searchingGame = "\"/games/" + game + "\"";
+        String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
             return Helper.dataToJson(gameMap.get(searchingGame).getPlayerQueue().peek());
         } else {
@@ -175,7 +176,7 @@ public class GameModel {
     }
 
     String getTurnHolder(String game) throws GameDoesNotExistException {
-        String searchingGame = "\"/games/" + game + "\"";
+        String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
             String holder = gameMap.get(searchingGame).getPlayerMutex().getLockHolder();
             if (holder == null) {
@@ -189,7 +190,7 @@ public class GameModel {
     }
 
     String endTurn(String game) throws Exception {
-        String searchingGame = "\"/games/" + game + "\"";
+        String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
             Mutex playerMutex = gameMap.get(searchingGame).getPlayerMutex();
             if (playerMutex.getLockHolder() == null) {
@@ -211,7 +212,7 @@ public class GameModel {
     }
 
     int putTurn(String game, String player) throws Exception {
-        String searchingGame = "\"/games/" + game + "\"";
+        String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
             if (gameMap.get(searchingGame).getPlayers().keySet().contains(player)) {
                 Mutex playerMutex = gameMap.get(searchingGame).getPlayerMutex();

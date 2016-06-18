@@ -43,10 +43,10 @@ public class BrokerService {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
-                String createdPlace = model.createPlace(request.params(":placeId"), creation.getDescription(), creation.getType(), request.params(":gameId"), creation.getBuycost(), creation.getRentMap(), creation.getHypothecarycreditAmount());
+                String placeUri = model.createPlace(request.params(":placeId"), creation.getDescription(), creation.getType(), request.params(":gameId"), creation.getBuycost(), creation.getRentMap(), creation.getHypothecarycreditAmount());
                 response.status(CREATED);
                 response.type("application/json");
-                return createdPlace;
+                return placeUri;
             } catch (Exception e) {
                 if (e instanceof GameDoesNotExistException) {
                     response.status(RESOURCE_NOT_FOUND);

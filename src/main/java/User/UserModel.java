@@ -13,7 +13,7 @@ public class UserModel {
         User user = new User();
         user.setName(name);
         user.setUri(uri);
-        String url = ("\"/users/" + name + "\"").toLowerCase();
+        String url = ("/users/" + name).toLowerCase();
         if (userMap.containsKey(url)) {
             throw new UserAlreadyExistsException();
         }
@@ -26,7 +26,7 @@ public class UserModel {
     }
 
     public String getUserInfo(String user) throws UserDoesNotExistException {
-        String searching = "\"/users/" + user + "\"";
+        String searching = "/users/" + user;
         if (userMap.keySet().contains(searching)) {
             UserInfoPayload result = new UserInfoPayload();
             String id = "/users/" + user;
@@ -40,7 +40,7 @@ public class UserModel {
     }
 
     public String editUser(String url, String name, String uri) throws UserDoesNotExistException {
-        String searching = "\"/users/" + url + "\"";
+        String searching = "/users/" + url;
         if (userMap.containsKey(searching)){
             userMap.get(searching).setName(name);
             userMap.get(searching).setUri(uri);
@@ -49,7 +49,7 @@ public class UserModel {
     }
 
     public static void deleteUser(String id) throws UserDoesNotExistException {
-        String searching = "\"/users/" + id + "\"";
+        String searching = "/users/" + id;
         if (!(userMap.containsKey(searching))) {
             throw new UserDoesNotExistException();
         }
