@@ -27,7 +27,7 @@ public class BrokerService {
         });
 
         // Registers a new broker for a game.
-        put("/broker/:gameId", (request, response) -> {
+        post("/broker/:gameId", (request, response) -> {
             response.status(CREATED);
             response.type("application/json");
             String game = request.params(":gameId");
@@ -40,7 +40,7 @@ public class BrokerService {
         });
 
         // Registers the place with the broker, won't change anything if already registered.
-        put("/broker/:gameId/places/:placeId", (request, response) -> {
+        post("/broker/:gameId/places/:placeId", (request, response) -> {
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 PlacePayload creation = mapper.readValue(request.body(), PlacePayload.class);
