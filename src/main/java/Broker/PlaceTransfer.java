@@ -2,8 +2,8 @@ package Broker;
 
 class PlaceTransfer {
     private String oldOwner;
-    String newOwner;
-    Place place;
+    private String newOwner;
+    private Place place;
 
     PlaceTransfer(String to, Place thePlace){
         place = thePlace;
