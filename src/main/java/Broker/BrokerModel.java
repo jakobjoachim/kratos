@@ -145,6 +145,7 @@ class BrokerModel {
                 transferMoney(bankUri, moneyTransfer);
             } catch (Exception e){
                 placeTransfer.rollback();
+                return false;
             }
         } else {
             return false;
