@@ -15,25 +15,29 @@ import java.util.Map;
 
 class BrokerModel {
 
+    private static final String REASON = "\"reason\": \"";
+    private static final String END = "\"";
     private static Map<String, Broker> brokerMap = new HashMap<>();
 
     String createNewGame(String game) throws GameAlreadyExistsException{
         if (!(brokerMap.containsKey(game))) {
             Broker broker = new Broker();
             broker.setGameId(game);
-            return game;
+            brokerMap.put(game, broker);
+            return Helper.dataToJson(game);
         } else {
             throw new GameAlreadyExistsException();
         }
     }
 
-    String createPlace(int placeId, String type, String description, String gameId, int buyCost, Map<Integer, Integer> rentMap, int hypothecarycreditAmount) throws Exception {
+    String createPlace(String placeId, String type, String description, String gameId, int buyCost, Map<Integer, Integer> rentMap, int hypothecarycreditAmount) throws Exception {
         if (brokerMap.containsKey(gameId)) {
             Broker broker = brokerMap.get(gameId);
             if (!(brokerMap.get(gameId).getPlaces().keySet().contains(placeId))) {
                 Place place = new Place(description, type, buyCost, rentMap, hypothecarycreditAmount);
                 broker.getPlaces().put(placeId, place);
-                return Helper.dataToJson(place);
+                String placeUriJson = "{\"placeUri\": \"/broker/" + gameId + "/places/" + placeId + "\"}";
+                return placeUriJson;
             } else {
                 throw new PlaceAlreadyExistException();
             }
@@ -42,14 +46,12 @@ class BrokerModel {
         }
     }
 
-    String buyPlace(int placeId, String gameId, String playerUri, String placeType) throws Exception {
+    String buyPlace(String placeId, String gameId, String playerUri) throws Exception {
         if (brokerMap.containsKey(gameId)) {
             if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
                 if (place.getOwner() == null) {
-                    //TODO: Get correct uri for the bank
-                    String bankUri = YellowService.getServiceUrlForType(ServiceType.BANK);
-                    distributedTransaction(playerUri, "bank", place.getBuycost(), place, "bankuri");
+                    buyThePlace(playerUri, place.getBuycost(), place, gameId);
                     return Helper.dataToJson(place);
                 } else {
                     throw new PlaceAlreadySoldException();
@@ -62,31 +64,12 @@ class BrokerModel {
         }
     }
 
-    String tradePlace(int placeId, String gameId, String playerUri) throws Exception{
-        if (brokerMap.containsKey(gameId)) {
-            if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
-                Place place = brokerMap.get(gameId).getPlaces().get(placeId);
-                if (!(place.getOwner() == null)) {
-                    place.setOwner(playerUri);
-                    return Helper.dataToJson(place);
-                } else {
-                    throw new PlaceNotSoldException();
-                }
-            } else {
-                throw new PlaceDoesNotExistException();
-            }
-        } else {
-            throw new GameDoesNotExistException();
-        }
-    }
-
-    String takeHypothecarycredit(int placeId, String gameId) throws Exception {
+    String takeHypothecarycredit(String placeId, String gameId) throws Exception {
         if (brokerMap.containsKey(gameId)) {
             if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
                 if (!(place.isHypothecarycredit())) {
-                    //TODO: Notify Bank and make sure place is only Hypothecarycredited if transaction is successful
-                    place.setHypothecarycredit(true);
+                    getHypothecarycredit(place.getOwner(), place.getHypothecarycreditAmount(), gameId, place);
                     return Helper.dataToJson(place);
                 } else {
                     throw new AlreadyHasAHypothecarycreditException();
@@ -99,13 +82,12 @@ class BrokerModel {
         }
     }
 
-    String payHypothecarycredit(int placeId, String gameId) throws Exception {
+    String payHypothecarycredit(String placeId, String gameId) throws Exception {
         if (brokerMap.containsKey(gameId)) {
             if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
                 if (place.isHypothecarycredit()) {
-                    //TODO: Notify Bank and make sure place is only anti Hypothecarycredited if transaction is successful
-                    place.setHypothecarycredit(false);
+                    removeHypothecarycredit(place.getOwner(), place.getHypothecarycreditAmount(), place, gameId);
                     return Helper.dataToJson(place);
                 } else {
                     throw new NoHypothecarycreditOnThePlaceException();
@@ -118,13 +100,12 @@ class BrokerModel {
         }
     }
 
-    String visitPlace(int placeId, String gameId, String playerUri, String placeType) throws Exception{
+    String visitPlace(String placeId, String gameId, String playerUri) throws Exception{
         if (brokerMap.containsKey(gameId)) {
             if (brokerMap.get(gameId).getPlaces().keySet().contains(placeId)) {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
                 if (!(place.getOwner() == null)) {
-                    String playerToPay = place.getOwner();
-                    //TODO: pay owner depending on the placeType??
+                    payRent(playerUri, place.getOwner(), place.getRentMap().get(place.getNumberHouses()), gameId);
                     return Helper.dataToJson(place);
                 } else {
                     throw new PlaceNotSoldException();
@@ -137,12 +118,21 @@ class BrokerModel {
         }
     }
 
-    private boolean distributedTransaction(String from, String to, int amount, Place place, String bankUri) {
-        MoneyTransfer moneyTransfer = new MoneyTransfer(from, to, amount);
-        PlaceTransfer placeTransfer = new PlaceTransfer(to, place);
+    private void payRent(String from, String to, int amount, String gameId) throws Exception {
+        String bankUri = getBankUri(gameId);
+        String url = bankUri + "/transfer/from/" + from + "/to" + to + "/amount/" + amount;
+        String reason = REASON + "rent" + END;
+        transferMoney(url, reason);
+    }
+
+    private boolean buyThePlace(String buyer, int amount, Place place, String gameId) throws NoBankRegisteredException {
+        PlaceTransfer placeTransfer = new PlaceTransfer(buyer, place);
+        String bankUri = getBankUri(gameId);
         if (placeTransfer.commit()) {
             try {
-                transferMoney(bankUri, moneyTransfer);
+                String url = bankUri + "/transfer/from/" + buyer + "/" + amount;
+                String reason = REASON + "buying: "+ place.getDescription() + END;
+                transferMoney(url, reason);
             } catch (Exception e){
                 placeTransfer.rollback();
                 return false;
@@ -153,14 +143,52 @@ class BrokerModel {
         return true;
     }
 
-    private String transferMoney(String bankUri, MoneyTransfer moneyTransfer) throws Exception{
-        String url = bankUri + "/transfer/from/" + moneyTransfer.getFrom() + "/to/" + moneyTransfer.getTo() + "/" + moneyTransfer.getAmount();
+    private void getHypothecarycredit(String player, int amount, String gameId, Place place) throws NoBankRegisteredException {
+        String bankUri = getBankUri(gameId);
+        String url = bankUri + "/transfer/to" + player + "/amount/" + amount;
+        String reason = REASON + "Hypothecarycredit" + END;
+        HypothecarycreditTransfer transfer = new HypothecarycreditTransfer(place, true);
+        if(transfer.commit()) {
+            try {
+                transferMoney(url, reason);
+            } catch (Exception e) {
+                transfer.rollback();
+            }
+        }
+    }
+
+    private void removeHypothecarycredit(String player, int amount, Place place, String gameId) throws NoBankRegisteredException {
+        String bankUri = getBankUri(gameId);
+        String url = bankUri + "/transfer/from" + player + "/amount/" + amount;
+        String reason = REASON + "Paying the Hypothecarycredit" + END;
+        HypothecarycreditTransfer transfer = new HypothecarycreditTransfer(place, false);
+        if(transfer.commit()) {
+            try {
+                transferMoney(url, reason);
+            } catch (Exception e) {
+                transfer.rollback();
+            }
+        }
+    }
+
+    private String transferMoney(String uri, String jsonBody) throws Exception{
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.post(url).asJson();
+            HttpResponse<JsonNode> jsonResponse = Unirest.post(uri).body(jsonBody).asJson();
             JSONObject data = jsonResponse.getBody().getObject();
             return (String) data.get("transactionId");
         } catch (Exception e){
             throw new MoneyTransferFailedException();
+        }
+    }
+
+    private String getBankUri(String gameId) throws NoBankRegisteredException {
+        String gameServiceUri = YellowService.getServiceUrlForType(ServiceType.GAME) + gameId + "/services";
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(gameServiceUri).asJson();
+            JSONObject data = jsonResponse.getBody().getObject();
+            return (String) data.get("bank");
+        } catch (Exception e){
+            throw new NoBankRegisteredException();
         }
     }
 }

@@ -18,6 +18,12 @@ public class GameService {
     public static void main(String[] args) {
         GameModel model = new GameModel();
 
+        get("/", (request, response) -> {
+            response.status(OK);
+            response.type("application/json");
+            return "";
+        });
+
         get("/games", (request, response) -> {
             response.status(OK);
             response.type("application/json");
