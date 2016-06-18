@@ -43,7 +43,7 @@ public class BrokerService {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
-                String placeUri = model.createPlace(request.params(":placeId"), creation.getDescription(), creation.getType(), request.params(":gameId"), creation.getBuycost(), creation.getRentMap(), creation.getHypothecarycreditAmount());
+                String placeUri = model.createPlace(Integer.getInteger(request.params(":placeId")), creation.getDescription(), creation.getType(), request.params(":gameId"), creation.getBuycost(), creation.getRentMap(), creation.getHypothecarycreditAmount());
                 response.status(CREATED);
                 response.type("application/json");
                 return placeUri;
@@ -70,7 +70,7 @@ public class BrokerService {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
-                String place = model.buyPlace(request.params(":placeId"), request.params(":gameId"), creation.getDescription(), creation.getType());
+                String place = model.buyPlace(Integer.getInteger(request.params(":placeId")), request.params(":gameId"), creation.getDescription(), creation.getType());
                 response.status(OK);
                 response.type("application/json");
                 return place;
@@ -97,7 +97,7 @@ public class BrokerService {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
-                String place = model.tradePlace(request.params(":placeId"), request.params(":gameId"), creation.getDescription());
+                String place = model.tradePlace(Integer.getInteger(request.params(":placeId")), request.params(":gameId"), creation.getDescription());
                 response.status(OK);
                 response.type("application/json");
                 return place;
@@ -118,7 +118,7 @@ public class BrokerService {
         // takes a hypothecary credit onto the place
         put("/broker/:gameId/places/:placeId/hypothecarycredit", (request, response) -> {
             try {
-                String place = model.takeHypothecarycredit(request.params(":placeId"), request.params(":gameId"));
+                String place = model.takeHypothecarycredit(Integer.getInteger(request.params(":placeId")), request.params(":gameId"));
                 response.status(OK);
                 response.type("application/json");
                 return place;
@@ -139,7 +139,7 @@ public class BrokerService {
         // removes the hypothecary credit from the place
         delete("/broker/:gameId/places/:placeId/hypothecarycredit", (request, response) -> {
             try {
-                String place = model.payHypothecarycredit(request.params(":placeId"), request.params(":gameId"));
+                String place = model.payHypothecarycredit(Integer.getInteger(request.params(":placeId")), request.params(":gameId"));
                 response.status(OK);
                 response.type("application/json");
                 return place;
@@ -166,7 +166,7 @@ public class BrokerService {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
-                String place = model.visitPlace(request.params(":placeId"), request.params(":gameId"), creation.getDescription(), creation.getType());
+                String place = model.visitPlace(Integer.getInteger(request.params(":placeId")), request.params(":gameId"), creation.getDescription(), creation.getType());
                 response.status(OK);
                 response.type("application/json");
                 return place;
