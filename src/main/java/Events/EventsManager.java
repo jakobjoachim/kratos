@@ -28,11 +28,11 @@ class EventsManager {
         EventPayload event = objectMapper.readValue(payload, EventPayload.class);
         event.setId("/events/" + Tools.Helper.nextId());
 
-        this.eventPayloadList.add(event);
-
         if (!(event.isValid())) {
             throw new EventPayloadIsInvalidException();
         }
+
+        this.eventPayloadList.add(event);
 
         return Tools.Helper.dataToJson(event);
     }
@@ -122,5 +122,12 @@ class EventsManager {
         else {
             throw new EventDoesNotExistException();
         }
+    }
+
+    boolean submitToClient(EventPayload eventPayload) {
+
+
+
+        return false;
     }
 }
