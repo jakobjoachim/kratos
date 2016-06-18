@@ -1,14 +1,10 @@
 package Events;
 import Exceptions.EventDoesNotExistException;
 import Exceptions.EventPayloadIsInvalidException;
-import Tools.Helper;
 import Tools.JsonErrorGenerator;
 
 import javax.naming.directory.InvalidSearchFilterException;
-import java.beans.Expression;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static spark.Spark.*;
@@ -28,6 +24,7 @@ public class EventsService {
 
         get("/", (request, response) -> {
             response.status(200);
+            response.type("text/html");
             return "OK";
         });
 
@@ -64,7 +61,6 @@ public class EventsService {
 
         }));
 
-        // Create a new eventPayloadList resource
         post("/events", (request, response) -> eventsManager.createNewEvent(request.body()) );
 
         get("/events/:eventid", (request, response) -> Tools.Helper.dataToJson(eventsManager.searchID(request.params(":eventid"))) );
