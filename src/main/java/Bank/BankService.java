@@ -12,6 +12,8 @@ public class BankService {
     private static final int RESOURCE_NOT_FOUND = 404;
     private static final int INSUFFICENT_FONDS = 403;
     private static final int PLAYER_ALREADY_GOT_A_ACCOUNT = 409;
+    private static final int CREATED = 201;
+    private static final int OK = 200;
 
     public static void main(String[] args) {
         BankManager bankManager = new BankManager();
@@ -19,6 +21,8 @@ public class BankService {
         //Liste aller Banken TODO checked
         get("/banks", (request, response) -> {
             try {
+                response.status(OK);
+                response.type("application/json");
                 return bankManager.getAllBanks();
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
@@ -28,8 +32,10 @@ public class BankService {
 
         //Neue Bank erstellen mit random Id TODO checked
         post("/banks", (request, response) -> {
+            response.status(CREATED);
             try {
-                return Tools.Helper.dataToJson(bankManager.createNewBank(Tools.Helper.nextId()));
+                response.type("application/json");
+                return bankManager.createNewBank(Tools.Helper.nextId());
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
@@ -39,7 +45,21 @@ public class BankService {
         //Neue Bank erstellen TODO checked
         post("/banks/:bankid", (request, response) -> {
             try {
+                response.status(CREATED);
+                response.type("application/json");
                 return bankManager.createNewBank(request.params(":bankid"));
+            } catch (Exception e) {
+                response.status(HTTP_BAD_REQUEST);
+            }
+            return "";
+        });
+
+        //Gibt eine Bank TODO checked
+        get("/banks/:bankid", (request, response) -> {
+            try {
+                response.status(RESOURCE_NOT_FOUND);
+                response.type("application/json");
+                return bankManager.getBank(request.params(":bankid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
             }
@@ -49,6 +69,8 @@ public class BankService {
         //Alle möglichen Transfers todo checked without content
         get("/banks/:bankid/transfers", (request, response) -> {
             try {
+                response.status(OK);
+                response.type("application/json");
                 return bankManager.getAllTransfers(request.params(":bankid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
@@ -59,6 +81,8 @@ public class BankService {
         //Gibt einen MoneyTransfer wieder
         get("/banks/{bankid}/moneyTransferInTransaction/:transferid", (request, response) -> {
             try {
+                response.status(OK);
+                response.type("application/json");
                 return bankManager.getTransfer(request.params(":bankid"), request.params(":transferid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
@@ -69,6 +93,8 @@ public class BankService {
         //Geld vom Spieler zu Spieler überweisen todo checked
         post("/banks/:bankid/transfer/from/:from/to/:to/:amount", (request, response) -> {
             try {
+                response.status(CREATED);
+                response.type("application/json");
                 String transaction;
                 ObjectMapper mapper = new ObjectMapper();
                 ReasonPayload reason = mapper.readValue(request.body(), ReasonPayload.class);
@@ -89,6 +115,8 @@ public class BankService {
         //Geld von der Bank zum Spieler überweisen todo checked
         post("/banks/:bankid/transfer/to/:to/:amount", (request, response) -> {
             try {
+                response.status(CREATED);
+                response.type("application/json");
                 String transaction;
                 ObjectMapper mapper = new ObjectMapper();
                 ReasonPayload reason = mapper.readValue(request.body(), ReasonPayload.class);
@@ -109,6 +137,8 @@ public class BankService {
         //Geld vom Spieler einziehen todo checked
         post("/banks/:bankid/transfer/from/:from/:amount", (request, response) -> {
             try {
+                response.status(CREATED);
+                response.type("application/json");
                 String transaction;
                 ObjectMapper mapper = new ObjectMapper();
                 ReasonPayload reason = mapper.readValue(request.body(), ReasonPayload.class);
@@ -126,9 +156,11 @@ public class BankService {
             return "";
         });
 
-        //Beginnt neue Transaktion todo check again
+        //Beginnt neue Transaktion todo checked
         post("/banks/:bankid/transaction", (request, response) -> {
             try {
+                response.status(OK);
+                response.type("application/json");
                 TransactionPhase phases;
                 if (request.queryMap().hasValue()) {
                     phases = TransactionPhase.fromInteger(Integer.parseInt(request.queryMap().get("phases").value()));
@@ -145,6 +177,8 @@ public class BankService {
         //Gibt Status einer Transaktion wieder todo checked
         get("/banks/:bankid/transaction/:tid", (request, response) -> {
             try {
+                response.status(OK);
+                response.type("application/json");
                 return bankManager.getTransactionStatus(request.params(":bankid"),request.params(":tid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
@@ -155,6 +189,8 @@ public class BankService {
         //Commited Transaktion todo checked
         put("/banks/:bankid/transaction/:tid", (request, response) -> {
             try {
+                response.status(OK);
+                response.type("application/json");
                 TransactionStatus state;
                 if (request.queryMap().get("state").hasValue()) {
                     state = TransactionStatus.valueOf(request.queryMap().get("state").value());
@@ -171,6 +207,8 @@ public class BankService {
         // Rollback einer Transaktion todo checked
         delete("/banks/:bankid/transaction/:tid", (request, response) -> {
             try {
+                response.status(OK);
+                response.type("application/json");
                 return bankManager.rollbackTransaction(request.params(":bankid"),request.params(":tid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
@@ -181,6 +219,8 @@ public class BankService {
         //Liste aller Konten todo checked
         get("/banks/:bankid/accounts", (request, response) -> {
             try {
+                response.status(OK);
+                response.type("application/json");
                 return bankManager.getAllAccounts(request.params(":bankid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
@@ -189,13 +229,22 @@ public class BankService {
         });
 
         //Erstellt neues Bankkonto todo checked
-        post("/banks/:bankid/accounts", (request, response) ->
-                bankManager.createNewAccount(request.params(":bankid"),request.body())
-        );
+        post("/banks/:bankid/accounts", (request, response) -> {
+            try {
+                response.type("application/json");
+                response.status(CREATED);
+                return bankManager.createNewAccount(request.params(":bankid"), request.body());
+            } catch (Exception e) {
+                response.status(PLAYER_ALREADY_GOT_A_ACCOUNT);
+            }
+            return "";
+        });
 
         //Kontostand abfragen todo checked
         get("/banks/:bankid/accounts/:accountid", (request, response) -> {
             try {
+                response.status(OK);
+                response.type("application/json");
                 return bankManager.getBankAccountBalance(request.params(":bankid"),request.params(":accountid"));
             } catch (Exception e) {
                 response.status(HTTP_BAD_REQUEST);
