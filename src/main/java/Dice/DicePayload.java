@@ -4,7 +4,7 @@ import Interfaces.Validable;
 import lombok.Data;
 
 @Data
-public class DicePayload implements Validable{
+class DicePayload implements Validable{
 
     private String reason = "dice roll occured";
     private String type = "dice roll";

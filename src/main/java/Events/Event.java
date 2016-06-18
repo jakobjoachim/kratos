@@ -2,13 +2,15 @@ package Events;
 
 import Interfaces.Validable;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.security.Timestamp;
 import java.util.Date;
 
 @Data
-public class EventPayload implements Validable {
+public class Event implements Validable {
     // the url to the event on the event server
+
     private String id;
 
     // human readable name for this event

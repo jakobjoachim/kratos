@@ -1,7 +1,7 @@
 package Enums;
 
 public enum TransactionPhase {
-    Eins(1), Zwei(2);
+    Eins(1), Zwei(2), Drei(3);
 
     private int value;
     private TransactionPhase(int value) {
@@ -14,6 +14,8 @@ public enum TransactionPhase {
                 return Eins;
             case 2:
                 return Zwei;
+            case  3:
+                return Drei;
 
         }
         return null;
