@@ -24,7 +24,7 @@ public class BoardService {
             return model.getAllGames();
         });
 
-        post("/games", (request, response) -> {
+        post("/boards", (request, response) -> {
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 BoardPayload creation = mapper.readValue(request.body(), BoardPayload.class);
