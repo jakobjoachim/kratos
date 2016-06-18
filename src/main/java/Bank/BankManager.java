@@ -69,8 +69,7 @@ public class BankManager {
         String toUri = ("\"/accounts/" + toId + "\"");
         if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
             int money = Integer.parseInt(amount);
-            MoneyTransfer moneyTransfer = new MoneyTransfer();
-            moneyTransfer.setAmount(money);
+            MoneyTransfer moneyTransfer = new MoneyTransfer(fromId, toId,Integer.getInteger(amount));
             if (bankMap.containsKey(searching)) {
                 if (bankMap.get(searching).getAccounts().containsKey(fromUri)) {
                     moneyTransfer.setFrom(fromUri);
@@ -101,7 +100,7 @@ public class BankManager {
         String searching = ("\"/banks/" + bankId + "\"");
         String playerUri = ("\"/accounts/" + playerId + "\"");
         if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
-            MoneyTransfer moneyTransfer = new MoneyTransfer();
+            MoneyTransfer moneyTransfer = new MoneyTransfer(searching, playerId,Integer.getInteger(amount));
             int money = Integer.parseInt(amount);
             moneyTransfer.setAmount(money);
             if (bankMap.containsKey(searching)) {
@@ -128,7 +127,7 @@ public class BankManager {
         String searching = ("\"/banks/" + bankId + "\"");
         String playerUri = ("\"/accounts/" + playerId + "\"");
         if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
-            MoneyTransfer moneyTransfer = new MoneyTransfer();
+            MoneyTransfer moneyTransfer = new MoneyTransfer(playerId, searching,Integer.getInteger(amount));
             int money = Integer.parseInt(amount);
             moneyTransfer.setAmount(money);
             if (bankMap.containsKey(searching)) {
