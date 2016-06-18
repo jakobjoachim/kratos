@@ -1,12 +1,10 @@
 package Bank;
 
-
 import Enums.TransactionPhase;
 import Enums.TransactionStatus;
 import Exceptions.*;
 import Tools.Helper;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 import java.util.*;
 
@@ -22,7 +20,6 @@ public class BankManager {
 
     private Transaction getTransaction(String bankUri, String transactionUri) {
         return bankMap.get(bankUri).getTransactionMap().get(transactionUri);
-
     }
 
     //Erstellt eine neue Bank

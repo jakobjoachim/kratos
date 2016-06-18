@@ -7,6 +7,9 @@ import static spark.Spark.*;
 public class BankService {
 
     private static final int HTTP_BAD_REQUEST = 400;
+    private static final int RESOURCE_NOT_FOUND = 404;
+    private static final int INSUFFICENT_FONDS = 403;
+    private static final int PLAYER_ALREADY_GOT_A_ACCOUNT = 409;
 
     public static void main(String[] args) {
         BankManager bankManager = new BankManager();
@@ -101,7 +104,7 @@ public class BankService {
                 return bankManager.bankToPlayerTransfer(request.params(":bankid"), request.params(":to"), request.params(":amount"), transaction, request.body());
             } catch (Exception e) {
                 e.printStackTrace();
-                response.status(HTTP_BAD_REQUEST);
+                response.status(INSUFFICENT_FONDS);
             }
             return "";
         });
@@ -118,7 +121,7 @@ public class BankService {
                 return bankManager.playerToBankTransfer(request.params(":bankid"), request.params(":from"), request.params(":amount"), transaction, request.body());
             } catch (Exception e) {
                 e.printStackTrace();
-                response.status(HTTP_BAD_REQUEST);
+                response.status(INSUFFICENT_FONDS);
             }
             return "";
         });
@@ -134,7 +137,7 @@ public class BankService {
                 }
                 return bankManager.beginOfTransaction(request.params(":bankid"), phases);
             } catch (Exception e) {
-                response.status(HTTP_BAD_REQUEST);
+                response.status(INSUFFICENT_FONDS);
             }
             return "";
         });
