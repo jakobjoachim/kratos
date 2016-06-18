@@ -133,6 +133,7 @@ public class BoardModel {
 
     public String getAllPlayerPositions(String gameId) throws NoPlayersInGameException {
         if (boards.containsKey(gameId)) {
+            //TODO gibt komisches json-etwas wieder // fixen
             return Helper.dataToJson(boards.get(gameId).getPawnPositions());
         } else {
             throw new NoPlayersInGameException();
