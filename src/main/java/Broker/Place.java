@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Data
-class Place {
+public class Place {
     @NonNull String description;
     @NonNull String type;
     private String owner;
@@ -16,7 +16,7 @@ class Place {
     private int hypothecarycreditAmount;
     private boolean hypothecarycredit;
 
-    Place (String theDescription, String theType, int theBuyCost, Map<Integer, Integer> theRentMap, int thehypoAmount){
+    public Place (String theDescription, String theType, int theBuyCost, Map<Integer, Integer> theRentMap, int thehypoAmount){
         description = theDescription;
         type = theType;
         owner = null;
