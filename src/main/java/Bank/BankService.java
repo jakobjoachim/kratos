@@ -16,17 +16,6 @@ public class BankService {
     public static void main(String[] args) {
         BankManager bankManager = new BankManager();
 
-        before(((request, response) -> response.type("application/json")));
-        before(((request, response) -> {
-            if (!request.contentType().equals("application/json")) {
-                response.status(HTTP_BAD_REQUEST);
-                return;
-            }
-            response.header("Description", "A BankService for RESTopoly");
-            response.type("application/json");
-        }
-        ));
-
         //Liste aller Banken TODO checked
         get("/banks", (request, response) -> {
             try {
