@@ -3,6 +3,7 @@ package Broker;
 import lombok.Data;
 import lombok.NonNull;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
@@ -11,7 +12,7 @@ class Place {
     @NonNull String type;
     private String owner;
     private int buycost;
-    private Map<Integer, Integer> rentMap;
+    private Map<Integer, Integer> rentMap = new HashMap<>();
     private int hypothecarycreditAmount;
     private boolean hypothecarycredit;
 
