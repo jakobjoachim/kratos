@@ -6,27 +6,23 @@ import Exceptions.*;
 import Tools.Helper;
 import Tools.Mutex;
 import Tools.YellowService;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class GameModel {
+class GameModel {
 
-    //TODO: status = null nicht gut mach mal heil! heute
     private static Map<String, Game> gameMap = new HashMap<>();
 
-    public String getAllGames() {
+    String getAllGames() {
         return Helper.dataToJson(gameMap.keySet());
     }
 
-    public String createGame(String name, Map<String, String> services) throws GameAlreadyExistsException {
+    String createGame(String name, Map<String, String> services) throws GameAlreadyExistsException {
         Game game = new Game();
         game.setName(name);
         game.setServices(services);
@@ -37,26 +33,19 @@ public class GameModel {
         }
         game.setId(name);
         gameMap.put(url, game);
-        String json = ("\""+ url + "\"").toLowerCase();
-        return json;
+        return ("\""+ url + "\"").toLowerCase();
     }
 
-    public String getGameInfo(String game) throws GameDoesNotExistException {
+    String getGameInfo(String game) throws GameDoesNotExistException {
         String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
-            Game result = new Game();
-            String id = "/games/" + game;
-            result.setId(id);
-            result.setName(gameMap.get(searching).getName().toLowerCase());
-            result.setServices(gameMap.get(searching).getServices());
-            result.setPlayers(gameMap.get(searching).getPlayers());
-            return Helper.dataToJson(result);
+            return Helper.dataToJson(gameMap.get(searching));
         } else {
             throw new GameDoesNotExistException();
         }
     }
 
-    public String getGameStatus(String game) throws GameDoesNotExistException {
+    String getGameStatus(String game) throws GameDoesNotExistException {
         String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
             return Helper.dataToJson(gameMap.get(searching).getStatus());
@@ -65,7 +54,7 @@ public class GameModel {
         }
     }
 
-    public String setStatus(String game, GameStatus status) throws Exception {
+    String setStatus(String game, GameStatus status) throws Exception {
         if ((status.equals(GameStatus.running)) || (status.equals(GameStatus.finished))) {
             String searching = "/games/" + game;
             if (gameMap.keySet().contains(searching)) {
@@ -85,7 +74,7 @@ public class GameModel {
         }
     }
 
-    public String getPlayers(String game) throws GameDoesNotExistException {
+    String getPlayers(String game) throws GameDoesNotExistException {
         String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
             ArrayList<String> playerArray = new ArrayList<>();
@@ -99,7 +88,7 @@ public class GameModel {
         }
     }
 
-    public String addUser(String name, boolean ready, String game) throws GameDoesNotExistException {
+    String addUser(String name, boolean ready, String game) throws GameDoesNotExistException {
         String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
             gameMap.get(searching).getPlayers().put(name, ready);
@@ -109,7 +98,7 @@ public class GameModel {
         }
     }
 
-    public String getServices(String game) throws GameDoesNotExistException {
+    String getServices(String game) throws GameDoesNotExistException {
         String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
             return Helper.dataToJson(gameMap.get(searching).getServices());
@@ -118,7 +107,7 @@ public class GameModel {
         }
     }
 
-    public String getComponents(String game) throws GameDoesNotExistException {
+    String getComponents(String game) throws GameDoesNotExistException {
         String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
             return Helper.dataToJson(gameMap.get(searching).getComponents());
@@ -127,7 +116,7 @@ public class GameModel {
         }
     }
 
-    public String removePlayer(String game, String player) throws Exception {
+    String removePlayer(String game, String player) throws Exception {
         String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
             if (gameMap.get(searchingGame).getPlayers().containsKey(player)) {
@@ -141,7 +130,7 @@ public class GameModel {
         }
     }
 
-    public String getPlayerReady(String game, String player) throws Exception {
+    String getPlayerReady(String game, String player) throws Exception {
         String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
             if (gameMap.get(searchingGame).getPlayers().containsKey(player)) {
@@ -154,7 +143,7 @@ public class GameModel {
         }
     }
 
-    public String putPlayerReady(String game, String player) throws Exception {
+    String putPlayerReady(String game, String player) throws Exception {
         String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
             if (gameMap.get(searchingGame).getPlayers().containsKey(player)) {
@@ -174,7 +163,7 @@ public class GameModel {
         }
     }
 
-    public String getCurrentPlayer(String game) throws GameDoesNotExistException {
+    String getCurrentPlayer(String game) throws GameDoesNotExistException {
         String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
             return Helper.dataToJson(gameMap.get(searchingGame).getPlayerQueue().peek());
@@ -245,10 +234,6 @@ public class GameModel {
     private void turnMessenger(String nextPlayer, String game) throws UnirestException {
         String uri = YellowService.getServiceUrlForType(ServiceType.CLIENT) + "/turn";
         MessengerPayload loadDaShip = new MessengerPayload(nextPlayer, game);
-        HttpResponse<JsonNode> jsonResponse =
-                Unirest.post(uri)
-                        .header("Content-Type", "application/json")
-                        .body(loadDaShip)
-                        .asJson();
+        Unirest.post(uri).header("Content-Type", "application/json").body(loadDaShip).asJson();
     }
 }
