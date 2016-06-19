@@ -7,7 +7,7 @@ import lombok.Data;
 class DicePayload implements Validable{
 
     private String reason = "dice roll occured";
-    private String type = "dice roll";
+    private String type = "dice_roll";
     private String name = "dice roll";
     private String game;
     private String player;

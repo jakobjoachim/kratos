@@ -5,6 +5,8 @@ import Broker.PlacePayload;
 import Enums.ServiceType;
 import Exceptions.*;
 import Tools.Helper;
+import Tools.SharedPayloads.EventPayload;
+import Tools.SharedPayloads.PayloadPayload;
 import Tools.YellowService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
@@ -117,6 +119,14 @@ public class BoardModel {
 //        createPlaceAndField(37, "Parkstraße", gameUri);
 //        createPlaceAndField(38, "Zusatzsteuer", gameUri);
 //        createPlaceAndField(39, "Schlossallee", gameUri);
+
+        // Beispiel für Event broadcasting, diese gut diese
+
+//        PayloadPayload payloadPayload = new PayloadPayload("ajshdkajshd", "ahsldkalksdlkas");
+//        EventPayload eventPayload = new EventPayload("",);
+//        eventPayload.setPayload(payloadPayload);
+//
+//        Helper.broadcastEvent(eventPayload);
 
         return Helper.dataToJson(board);
     }

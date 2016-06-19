@@ -25,4 +25,6 @@ public class EventPayload {
     // The uri of the player triggering it
     private final String player;
 
+    private PayloadPayload payload;
+
 }
