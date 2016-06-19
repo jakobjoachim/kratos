@@ -35,7 +35,7 @@ public class Event implements Validable {
     private boolean submitted;
 
     // A timestamp when this event was given to the eventPayloadList service
-    private String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").toString();
+    private String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
 
     @Override
     public boolean isValid() {
