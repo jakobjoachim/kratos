@@ -39,10 +39,20 @@ public class BoardModel {
         }
     }
 
-    String createBoard(String gameUri) throws BoardAlreadyExistException {
-        Board board = new Board(Helper.nextId());
-        String boardUri = "/boards/" + board.getId();
-        boards.put(board.getId(), board);
+    String createBoard(String gameUri) throws Exception {
+        if(gameUri.isEmpty()){
+            throw new MissingBodyException();
+        }
+        int index = gameUri.lastIndexOf("/") + 1;
+        String id = "";
+        for (int i = index; i < gameUri.length(); i++) {
+            id += gameUri.charAt(i);
+        }
+        if (boards.containsKey(id)) {
+            throw new BoardAlreadyExistException();
+        }
+        Board board = new Board(id);
+        boards.put(id, board);
         Map<Integer, Integer> rent = new HashMap<>();
         rent.put(1, 1);
 
@@ -131,15 +141,30 @@ public class BoardModel {
         return Helper.dataToJson(board);
     }
 
-    public String placePawn(String player, String place, String position, String id) {
+    public String placePawn(String player, String place, String position, String id) throws Exception {
+        if(player.isEmpty() || place.isEmpty() || position.isEmpty()){
+            throw new MissingBodyException();
+        }
+        if (!boards.containsKey(id)) {
+            throw new BoardDoesNotExistException();
+        }
+        int index = player.lastIndexOf("/") + 1;
+        String idPawn = "";
+        for (int i = index; i < player.length(); i++) {
+            idPawn += player.charAt(i);
+        }
         Pawn pawn = new Pawn();
         pawn.setPlayer(player);
         pawn.setPlace(place);
         pawn.setPosition(Integer.parseInt(position));
-        pawn.setId(Helper.nextId());
+        pawn.setId(idPawn);
+        for (Pawn pawns : boards.get(id).getPawns()) {
+            if (pawns.getId().equals(pawn.getId())) {
+                throw new PawnAlreadyExistsException();
+            }
+        }
         boards.get(id).getPawns().add(pawn);
-        boards.get(id).getPlaceUri().put(Integer.parseInt(pawn.getId()), place);
-        return Helper.dataToJson(pawn);
+        return Helper.dataToJson("Player successfully created");
     }
 
 
@@ -157,7 +182,7 @@ public class BoardModel {
     }
 
 
-    public String removeBoard(String gameId) throws BoardDoesNotExistException {
+    public String removeBoard(String gameId) throws Exception {
         if (boards.containsKey(gameId)) {
             boards.remove(gameId);
             return "Game with ID " + gameId + " removed successfully";
@@ -166,36 +191,32 @@ public class BoardModel {
         }
     }
 
-    public String getAllPlayerPositions(String gameId) throws NoPlayersInGameException {
+    public String getAllPlayerPositions(String gameId) throws Exception {
         if (boards.containsKey(gameId)) {
-            //TODO gibt komisches json-etwas wieder // fixen
             return Helper.dataToJson(boards.get(gameId).getPawns());
         } else {
-            throw new NoPlayersInGameException();
+            throw new BoardDoesNotExistException();
         }
     }
 
     public String removePawn(String gameId, String pawnId) throws Exception {
         if (boards.containsKey(gameId)) {
             for (Pawn paws : boards.get(gameId).getPawns()) {
-                if (paws.getId() == pawnId) {
+                if (paws.getId().equals(pawnId)) {
                     boards.get(gameId).getPawns().remove(boards.get(gameId).getPawns().indexOf(paws));
-                    if (boards.get(gameId).getPlaceUri().containsKey(pawnId)) {
-                        boards.get(gameId).getPlaceUri().remove(pawnId);
-                        return "Pawn with ID" + pawnId + "was sucessfully removed";
-                    }
+                    return pawnId + " was sucessfully removed";
                 }
             }
+            throw new PawnDoesNotExistException();
         } else {
             throw new BoardDoesNotExistException();
         }
-        return null;
     }
 
-    public String getPawns(String gameId, String pawnId) throws Exception {
+    public String getPawn(String gameId, String pawnId) throws Exception {
         if (boards.containsKey(gameId)) {
             for (Pawn paws : boards.get(gameId).getPawns()) {
-                if (paws.getId() == pawnId) {
+                if (paws.getId().equals(pawnId)) {
                     return Helper.dataToJson(paws);
                 }
             }
@@ -205,26 +226,27 @@ public class BoardModel {
         return null;
     }
 
+    //TODO Sinn und Zweck dieses Posts unklar
     public String movePawn(String move, String gameId, String pawnId) throws Exception {
         int steps = Integer.parseInt(move);
         if (boards.containsKey(gameId)) {
             for (Pawn paws : boards.get(gameId).getPawns()) {
-                if (paws.getId() == pawnId) {
+                if (paws.getId().equals(pawnId)) {
                     paws.move(steps);
-                    return Helper.dataToJson(paws);
+                    return Helper.dataToJson("The new position is" + paws.getPosition());
                 }
             }
+            throw new PawnDoesNotExistException();
         } else {
             throw new BoardDoesNotExistException();
         }
-        return null;
     }
 
 
     public String getRolls(String gameId, String pawnId) throws Exception {
         if (boards.containsKey(gameId)) {
             for (Pawn paws : boards.get(gameId).getPawns()) {
-                if (paws.getId() == pawnId) {
+                if (paws.getId().equals(pawnId)) {
                     return Helper.dataToJson(paws.getRoll());
                 }
             }
@@ -234,7 +256,7 @@ public class BoardModel {
         return null;
     }
 
-
+    //TODO Es wird null zurückgegeben, Kommunikation mit anderen Services testen
     public String rollDice(String gameId, String pawnId) throws Exception {
         Pawn pawn = new Pawn();
         if (boards.containsKey(gameId)) {
@@ -276,12 +298,12 @@ public class BoardModel {
         RollPayload creation = mapper.readValue(jsonRes.getBody().toString(), RollPayload.class);
         int steps = Integer.parseInt(creation.getNumber());
         if (boards.containsKey(gameId)) {
-                for (Pawn paws : boards.get(gameId).getPawns()) {
-                    if (paws.getId() == pawnId) {
-                        paws.move(steps);
-                        return Helper.dataToJson(paws);
-                    }
+            for (Pawn paws : boards.get(gameId).getPawns()) {
+                if (paws.getId().equals(pawnId)) {
+                    paws.move(steps);
+                    return Helper.dataToJson(paws);
                 }
+            }
         } else {
             throw new BoardDoesNotExistException();
         }

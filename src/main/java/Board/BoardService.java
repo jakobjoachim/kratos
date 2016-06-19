@@ -2,12 +2,12 @@ package Board;
 
 
 import Exceptions.*;
+import Tools.JsonErrorGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static spark.Spark.delete;
-import static spark.Spark.get;
-import static spark.Spark.post;
+import static spark.Spark.*;
+import static spark.Spark.exception;
 
 public class BoardService {
     private static final int HTTP_BAD_REQUEST = 400;
@@ -18,105 +18,75 @@ public class BoardService {
     public static void main(String[] args) {
         BoardModel model = new BoardModel();
 
+        //Getestet und funktioniert
         get("/boards", (request, response) -> {
             response.status(OK);
             response.type("application/json");
             return model.getAllGames();
         });
 
+        //Getestet und funktioniert
         post("/boards", (request, response) -> {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                BoardPayload creation = mapper.readValue(request.body(), BoardPayload.class);
-                if (!(creation.isValid())) {
-                    response.status(HTTP_BAD_REQUEST);
-                    return "";
-                }
-                String createdUrl = model.createBoard(creation.gameUri);
-                response.status(OK);
-                response.type("application/json");
-                return createdUrl;
-            } catch (Exception e) {
-                if (e instanceof JsonParseException) {
-                    response.status(HTTP_BAD_REQUEST);
-                }
-                if (e instanceof BoardAlreadyExistException) {
-                    response.status(UNPROCESSABLE_ENTITY);
-                }
-                if (e instanceof PlaceAlreadyExistException) {
-                    response.status(UNPROCESSABLE_ENTITY);
-                }
+            ObjectMapper mapper = new ObjectMapper();
+            BoardPayload creation = mapper.readValue(request.body(), BoardPayload.class);
+            if (!(creation.isValid())) {
+                response.status(HTTP_BAD_REQUEST);
                 return "";
             }
+            String createdUrl = model.createBoard(creation.gameUri);
+            response.status(OK);
+            response.type("application/json");
+            return createdUrl;
         });
 
+        //Getestet und funktioniert
         get("/boards/:gameId", (request, response) -> {
             response.status(OK);
             response.type("application/json");
             return model.getBoard(request.params(":gameId"));
         });
 
+        //Getestet und funktioniert
         delete("/boards/:gameId", (request, response) -> {
             response.status(OK);
-            try {
-                return model.removeBoard(request.params(":gameId"));
-            } catch (Exception e) {
-                if (e instanceof BoardAlreadyExistException) {
-                    response.status(UNPROCESSABLE_ENTITY);
-                }
-                return "";
-            }
+            return model.removeBoard(request.params(":gameId"));
         });
 
+        //Getestet und funktioniert
         post("/boards/:gameId/pawns", (request, response) -> {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                PawnPayload creation = mapper.readValue(request.body(), PawnPayload.class);
-                if (!(creation.isValid())) {
-                    response.status(HTTP_BAD_REQUEST);
-                    return "";
-                }
-                String createdUrl = model.placePawn(creation.getPlayer(), creation.getPlace(), creation.getPosition(), request.params("gameId"));
-                response.status(OK);
-                response.type("application/json");
-                return createdUrl;
-            } catch (Exception e) {
-                if (e instanceof JsonParseException) {
-                    response.status(HTTP_BAD_REQUEST);
-                }
-                return "";
+            ObjectMapper mapper = new ObjectMapper();
+            PawnPayload creation = mapper.readValue(request.body(), PawnPayload.class);
+            if (!(creation.isValid())) {
+                response.status(HTTP_BAD_REQUEST);
+                return "Pawn not valid";
             }
+            String createdUrl = model.placePawn(creation.getPlayer(), creation.getPlace(), creation.getPosition(), request.params(":gameId"));
+            response.status(OK);
+            response.type("application/json");
+            return createdUrl;
         });
 
+        //Getestet und funktioniert
         get("/boards/:gameId/pawns", (request, response) -> {
             response.status(OK);
             response.type("application/json");
             return model.getAllPlayerPositions(request.params(":gameId"));
         });
 
+        //Getestet und funktioniert
         get("/boards/:gameId/pawns/:pawnId", (request, response) -> {
             response.status(OK);
             response.type("application/json");
-            return model.getPawns(request.params(":gameId"), request.params(":pawnId"));
+            return model.getPawn(request.params(":gameId"), request.params(":pawnId"));
         });
 
+        //Getestet und funktioniert
         delete("/boards/:gameId/pawns/:pawnId", (request, response) -> {
             response.status(OK);
-            try {
-                return model.removePawn(request.params(":gameId"), request.params(":pawnId"));
-            } catch (Exception e) {
-                if (e instanceof PawnDoesNotExistException) {
-                    response.status(RESOURCE_NOT_FOUND);
-                }
-                if (e instanceof BoardDoesNotExistException) {
-                    response.status(RESOURCE_NOT_FOUND);
-                }
-                return "";
-            }
+            return model.removePawn(request.params(":gameId"), request.params(":pawnId"));
         });
 
         post("/boards/:gameId/pawns/:pawnId/move", (request, response) -> {
-            try {
                 ObjectMapper mapper = new ObjectMapper();
                 PawnPayload creation = mapper.readValue(request.body(), PawnPayload.class);
                 if (!(creation.isValid())) {
@@ -127,12 +97,6 @@ public class BoardService {
                 response.status(OK);
                 response.type("application/json");
                 return createdUrl;
-            } catch (Exception e) {
-                if (e instanceof JsonParseException) {
-                    response.status(HTTP_BAD_REQUEST);
-                }
-                return "";
-            }
         });
 
         get("/boards/:gameId/pawns/:pawnId/roll", (request, response) -> {
@@ -159,6 +123,60 @@ public class BoardService {
                 }
                 return "";
             }
+        });
+
+        exception(BoardAlreadyExistException.class, (e, request, response) -> {
+            response.status(UNPROCESSABLE_ENTITY);
+            response.type("application/json");
+
+            response.body(
+                    JsonErrorGenerator.getErrorJsonString(UNPROCESSABLE_ENTITY, "Board already exists")
+            );
+        });
+
+        exception(BoardDoesNotExistException.class, (e, request, response) -> {
+            response.status(RESOURCE_NOT_FOUND);
+            response.type("application/json");
+
+            response.body(
+                    JsonErrorGenerator.getErrorJsonString(RESOURCE_NOT_FOUND, "Board does not exist")
+            );
+        });
+
+        exception(PawnAlreadyExistsException.class, (e, request, response) -> {
+            response.status(UNPROCESSABLE_ENTITY);
+            response.type("application/json");
+
+            response.body(
+                    JsonErrorGenerator.getErrorJsonString(UNPROCESSABLE_ENTITY, "Pawn already exists")
+            );
+        });
+
+        exception(PawnDoesNotExistException.class, (e, request, response) -> {
+            response.status(RESOURCE_NOT_FOUND);
+            response.type("application/json");
+
+            response.body(
+                    JsonErrorGenerator.getErrorJsonString(RESOURCE_NOT_FOUND, "Pawn does not exist")
+            );
+        });
+
+        exception(MissingBodyException.class, (e, request, response) -> {
+            response.status(UNPROCESSABLE_ENTITY);
+            response.type("application/json");
+
+            response.body(
+                    JsonErrorGenerator.getErrorJsonString(UNPROCESSABLE_ENTITY, "No body was found, please provide one")
+            );
+        });
+
+        exception(JsonParseException.class, (e, request, response) -> {
+            response.status(HTTP_BAD_REQUEST);
+            response.type("application/json");
+
+            response.body(
+                    JsonErrorGenerator.getErrorJsonString(HTTP_BAD_REQUEST, "json could not be parsed")
+            );
         });
     }
 }
