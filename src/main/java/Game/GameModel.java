@@ -219,7 +219,6 @@ public class GameModel {
             throw new GameDoesNotExistException();
         }
     }
-
     int putTurn(String game, String player) throws Exception {
         String searchingGame = "/games/" + game;
         if (gameMap.keySet().contains(searchingGame)) {
@@ -246,6 +245,10 @@ public class GameModel {
     private void turnMessenger(String nextPlayer, String game) throws UnirestException {
         String uri = YellowService.getServiceUrlForType(ServiceType.CLIENT) + "/turn";
         MessengerPayload loadDaShip = new MessengerPayload(nextPlayer, game);
-        HttpResponse<JsonNode> jsonResponse = Unirest.post(uri).body(loadDaShip).asJson();
+        HttpResponse<JsonNode> jsonResponse =
+                Unirest.post(uri)
+                        .header("Content-Type", "application/json")
+                        .body(loadDaShip)
+                        .asJson();
     }
 }
