@@ -14,7 +14,7 @@ public class Pawn {
     private int position;
     // uri to the rolls of the player
     private String roll;
-    // uri to the moves or the player
+    // steps to move
     private String move;
 
     public void move(int fields){

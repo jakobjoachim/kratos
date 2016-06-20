@@ -49,7 +49,7 @@ public class BoardModel {
     }
 
     String createBoard(String gameUri) throws Exception {
-        if (gameUri.isEmpty()) {
+        if (gameUri.isEmpty() || gameUri == null) {
             throw new MissingBodyException();
         }
         int index = gameUri.lastIndexOf("/") + 1;
@@ -309,11 +309,9 @@ public class BoardModel {
         return Helper.dataToJson("Player successfully created");
     }
 
-
     public String getAllGames() {
         return Tools.Helper.dataToJson(boards.keySet());
     }
-
 
     public String getBoard(String gameId) throws BoardDoesNotExistException {
         if (boards.containsKey(gameId)) {
@@ -322,7 +320,6 @@ public class BoardModel {
             throw new BoardDoesNotExistException();
         }
     }
-
 
     public String removeBoard(String gameId) throws Exception {
         if (boards.containsKey(gameId)) {
@@ -370,14 +367,17 @@ public class BoardModel {
         return null;
     }
 
-    //TODO Sinn und Zweck dieses Posts unklar
     public String movePawn(String move, String gameId, String pawnId) throws Exception {
         int steps = Integer.parseInt(move);
         if (boards.containsKey(gameId)) {
             for (Pawn paws : boards.get(gameId).getPawns()) {
                 if (paws.getId().equals(pawnId)) {
                     paws.move(steps);
-                    return Helper.dataToJson("The new position is" + paws.getPosition());
+                    PayloadPayload payloadPayload = new PayloadPayload(Helper.dataToJson(paws.getPosition()), Helper.dataToJson(paws.getPosition()));
+                    EventPayload eventPayload = new EventPayload("Player has been added", gameId, "Player_position_changed", "Player has changed his positon", "/boards/" + gameId + "/" + paws.getId(), paws.getPlayer());
+                    eventPayload.setPayload(payloadPayload);
+                    Helper.broadcastEvent(eventPayload);
+                    return Helper.dataToJson("The new position from " + pawnId + " is " + paws.getPosition());
                 }
             }
             throw new PawnDoesNotExistException();
@@ -385,7 +385,6 @@ public class BoardModel {
             throw new BoardDoesNotExistException();
         }
     }
-
 
     public String getRolls(String gameId, String pawnId) throws Exception {
         if (boards.containsKey(gameId)) {

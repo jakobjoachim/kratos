@@ -86,13 +86,10 @@ public class BoardService {
             return model.removePawn(request.params(":gameId"), request.params(":pawnId"));
         });
 
+        //Getestet und funktioniert
         post("/boards/:gameId/pawns/:pawnId/move", (request, response) -> {
                 ObjectMapper mapper = new ObjectMapper();
                 PawnPayload creation = mapper.readValue(request.body(), PawnPayload.class);
-                if (!(creation.isValid())) {
-                    response.status(HTTP_BAD_REQUEST);
-                    return "";
-                }
                 String createdUrl = model.movePawn(creation.getMove(), request.params("gameId"), request.params("pawnId"));
                 response.status(OK);
                 response.type("application/json");
@@ -175,7 +172,7 @@ public class BoardService {
             response.type("application/json");
 
             response.body(
-                    JsonErrorGenerator.getErrorJsonString(UNPROCESSABLE_ENTITY, "No body was found, please provide one")
+                    JsonErrorGenerator.getErrorJsonString(UNPROCESSABLE_ENTITY, "No correct body was found, please provide one")
             );
         });
 
