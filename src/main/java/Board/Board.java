@@ -15,6 +15,6 @@ public class Board {
     @NonNull private String id;
     // Array including active Pawns
     private List<Pawn> pawns = new ArrayList<>();
-    // String UriPlace Integer PawnId
+    // FieldId and PlaceUri stored
     private Map<Integer, String> placeUri = new HashMap<>();
 }
