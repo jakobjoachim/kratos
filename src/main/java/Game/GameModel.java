@@ -59,17 +59,16 @@ class GameModel {
             if (gameMap.keySet().contains(searching)) {
                 gameMap.get(searching).setStatus(status);
                 if (status.equals(GameStatus.running)) {
-                    PayloadPayload payloadPayload = new PayloadPayload(GameStatus.registration.toString(), GameStatus.running.toString());
                     Set<String> players = gameMap.get(searching).getPlayers().keySet();
                     for (String player : players) {
                         gameMap.get(searching).getPlayerQueue().add(player);
                     }
-                    EventPayload eventPayload = new EventPayload("game now running", game, "game_status_changed", "game_status_changed", "game", gameMap.get(searching).getPlayerQueue().peek());
-                    eventPayload.setPayload(payloadPayload);
+                    EventPayload eventPayload = new EventPayload("game now running", game, "game_status_changed", "game_status_changed", "game", "");
                     Helper.broadcastEvent(eventPayload);
+                    EventPayload newPlayer = new EventPayload("player changed", game, "turn_changed", "player changed", "game", gameMap.get(searching).getPlayerQueue().peek())
                 } else {
                     PayloadPayload payloadPayload = new PayloadPayload(GameStatus.running.toString(), GameStatus.finished.toString());
-                    EventPayload eventPayload = new EventPayload("game finished", game, "game_status_changed", "game_status_changed", "game", "");
+                    EventPayload eventPayload = new EventPayload("game finished", game, "game_has_finished", "game_status_changed", "game", "");
                     eventPayload.setPayload(payloadPayload);
                     Helper.broadcastEvent(eventPayload);
                     gameMap.get(searching).setStatus(GameStatus.finished);
