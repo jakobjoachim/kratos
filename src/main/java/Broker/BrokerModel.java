@@ -51,6 +51,8 @@ class BrokerModel {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
                 if (place.getOwner() == null) {
                     buyThePlace(playerUri, place.getBuycost(), place, gameId);
+                    EventPayload eventPayload = new EventPayload("Place bought from Bank", gameId, "player_bought_street", "PlaceBought", "broker", playerUri);
+                    Helper.broadcastEvent(eventPayload);
                     return Helper.dataToJson(place);
                 } else {
                     throw new PlaceAlreadySoldException();
@@ -132,8 +134,6 @@ class BrokerModel {
                 String url = bankUri + "/transfer/from/" + buyer + "/" + amount;
                 String reason = REASON + "buying: "+ place.getDescription() + END;
                 transferMoney(url, reason);
-                EventPayload eventPayload = new EventPayload("Place bought from Bank", gameId, "player_bought_street", "PlaceBought", "broker", buyer);
-                Helper.broadcastEvent(eventPayload);
             } catch (Exception e){
                 placeTransfer.rollback();
                 return false;
