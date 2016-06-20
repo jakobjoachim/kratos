@@ -55,7 +55,8 @@ public class DiceService {
 
 
     private static void createEvent(String player, String game) {
-        EventPayload eventPayload = new EventPayload("dice roll", game, "dice roll", "dice roll occured", "", player);
+        EventPayload eventPayload =
+                new EventPayload("dice roll", game, "dice roll", "dice roll occured", "", player);
         Helper.broadcastEvent(eventPayload);
     }
 

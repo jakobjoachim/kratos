@@ -1,6 +1,7 @@
 package Events;
 
 import Interfaces.Validable;
+import Tools.SharedPayloads.PayloadPayload;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -33,6 +34,8 @@ public class Event implements Validable {
     private String player;
 
     private boolean submitted;
+
+    private PayloadPayload payload;
 
     // A timestamp when this event was given to the eventPayloadList service
     private String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());

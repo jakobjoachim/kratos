@@ -39,10 +39,10 @@ public class Helper {
 
         try {
             HttpResponse<JsonNode> response = Unirest.post(eventServiceUrl)
-                    .header("Content-Type", "application/json")
                     .body(Helper.dataToJson(eventPayload))
                     .asJson();
 
+            System.out.println(response.getBody());
             if (response.getStatus() == 200) {
                 return true;
             }

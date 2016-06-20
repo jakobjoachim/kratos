@@ -14,7 +14,6 @@ public class EventsService {
     private static final int HTTP_BAD_REQUEST = 400;
 
     public static void main(String[] args) {
-
         EventsManager eventsManager = new EventsManager();
 
         before(((request, response) -> {
