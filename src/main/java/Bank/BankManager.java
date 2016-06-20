@@ -4,6 +4,8 @@ import Enums.TransactionPhase;
 import Enums.TransactionStatus;
 import Exceptions.*;
 import Tools.Helper;
+import Tools.SharedPayloads.EventPayload;
+import Tools.SharedPayloads.PayloadPayload;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.*;
@@ -149,8 +151,13 @@ public class BankManager {
                 transfer.setReason(reason);
                 transfer.setTransferId(Helper.nextId());
                 if (searchingTransaction.equals("/transaction/withoutTransaction")) {
+                    int before = bankMap.get(searching).getAccounts().get(transfer.getFrom()).getBalance();
                     bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
                     bankMap.get(searching).getTransfers().add(transfer);
+                    EventPayload eventPayload = new EventPayload("The account balance decreased", bankMap.get(searching).getId(), "account_balance_changed", "", "", playerId);
+                    PayloadPayload payloadPayload = new PayloadPayload("" + before,"" + bankMap.get(searching).getAccounts().get(transfer.getFrom()).getBalance());
+                    eventPayload.setPayload(payloadPayload);
+                    Helper.broadcastEvent(eventPayload);
                 } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
                     getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
                     bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
