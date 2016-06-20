@@ -3,6 +3,7 @@ package Broker;
 import Enums.ServiceType;
 import Exceptions.*;
 import Tools.Helper;
+import Tools.SharedPayloads.EventPayload;
 import Tools.YellowService;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -131,6 +132,8 @@ class BrokerModel {
                 String url = bankUri + "/transfer/from/" + buyer + "/" + amount;
                 String reason = REASON + "buying: "+ place.getDescription() + END;
                 transferMoney(url, reason);
+                EventPayload eventPayload = new EventPayload("Place bought from Bank", gameId, "player_bought_street", "PlaceBought", "broker", buyer);
+                Helper.broadcastEvent(eventPayload);
             } catch (Exception e){
                 placeTransfer.rollback();
                 return false;

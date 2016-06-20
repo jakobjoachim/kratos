@@ -10,7 +10,7 @@ public class EventPayload {
     // human readable name for this event
     private final String name;
 
-    // the uri of the game this event belongs to
+    // the name of the game this event belongs to
     private final String game;
 
     // internal type of the event (e.g bank transfer, rent, got to jail, estate transfer)

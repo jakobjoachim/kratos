@@ -1,13 +1,11 @@
 package Game;
 
 import Enums.GameStatus;
-import Enums.ServiceType;
 import Exceptions.*;
 import Tools.Helper;
 import Tools.Mutex;
-import Tools.YellowService;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
+import Tools.SharedPayloads.EventPayload;
+import Tools.SharedPayloads.PayloadPayload;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,10 +59,20 @@ class GameModel {
             if (gameMap.keySet().contains(searching)) {
                 gameMap.get(searching).setStatus(status);
                 if (status.equals(GameStatus.running)) {
+                    PayloadPayload payloadPayload = new PayloadPayload(GameStatus.registration.toString(), GameStatus.running.toString());
                     Set<String> players = gameMap.get(searching).getPlayers().keySet();
                     for (String player : players) {
                         gameMap.get(searching).getPlayerQueue().add(player);
                     }
+                    EventPayload eventPayload = new EventPayload("game now running", game, "game_status_changed", "game_status_changed", "game", gameMap.get(searching).getPlayerQueue().peek());
+                    eventPayload.setPayload(payloadPayload);
+                    Helper.broadcastEvent(eventPayload);
+                } else {
+                    PayloadPayload payloadPayload = new PayloadPayload(GameStatus.running.toString(), GameStatus.finished.toString());
+                    EventPayload eventPayload = new EventPayload("game finished", game, "game_status_changed", "game_status_changed", "game", "");
+                    eventPayload.setPayload(payloadPayload);
+                    Helper.broadcastEvent(eventPayload);
+                    gameMap.get(searching).setStatus(GameStatus.finished);
                 }
                 return Helper.dataToJson(gameMap.get(searching).getStatus());
             } else {
@@ -151,9 +159,17 @@ class GameModel {
                 if (gameMap.get(searchingGame).getPlayers().get(player).equals(true)) {
                     gameMap.get(searchingGame).getPlayers().remove(player);
                     gameMap.get(searchingGame).getPlayers().put(player, false);
+                    PayloadPayload payloadPayload = new PayloadPayload("true", "false");
+                    EventPayload eventPayload = new EventPayload("Player not ready", game, "player_ready_changed", "player not ready", "game", player);
+                    eventPayload.setPayload(payloadPayload);
+                    Helper.broadcastEvent(eventPayload);
                 } else {
                     gameMap.get(searchingGame).getPlayers().remove(player);
                     gameMap.get(searchingGame).getPlayers().put(player, true);
+                    PayloadPayload payloadPayload = new PayloadPayload("false", "true");
+                    EventPayload eventPayload = new EventPayload("Player ready", game, "player_ready_changed", "player ready", "game", player);
+                    eventPayload.setPayload(payloadPayload);
+                    Helper.broadcastEvent(eventPayload);
                 }
                 return Helper.dataToJson(player);
             } else {
@@ -203,7 +219,8 @@ class GameModel {
                 playerMutex.unlock();
                 return returnMessage;
             }
-            turnMessenger(gameMap.get(searchingGame).getPlayerQueue().peek(), game);
+            EventPayload eventPayload = new EventPayload("turn changed", game, "turn_changed", "players turn is over", "game", gameMap.get(searchingGame).getPlayerQueue().peek());
+            Helper.broadcastEvent(eventPayload);
             return "";
         } else {
             throw new GameDoesNotExistException();
@@ -230,11 +247,5 @@ class GameModel {
         } else {
             throw new GameDoesNotExistException();
         }
-    }
-
-    private void turnMessenger(String nextPlayer, String game) throws UnirestException {
-        String uri = YellowService.getServiceUrlForType(ServiceType.CLIENT) + "/turn";
-        MessengerPayload loadDaShip = new MessengerPayload(nextPlayer, game);
-        Unirest.post(uri).header("Content-Type", "application/json").body(loadDaShip).asJson();
     }
 }
