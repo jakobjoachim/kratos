@@ -3,6 +3,7 @@ package Broker;
 import Enums.ServiceType;
 import Exceptions.*;
 import Tools.Helper;
+import Tools.SharedPayloads.EventPayload;
 import Tools.YellowService;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -50,6 +51,8 @@ class BrokerModel {
                 Place place = brokerMap.get(gameId).getPlaces().get(placeId);
                 if (place.getOwner() == null) {
                     buyThePlace(playerUri, place.getBuycost(), place, gameId);
+                    EventPayload eventPayload = new EventPayload("Place bought from Bank", gameId, "player_bought_street", "PlaceBought", "broker", playerUri);
+                    Helper.broadcastEvent(eventPayload);
                     return Helper.dataToJson(place);
                 } else {
                     throw new PlaceAlreadySoldException();
