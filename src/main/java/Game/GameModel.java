@@ -9,10 +9,8 @@ import Tools.YellowService;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 class GameModel {
 
@@ -39,7 +37,10 @@ class GameModel {
     String getGameInfo(String game) throws GameDoesNotExistException {
         String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
-            return Helper.dataToJson(gameMap.get(searching));
+            Game g = gameMap.get(searching);
+            ArrayList players = g.getPlayers().keySet().stream().map(player -> new PlayerPayload(g.getPlayers().get(player), player)).collect(Collectors.toCollection(ArrayList::new));
+            EnesSuperDuperPayload load = new EnesSuperDuperPayload(g.getName(), g.getId(), players, g.getServices(), g.getStatus() ,g.getPlayerQueue(), g.getPlayerMutex());
+            return Helper.dataToJson(load);
         } else {
             throw new GameDoesNotExistException();
         }
@@ -48,7 +49,7 @@ class GameModel {
     String getGameStatus(String game) throws GameDoesNotExistException {
         String searching = "/games/" + game;
         if (gameMap.keySet().contains(searching)) {
-            return Helper.dataToJson(gameMap.get(searching).getStatus());
+            return Helper.dataToJson(gameMap.get(game).getStatus());
         } else {
             throw new GameDoesNotExistException();
         }
