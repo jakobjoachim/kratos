@@ -219,7 +219,7 @@ class GameModel {
                 playerMutex.unlock();
                 return returnMessage;
             }
-            EventPayload eventPayload = new EventPayload("turn changed", game, "turn_changed", "players turn is over", "game", gameMap.get(searchingGame).getPlayerQueue().peek());
+            EventPayload eventPayload = new EventPayload("turn changed", game, "turn_changed", "new player should take turn", "game", gameMap.get(searchingGame).getPlayerQueue().peek());
             Helper.broadcastEvent(eventPayload);
             return "";
         } else {
