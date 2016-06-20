@@ -1,7 +1,9 @@
 package Events;
 import Exceptions.EventDoesNotExistException;
+import Exceptions.EventPayloadIsEmpty;
 import Exceptions.EventPayloadIsInvalidException;
 import Tools.JsonErrorGenerator;
+import com.fasterxml.jackson.core.JsonParseException;
 
 import javax.naming.directory.InvalidSearchFilterException;
 import java.util.HashMap;
@@ -67,6 +69,16 @@ public class EventsService {
         exception(EventDoesNotExistException.class, (exception, request, response) -> {
             response.status(HTTP_BAD_REQUEST);
             response.body(JsonErrorGenerator.getErrorJsonString(HTTP_BAD_REQUEST, "event does not exist"));
+        });
+
+        exception(EventPayloadIsEmpty.class, (e, request, response) -> {
+            response.status(422);
+            response.body(JsonErrorGenerator.getErrorJsonString(422, "the body must not be empty"));
+        });
+
+        exception(JsonParseException.class, (e, request, response) -> {
+            response.status(500);
+            response.body(JsonErrorGenerator.getErrorJsonString(500, "JSON could not be parsed. Check your JSON, son!"));
         });
 
         exception(EventPayloadIsInvalidException.class, (exception, request, response) -> {

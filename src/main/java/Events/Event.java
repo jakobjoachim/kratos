@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import java.security.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 @Data
 public class Event implements Validable {
@@ -35,7 +36,7 @@ public class Event implements Validable {
 
     private boolean submitted;
 
-    private PayloadPayload payload;
+    private Map<String, String> payload;
 
     // A timestamp when this event was given to the eventPayloadList service
     private String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());

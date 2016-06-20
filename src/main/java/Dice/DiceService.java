@@ -5,6 +5,7 @@ import Exceptions.BadDicePayloadException;
 import Tools.Helper;
 import Tools.JsonErrorGenerator;
 import Tools.SharedPayloads.EventPayload;
+import Tools.SharedPayloads.PayloadPayload;
 import Tools.YellowService;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -57,6 +58,8 @@ public class DiceService {
     private static void createEvent(String player, String game) {
         EventPayload eventPayload =
                 new EventPayload("dice roll", game, "dice roll", "dice roll occured", "", player);
+
+        eventPayload.setPayload(new PayloadPayload("", ""));
         Helper.broadcastEvent(eventPayload);
     }
 

@@ -2,6 +2,7 @@ package Events;
 
 import Enums.ServiceType;
 import Exceptions.EventDoesNotExistException;
+import Exceptions.EventPayloadIsEmpty;
 import Exceptions.EventPayloadIsInvalidException;
 import Tools.Helper;
 import Tools.YellowService;
@@ -29,7 +30,11 @@ class EventsManager {
      * @param payload JSON String payload
      * @return The created payload
      */
-    String createNewEvent(String payload) throws IOException, EventPayloadIsInvalidException {
+    String createNewEvent(String payload) throws IOException, EventPayloadIsInvalidException, EventPayloadIsEmpty {
+
+        if (payload.isEmpty()) {
+            throw new EventPayloadIsEmpty();
+        }
 
         ObjectMapper objectMapper = new ObjectMapper();
         Event event = objectMapper.readValue(payload, Event.class);
