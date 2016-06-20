@@ -359,7 +359,9 @@ public class BoardModel {
         if (boards.containsKey(gameId)) {
             for (Pawn paws : boards.get(gameId).getPawns()) {
                 if (paws.getId().equals(pawnId)) {
-                    return Helper.dataToJson(paws);
+                    Pawn[] pawn = new Pawn[1];
+                    pawn[0] = paws;
+                    return Helper.dataToJson(pawn);
                 }
             }
         } else {
