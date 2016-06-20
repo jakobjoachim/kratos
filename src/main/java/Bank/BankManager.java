@@ -302,7 +302,15 @@ public class BankManager {
     String getAllAccounts(String bankId) throws BankDoesNotExistException {
         String searching = ("/banks/" + bankId);
         if (bankMap.containsKey(searching)) {
-            return Tools.Helper.dataToJson(bankMap.get(searching).getAccounts());
+            List<BankAccountPayload> bankAccountsPayload = new ArrayList<>();
+            for (Map.Entry<String, BankAccount> entry : bankMap.get(searching).getAccounts().entrySet()) {
+                BankAccountPayload bankAccountPayload = new BankAccountPayload();
+                bankAccountPayload.setId(entry.getKey());
+                bankAccountPayload.setBalance(entry.getValue().getBalance());
+                bankAccountPayload.setPlayer(entry.getValue().getPlayer());
+                bankAccountsPayload.add(bankAccountPayload);
+            }
+            return Tools.Helper.dataToJson(bankAccountsPayload);
         } else {
             throw new BankDoesNotExistException();
         }
