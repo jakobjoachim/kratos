@@ -65,7 +65,8 @@ class GameModel {
                     }
                     EventPayload eventPayload = new EventPayload("game now running", game, "game_status_changed", "game_status_changed", "game", "");
                     Helper.broadcastEvent(eventPayload);
-                    EventPayload newPlayer = new EventPayload("player changed", game, "turn_changed", "player changed", "game", gameMap.get(searching).getPlayerQueue().peek())
+                    EventPayload newPlayer = new EventPayload("player changed", game, "turn_changed", "player changed", "game", gameMap.get(searching).getPlayerQueue().peek());
+                    Helper.broadcastEvent(newPlayer);
                 } else {
                     PayloadPayload payloadPayload = new PayloadPayload(GameStatus.running.toString(), GameStatus.finished.toString());
                     EventPayload eventPayload = new EventPayload("game finished", game, "game_has_finished", "game_status_changed", "game", "");
