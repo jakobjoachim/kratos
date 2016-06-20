@@ -4,6 +4,8 @@ import Enums.TransactionPhase;
 import Enums.TransactionStatus;
 import Exceptions.*;
 import Tools.Helper;
+import Tools.SharedPayloads.EventPayload;
+import Tools.SharedPayloads.PayloadPayload;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.*;
@@ -81,10 +83,26 @@ public class BankManager {
                 MoneyTransfer transfer = new MoneyTransfer(fromUri, toUri, money);
                 transfer.setTransferId(Helper.nextId());
                 transfer.setReason(reason);
+                int beforeFrom = bankMap.get(searching).getAccounts().get(fromUri).getBalance();
+                int beforeTo = bankMap.get(searching).getAccounts().get(toUri).getBalance();
+
                 if (searchingTransaction.equals("/transaction/withoutTransaction")) {
                     bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
                     bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
                     bankMap.get(searching).getTransfers().add(transfer);
+
+                    EventPayload eventPayload = new EventPayload("The account balance decreased", bankMap.get(searching).getId(), "account_balance_changed", "", "", fromId);
+                    PayloadPayload payloadPayload = new PayloadPayload("" + beforeFrom,"" + bankMap.get(searching).getAccounts().get(transfer.getFrom()).getBalance());
+                    eventPayload.setPayload(payloadPayload);
+                    System.out.println(eventPayload);
+                    Helper.broadcastEvent(eventPayload);
+
+                    EventPayload eventPayload2 = new EventPayload("The account balance increased", bankMap.get(searching).getId(), "account_balance_changed", "", "", toId);
+                    PayloadPayload payloadPayload2 = new PayloadPayload("" + beforeTo,"" + bankMap.get(searching).getAccounts().get(transfer.getTo()).getBalance());
+                    eventPayload.setPayload(payloadPayload2);
+                    System.out.println(eventPayload2);
+                    Helper.broadcastEvent(eventPayload2);
+                    
                 } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
                     getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
                     bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
@@ -92,6 +110,16 @@ public class BankManager {
                     bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
                     getTransaction(searching, searchingTransaction).setPhases(TransactionPhase.Drei);
                     bankMap.get(searching).getTransfers().add(transfer);
+
+                    EventPayload eventPayload = new EventPayload("Transaction: The account balance decreased", bankMap.get(searching).getId(), "account_balance_changed", "", "", fromId);
+                    PayloadPayload payloadPayload = new PayloadPayload("" + beforeFrom,"" + bankMap.get(searching).getAccounts().get(transfer.getFrom()).getBalance());
+                    eventPayload.setPayload(payloadPayload);
+                    Helper.broadcastEvent(eventPayload);
+
+                    EventPayload eventPayload2 = new EventPayload("Transaction: The account balance increased", bankMap.get(searching).getId(), "account_balance_changed", "", "", toId);
+                    PayloadPayload payloadPayload2 = new PayloadPayload("" + beforeTo,"" + bankMap.get(searching).getAccounts().get(transfer.getTo()).getBalance());
+                    eventPayload.setPayload(payloadPayload2);
+                    Helper.broadcastEvent(eventPayload2);
                 } else {
                     throw new TransactionIsNotReadyException();
                 }
@@ -115,14 +143,28 @@ public class BankManager {
                 MoneyTransfer transfer = new MoneyTransfer(searching, playerUri, money);
                 transfer.setReason(reason);
                 transfer.setTransferId(Helper.nextId());
+                int before = bankMap.get(searching).getAccounts().get(playerUri).getBalance();
                 if (searchingTransaction.equals("/transaction/withoutTransaction")) {
                     bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
                     bankMap.get(searching).getTransfers().add(transfer);
+
+                    EventPayload eventPayload = new EventPayload("The account balance increased", bankMap.get(searching).getId(), "account_balance_changed", "", "", playerId);
+                    PayloadPayload payloadPayload = new PayloadPayload("" + before,"" + bankMap.get(searching).getAccounts().get(transfer.getTo()).getBalance());
+                    eventPayload.setPayload(payloadPayload);
+                    System.out.println(eventPayload);
+                    Helper.broadcastEvent(eventPayload);
+
                 } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
                     getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
                     bankMap.get(searching).getAccounts().get(transfer.getTo()).addMoney(money);
                     getTransaction(searching, searchingTransaction).setPhases(TransactionPhase.Zwei);
                     bankMap.get(searching).getTransfers().add(transfer);
+
+                    EventPayload eventPayload = new EventPayload("Transaction: The account balance increased", bankMap.get(searching).getId(), "account_balance_changed", "", "", playerId);
+                    PayloadPayload payloadPayload = new PayloadPayload("" + before,"" + bankMap.get(searching).getAccounts().get(transfer.getTo()).getBalance());
+                    eventPayload.setPayload(payloadPayload);
+                    System.out.println(eventPayload);
+                    Helper.broadcastEvent(eventPayload);
                 } else {
                     throw new TransactionIsNotReadyException();
                 }
@@ -148,14 +190,28 @@ public class BankManager {
                 MoneyTransfer transfer = new MoneyTransfer(playerUri, searching, money);
                 transfer.setReason(reason);
                 transfer.setTransferId(Helper.nextId());
+                int before = bankMap.get(searching).getAccounts().get(playerUri).getBalance();
                 if (searchingTransaction.equals("/transaction/withoutTransaction")) {
                     bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
                     bankMap.get(searching).getTransfers().add(transfer);
+
+                    EventPayload eventPayload = new EventPayload("The account balance decreased", bankMap.get(searching).getId(), "account_balance_changed", "dasdasd", "dasdasd", playerId);
+                    PayloadPayload payloadPayload = new PayloadPayload("" + before,"" + bankMap.get(searching).getAccounts().get(transfer.getFrom()).getBalance());
+                    eventPayload.setPayload(payloadPayload);
+                    System.out.println(eventPayload);
+                    Helper.broadcastEvent(eventPayload);
+
                 } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
                     getTransaction(searching, searchingTransaction).getTransferInTransaction().add(transfer);
                     bankMap.get(searching).getAccounts().get(transfer.getFrom()).subMoney(money);
                     getTransaction(searching, searchingTransaction).setPhases(TransactionPhase.Zwei);
                     bankMap.get(searching).getTransfers().add(transfer);
+
+                    EventPayload eventPayload = new EventPayload("Transaction: The account balance decreased", bankMap.get(searching).getId(), "account_balance_changed", "", "", playerId);
+                    PayloadPayload payloadPayload = new PayloadPayload("" + before,"" + bankMap.get(searching).getAccounts().get(transfer.getFrom()).getBalance());
+                    eventPayload.setPayload(payloadPayload);
+                    System.out.println(eventPayload);
+                    Helper.broadcastEvent(eventPayload);
                 } else {
                     throw new TransactionIsNotReadyException();
                 }
