@@ -152,6 +152,15 @@ public class BoardService {
             );
         });
 
+        exception(PlaceAlreadyExistException.class, (e, request, response) -> {
+            response.status(UNPROCESSABLE_ENTITY);
+            response.type("application/json");
+
+            response.body(
+                    JsonErrorGenerator.getErrorJsonString(UNPROCESSABLE_ENTITY, "Place already exists")
+            );
+        });
+
         exception(PawnDoesNotExistException.class, (e, request, response) -> {
             response.status(RESOURCE_NOT_FOUND);
             response.type("application/json");

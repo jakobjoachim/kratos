@@ -27,7 +27,6 @@ public class BoardModel {
         place.setBuycost(buyCost);
         place.setRentMap(rentMap);
         place.setHypothecarycreditAmount(hypoAmount);
-
         String url = brokerUri + gameId + "/places/" + id;
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.post(url).body(Helper.dataToJson(place)).asJson();
@@ -40,7 +39,7 @@ public class BoardModel {
     }
 
     String createBoard(String gameUri) throws Exception {
-        if(gameUri.isEmpty()){
+        if (gameUri.isEmpty()) {
             throw new MissingBodyException();
         }
         int index = gameUri.lastIndexOf("/") + 1;
@@ -57,78 +56,205 @@ public class BoardModel {
         rent.put(1, 1);
 
         try {
-            createPlaceAndField("Startfeld", "LOS", 0, rent, 5, gameUri, board, 0, board.getId());
+            createPlaceAndField("Startfeld", "LOS", 0, rent, 0, gameUri, board, 0, board.getId());
         } catch (PlaceAlreadyExistException e) {
             e.printStackTrace();
         }
         try {
-            createPlaceAndField("a", "Badstraße", 100, rent, 5, gameUri, board, 1, board.getId());
+            createPlaceAndField("Straße", "Badstraße", 60, rent, 30, gameUri, board, 1, board.getId());
         } catch (PlaceAlreadyExistException e) {
             e.printStackTrace();
         }
         try {
-            createPlaceAndField("as", "Talstrasse", 100, rent, 5, gameUri, board, 2, board.getId());
+            createPlaceAndField("were", "Gemeinschaftsfeld", 0, rent, 0, gameUri, board, 2, board.getId());
         } catch (PlaceAlreadyExistException e) {
             e.printStackTrace();
         }
         try {
-            createPlaceAndField("dfgdf", "Grosse Freiheit", 100, rent, 5, gameUri, board, 3, board.getId());
+            createPlaceAndField("were", "Turmstraße", 60, rent, 30, gameUri, board, 3, board.getId());
         } catch (PlaceAlreadyExistException e) {
             e.printStackTrace();
         }
         try {
-            createPlaceAndField("sdfsdf", "Korachstrasse", 100, rent, 5, gameUri, board, 4, board.getId());
+            createPlaceAndField("were", "Einkommenssteuer", 0, rent, 0, gameUri, board, 4, board.getId());
         } catch (PlaceAlreadyExistException e) {
             e.printStackTrace();
         }
         try {
-            createPlaceAndField("jhjhj", "Unterberg", 100, rent, 5, gameUri, board, 5, board.getId());
+            createPlaceAndField("were", "Südbahnhof", 200, rent, 100, gameUri, board, 5, board.getId());
         } catch (PlaceAlreadyExistException e) {
             e.printStackTrace();
         }
         try {
-            createPlaceAndField("were", "Berliner Tor", 100, rent, 5, gameUri, board, 6, board.getId());
+            createPlaceAndField("were", "Chausseestraße", 100, rent, 50, gameUri, board, 6, board.getId());
         } catch (PlaceAlreadyExistException e) {
             e.printStackTrace();
         }
-//        createPlaceAndField(2, "Gemeinschaftsfeld", gameUri);
-//        createPlaceAndField(3, "Turmstraße", gameUri);
-//        createPlaceAndField(4, "Einkommenssteuer", gameUri);
-//        createPlaceAndField(5, "Südbahnhof", gameUri);
-//        createPlaceAndField(6, "Chausseestraße", gameUri);
-//        createPlaceAndField(7, "Ereignisfeld", gameUri);
-//        createPlaceAndField(8, "Elisenstraße", gameUri);
-//        createPlaceAndField(9, "Poststraße", gameUri);
-//        createPlaceAndField(10, "Im Gefängis / Nur zu Besuch", gameUri);
-//        createPlaceAndField(11, "Seestraße", gameUri);
-//        createPlaceAndField(12, "Elektizitätswerk", gameUri);
-//        createPlaceAndField(13, "Hafenstraße", gameUri);
-//        createPlaceAndField(14, "Neue Straße", gameUri);
-//        createPlaceAndField(15, "Westbahnhof", gameUri);
-//        createPlaceAndField(16, "Münchener Straße", gameUri);
-//        createPlaceAndField(17, "Gemeinschaftsfeld", gameUri);
-//        createPlaceAndField(18, "Wiener Straße", gameUri);
-//        createPlaceAndField(19, "Berliner Straße", gameUri);
-//        createPlaceAndField(20, "Frei  Parken", gameUri);
-//        createPlaceAndField(21, "Theaterstraße", gameUri);
-//        createPlaceAndField(22, "Ereignisfeld", gameUri);
-//        createPlaceAndField(23, "Museumsstraße", gameUri);
-//        createPlaceAndField(24, "Opernplatz", gameUri);
-//        createPlaceAndField(25, "Nordbahnhof", gameUri);
-//        createPlaceAndField(26, "Lessingstraße", gameUri);
-//        createPlaceAndField(27, "Schillerstraße", gameUri);
-//        createPlaceAndField(28, "Wasserwerk", gameUri);
-//        createPlaceAndField(29, "Goethestraße", gameUri);
-//        createPlaceAndField(30, "Gehe ins Gefängnis", gameUri);
-//        createPlaceAndField(31, "Rathausplatz", gameUri);
-//        createPlaceAndField(32, "Hauptstraße", gameUri);
-//        createPlaceAndField(33, "Gemeinschaftsfeld", gameUri);
-//        createPlaceAndField(34, "Bahnhofstraße", gameUri);
-//        createPlaceAndField(35, "Hauptbahnhof", gameUri);
-//        createPlaceAndField(36, "Ereignisfeld", gameUri);
-//        createPlaceAndField(37, "Parkstraße", gameUri);
-//        createPlaceAndField(38, "Zusatzsteuer", gameUri);
-//        createPlaceAndField(39, "Schlossallee", gameUri);
+        try {
+            createPlaceAndField("were", "Ereignisfeld", 0, rent, 0, gameUri, board, 7, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Elisenstraße", 100, rent, 50, gameUri, board, 8, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Poststraße", 120, rent, 60, gameUri, board, 9, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Im Gefängis / Nur zu Besuch", 0, rent, 0, gameUri, board, 10, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Seestraße", 140, rent, 70, gameUri, board, 11, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Elektizitätswerk", 150, rent, 75, gameUri, board, 12, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Hafenstraße", 140, rent, 70, gameUri, board, 13, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Neue Straße", 160, rent, 80, gameUri, board, 14, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Westbahnhof", 200, rent, 100, gameUri, board, 15, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Münchener Straße", 180, rent, 90, gameUri, board, 16, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Gemeinschaftsfeld", 0, rent, 0, gameUri, board, 17, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Wiener Straße", 180, rent, 90, gameUri, board, 18, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Berliner Straße", 200, rent, 100, gameUri, board, 19, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Frei  Parken", 0, rent, 0, gameUri, board, 20, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Theaterstraße", 220, rent, 110, gameUri, board, 21, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Ereignisfeld", 0, rent, 0, gameUri, board, 22, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Museumsstraße", 220, rent, 110, gameUri, board, 23, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Opernplatz", 240, rent, 120, gameUri, board, 24, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Nordbahnhof", 200, rent, 100, gameUri, board, 25, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Lessingstraße", 260, rent, 130, gameUri, board, 26, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Schillerstraße", 260, rent, 130, gameUri, board, 27, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Wasserwerk", 150, rent, 75, gameUri, board, 28, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Goethestraße", 280, rent, 140, gameUri, board, 29, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Gehe ins Gefängnis", 0, rent, 0, gameUri, board, 30, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Rathausplatz", 300, rent, 150, gameUri, board, 31, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Hauptstraße", 300, rent, 150, gameUri, board, 32, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Gemeinschaftsfeld", 0, rent, 0, gameUri, board, 33, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Bahnhofstraße", 320, rent, 160, gameUri, board, 34, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Hauptbahnhof", 200, rent, 100, gameUri, board, 35, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Ereignisfeld", 0, rent, 0, gameUri, board, 36, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Parkstraße", 350, rent, 175, gameUri, board, 37, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Zusatzsteuer", 0, rent, 0, gameUri, board, 38, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
+        try {
+            createPlaceAndField("were", "Schlossallee", 400, rent, 200, gameUri, board, 39, board.getId());
+        } catch (PlaceAlreadyExistException e) {
+            e.printStackTrace();
+        }
 
         // Beispiel für Event broadcasting, diese gut diese
 
@@ -142,12 +268,13 @@ public class BoardModel {
     }
 
     public String placePawn(String player, String place, String position, String id) throws Exception {
-        if(player.isEmpty() || place.isEmpty() || position.isEmpty()){
+        if (player.isEmpty() || place.isEmpty() || position.isEmpty()) {
             throw new MissingBodyException();
         }
         if (!boards.containsKey(id)) {
             throw new BoardDoesNotExistException();
         }
+        String before = Helper.dataToJson(boards.get(id).getPawns());
         int index = player.lastIndexOf("/") + 1;
         String idPawn = "";
         for (int i = index; i < player.length(); i++) {
@@ -164,6 +291,10 @@ public class BoardModel {
             }
         }
         boards.get(id).getPawns().add(pawn);
+        PayloadPayload payloadPayload = new PayloadPayload(before, Helper.dataToJson(boards.get(id).getPawns()));
+        EventPayload eventPayload = new EventPayload("Player has been added", "none", "Player_added_to_game", "Pawn added to the board", "boards/" + id, pawn.getPlayer());
+        eventPayload.setPayload(payloadPayload);
+        Helper.broadcastEvent(eventPayload);
         return Helper.dataToJson("Player successfully created");
     }
 
