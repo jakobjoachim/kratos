@@ -94,13 +94,11 @@ public class BankManager {
                     EventPayload eventPayload = new EventPayload("The account balance decreased", bankMap.get(searching).getId(), "account_balance_changed", "", "", fromId);
                     PayloadPayload payloadPayload = new PayloadPayload("" + beforeFrom,"" + bankMap.get(searching).getAccounts().get(transfer.getFrom()).getBalance());
                     eventPayload.setPayload(payloadPayload);
-                    System.out.println(eventPayload);
                     Helper.broadcastEvent(eventPayload);
 
                     EventPayload eventPayload2 = new EventPayload("The account balance increased", bankMap.get(searching).getId(), "account_balance_changed", "", "", toId);
                     PayloadPayload payloadPayload2 = new PayloadPayload("" + beforeTo,"" + bankMap.get(searching).getAccounts().get(transfer.getTo()).getBalance());
-                    eventPayload.setPayload(payloadPayload2);
-                    System.out.println(eventPayload2);
+                    eventPayload2.setPayload(payloadPayload2);
                     Helper.broadcastEvent(eventPayload2);
                     
                 } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
@@ -151,7 +149,6 @@ public class BankManager {
                     EventPayload eventPayload = new EventPayload("The account balance increased", bankMap.get(searching).getId(), "account_balance_changed", "", "", playerId);
                     PayloadPayload payloadPayload = new PayloadPayload("" + before,"" + bankMap.get(searching).getAccounts().get(transfer.getTo()).getBalance());
                     eventPayload.setPayload(payloadPayload);
-                    System.out.println(eventPayload);
                     Helper.broadcastEvent(eventPayload);
 
                 } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
@@ -163,7 +160,6 @@ public class BankManager {
                     EventPayload eventPayload = new EventPayload("Transaction: The account balance increased", bankMap.get(searching).getId(), "account_balance_changed", "", "", playerId);
                     PayloadPayload payloadPayload = new PayloadPayload("" + before,"" + bankMap.get(searching).getAccounts().get(transfer.getTo()).getBalance());
                     eventPayload.setPayload(payloadPayload);
-                    System.out.println(eventPayload);
                     Helper.broadcastEvent(eventPayload);
                 } else {
                     throw new TransactionIsNotReadyException();
@@ -198,7 +194,6 @@ public class BankManager {
                     EventPayload eventPayload = new EventPayload("The account balance decreased", bankMap.get(searching).getId(), "account_balance_changed", "dasdasd", "dasdasd", playerId);
                     PayloadPayload payloadPayload = new PayloadPayload("" + before,"" + bankMap.get(searching).getAccounts().get(transfer.getFrom()).getBalance());
                     eventPayload.setPayload(payloadPayload);
-                    System.out.println(eventPayload);
                     Helper.broadcastEvent(eventPayload);
 
                 } else if (getTransaction(searching, searchingTransaction).getStatus() == TransactionStatus.ready) {
@@ -210,7 +205,6 @@ public class BankManager {
                     EventPayload eventPayload = new EventPayload("Transaction: The account balance decreased", bankMap.get(searching).getId(), "account_balance_changed", "", "", playerId);
                     PayloadPayload payloadPayload = new PayloadPayload("" + before,"" + bankMap.get(searching).getAccounts().get(transfer.getFrom()).getBalance());
                     eventPayload.setPayload(payloadPayload);
-                    System.out.println(eventPayload);
                     Helper.broadcastEvent(eventPayload);
                 } else {
                     throw new TransactionIsNotReadyException();
