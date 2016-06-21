@@ -417,7 +417,7 @@ public class BoardModel {
             JSONObject data = jsonResponse.getBody().getObject();
             if(jsonResponse.getStatus() == 402){
                 url =YellowService.getServiceUrlForType(ServiceType.GAME) + gameId + "/status?status=finished";
-                Unirest.post(url).asJson();
+                Unirest.put(url).asJson();
                 EventPayload eventPayload = new EventPayload("Player is broke", gameId, "player_is_broke", "Player has no money to pay the rent", "/boards/" + gameId + "/pawns/" + pawn.getId(), pawn.getPlayer());
                 Helper.broadcastEvent(eventPayload);
                 return "Player is Broke and the game is over";
