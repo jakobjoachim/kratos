@@ -1,6 +1,6 @@
 package Board;
 
-
+import Broker.UserPayload;
 import Broker.PlacePayload;
 import Enums.ServiceType;
 import Exceptions.*;
@@ -407,14 +407,25 @@ public class BoardModel {
         RollPayload creation = mapper.readValue(jsonRes.getBody().toString(), RollPayload.class);
         movePawn(creation.getNumber(), gameId, pawnId);
 
-        String url = YellowService.getServiceUrlForType(ServiceType.BROKER) + gameId + "/places/" + pawn.getPosition();
-        HttpResponse<JsonNode> jsonResponse = Unirest.get(url).asJson();
+        UserPayload userPayload = new UserPayload();
+        userPayload.setUserId(pawn.getPlayer());
+        String url = YellowService.getServiceUrlForType(ServiceType.BROKER) + gameId + "/places/" + pawn.getPosition() + "/owner";
+        HttpResponse<JsonNode> jsonResponse = Unirest.post(url).body(Helper.dataToJson(userPayload)).asJson();
         if (jsonResponse.getStatus() == 409) {
             url = YellowService.getServiceUrlForType(ServiceType.BROKER) + gameId + "/places/" + pawn.getPosition() + "/visit";
-            jsonResponse = Unirest.post(pawn.getId()).asJson();
+            jsonResponse = Unirest.post(url).body(Helper.dataToJson(userPayload)).asJson();
+            JSONObject data = jsonResponse.getBody().getObject();
+            if(jsonResponse.getStatus() == 402){
+                url =YellowService.getServiceUrlForType(ServiceType.GAME) + gameId + "/status?status=finished";
+                Unirest.post(url).asJson();
+                EventPayload eventPayload = new EventPayload("Player is broke", gameId, "player_is_broke", "Player has no money to pay the rent", "/boards/" + gameId + "/pawns/" + pawn.getId(), pawn.getPlayer());
+                Helper.broadcastEvent(eventPayload);
+                return "Player is Broke and the game is over";
+            }
+            return Helper.dataToJson(data);
         }
         JSONObject data = jsonResponse.getBody().getObject();
 
-        return Helper.dataToJson(null);
+        return Helper.dataToJson(data);
     }
 }

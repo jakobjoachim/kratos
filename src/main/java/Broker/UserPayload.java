@@ -4,7 +4,7 @@ import Interfaces.Validable;
 import lombok.Data;
 
 @Data
-class UserPayload implements Validable{
+public class UserPayload implements Validable{
 
     private String userId;
 
