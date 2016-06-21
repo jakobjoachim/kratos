@@ -63,7 +63,9 @@ class GameModel {
                     for (String player : players) {
                         gameMap.get(searching).getPlayerQueue().add(player);
                     }
+                    PayloadPayload payloadPayload = new PayloadPayload(GameStatus.registration.toString(), GameStatus.running.toString());
                     EventPayload eventPayload = new EventPayload("game now running", game, "game_status_changed", "game_status_changed", "game", "");
+                    eventPayload.setPayload(payloadPayload);
                     Helper.broadcastEvent(eventPayload);
                     EventPayload newPlayer = new EventPayload("player changed", game, "turn_changed", "player changed", "game", gameMap.get(searching).getPlayerQueue().peek());
                     Helper.broadcastEvent(newPlayer);
