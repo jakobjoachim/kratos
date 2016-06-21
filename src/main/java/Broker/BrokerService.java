@@ -16,6 +16,7 @@ public class BrokerService {
     private static final int OK = 200;
     private static final int CREATED = 201;
     private static final int CONFLICT = 409;
+    private static final int PAYMENT_REQUIRED = 402;
 
     public static void main(String[] args) {
         BrokerModel model = new BrokerModel();
@@ -184,6 +185,8 @@ public class BrokerService {
                 }
                 if (e instanceof GameDoesNotExistException) {
                     response.status(RESOURCE_NOT_FOUND);
+                } else {
+                    response.status(PAYMENT_REQUIRED);
                 }
                 return "";
             }
