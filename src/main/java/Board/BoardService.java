@@ -103,23 +103,10 @@ public class BoardService {
         });
 
         post("/boards/:gameId/pawns/:pawnId/roll", (request, response) -> {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                PawnPayload creation = mapper.readValue(request.body(), PawnPayload.class);
-                if (!(creation.isValid())) {
-                    response.status(HTTP_BAD_REQUEST);
-                    return "";
-                }
                 String createdUrl = model.rollDice(request.params("gameId"), request.params("pawnId"));
                 response.status(OK);
                 response.type("application/json");
                 return createdUrl;
-            } catch (Exception e) {
-                if (e instanceof JsonParseException) {
-                    response.status(HTTP_BAD_REQUEST);
-                }
-                return "";
-            }
         });
 
         exception(BoardAlreadyExistException.class, (e, request, response) -> {

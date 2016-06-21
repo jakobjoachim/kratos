@@ -1,5 +1,6 @@
 package Broker;
 
+import Board.PlaceUriPayload;
 import Enums.ServiceType;
 import Exceptions.*;
 import Tools.Helper;

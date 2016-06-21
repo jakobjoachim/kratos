@@ -14,6 +14,8 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import org.json.JSONObject;
 
+
+
 import java.util.*;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
@@ -29,19 +31,14 @@ public class BoardModel {
         place.setBuycost(buyCost);
         place.setRentMap(rentMap);
         place.setHypothecarycreditAmount(hypoAmount);
-        System.out.println(id);
         String url = brokerUri + "/" + gameId + "/places/" + fieldId;
-        System.out.println(url);
         try {
             String plac = Helper.dataToJson(place);
-            System.out.println(plac);
             HttpResponse<JsonNode> jsonResponse = Unirest.post(url).body(plac).asJson();
             JSONObject data = jsonResponse.getBody().getObject();
             ObjectMapper mapper = new ObjectMapper();
             PlaceUriPayload creation = mapper.readValue(data.toString(), PlaceUriPayload.class);
-            String uri = "/broker/" + gameId + "/places/" + fieldId;
-            System.out.println(uri);
-            board.getPlaceUri().put(fieldId, uri);
+            board.getPlaceUri().put(fieldId, creation.getPlaceUri());
         } catch (Exception e) {
             e.printStackTrace();
             throw new PlaceAlreadyExistException();
@@ -49,15 +46,7 @@ public class BoardModel {
     }
 
     String createBoard(String gameUri) throws Exception {
-        if (gameUri.isEmpty() || gameUri == null) {
-            throw new MissingBodyException();
-        }
-        int index = gameUri.lastIndexOf("/") + 1;
-        String id = "";
-        for (int i = index; i < gameUri.length(); i++) {
-            id += gameUri.charAt(i);
-        }
-        System.out.println(id);
+        String id = gameUri;
         if (boards.containsKey(id)) {
             throw new BoardAlreadyExistException();
         }
@@ -372,8 +361,9 @@ public class BoardModel {
         if (boards.containsKey(gameId)) {
             for (Pawn paws : boards.get(gameId).getPawns()) {
                 if (paws.getId().equals(pawnId)) {
+                    String before = Helper.dataToJson(paws.getPosition());
                     paws.move(steps);
-                    PayloadPayload payloadPayload = new PayloadPayload(Helper.dataToJson(paws.getPosition()), Helper.dataToJson(paws.getPosition()));
+                    PayloadPayload payloadPayload = new PayloadPayload(before, Helper.dataToJson(paws.getPosition()));
                     EventPayload eventPayload = new EventPayload("Player has been added", gameId, "Player_position_changed", "Player has changed his positon", "/boards/" + gameId + "/" + paws.getId(), paws.getPlayer());
                     eventPayload.setPayload(payloadPayload);
                     Helper.broadcastEvent(eventPayload);
@@ -399,7 +389,7 @@ public class BoardModel {
         return null;
     }
 
-    //TODO Es wird null zurückgegeben, Kommunikation mit anderen Services testen
+    //TODO Würfeln klappt, Broker will nichts ordentliches zurückgeben
     public String rollDice(String gameId, String pawnId) throws Exception {
         Pawn pawn = new Pawn();
         if (boards.containsKey(gameId)) {
@@ -411,6 +401,12 @@ public class BoardModel {
         } else {
             throw new BoardDoesNotExistException();
         }
+        String dice = YellowService.getServiceUrlForType(ServiceType.DICE) + "?game=" + gameId + "&player=" + pawnId;
+        HttpResponse<JsonNode> jsonRes = Unirest.get(dice).asJson();
+        ObjectMapper mapper = new ObjectMapper();
+        RollPayload creation = mapper.readValue(jsonRes.getBody().toString(), RollPayload.class);
+        movePawn(creation.getNumber(), gameId, pawnId);
+
         String url = YellowService.getServiceUrlForType(ServiceType.BROKER) + gameId + "/places/" + pawn.getPosition();
         HttpResponse<JsonNode> jsonResponse = Unirest.get(url).asJson();
         if (jsonResponse.getStatus() == 409) {
@@ -418,22 +414,7 @@ public class BoardModel {
             jsonResponse = Unirest.post(pawn.getId()).asJson();
         }
         JSONObject data = jsonResponse.getBody().getObject();
-        String dice = YellowService.getServiceUrlForType(ServiceType.DICE) + "?game=" + gameId + "&player=" + pawnId;
-        HttpResponse<JsonNode> jsonRes = Unirest.get(dice).asJson();
-        ObjectMapper mapper = new ObjectMapper();
-        RollPayload creation = mapper.readValue(jsonRes.getBody().toString(), RollPayload.class);
-        int steps = Integer.parseInt(creation.getNumber());
-        System.out.println(steps);
-        if (boards.containsKey(gameId)) {
-            for (Pawn paws : boards.get(gameId).getPawns()) {
-                if (paws.getId().equals(pawnId)) {
-                    paws.move(steps);
-                    return Helper.dataToJson(paws.getPosition());
-                }
-            }
-        } else {
-            throw new BoardDoesNotExistException();
-        }
-        return Helper.dataToJson(data);
+
+        return Helper.dataToJson(null);
     }
 }
