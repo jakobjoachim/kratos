@@ -421,6 +421,6 @@ public class BoardModel {
         }
         JSONObject data = jsonResponse.getBody().getObject();
 
-        return Helper.dataToJson(data);
+        return pawn.getId() + " bought the place";
     }
 }
