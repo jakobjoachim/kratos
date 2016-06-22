@@ -28,9 +28,9 @@ public class BoardModel {
         place.setBuycost(buyCost);
         place.setRentMap(rentMap);
         place.setHypothecarycreditAmount(hypoAmount);
-        brokerUri = "172.18.0.15:4567/broker";
+        //String brokerUri = "http://localhost:1234/broker";
         String url = brokerUri + "/" + gameId + "/places/" + fieldId;
-        System.out.println(url);
+        //System.out.println(url);
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.post(url).body(Helper.dataToJson(place)).asJson();
             JSONObject data = jsonResponse.getBody().getObject();

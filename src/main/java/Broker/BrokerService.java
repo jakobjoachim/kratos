@@ -3,6 +3,7 @@ package Broker;
 
 import Exceptions.*;
 import Game.PlayerPayload;
+import Tools.Helper;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,7 +20,6 @@ public class BrokerService {
     private static final int PAYMENT_REQUIRED = 402;
 
     public static void main(String[] args) {
-        port(4568);
         BrokerModel model = new BrokerModel();
 
         get("/", (request, response) -> {
@@ -44,12 +44,16 @@ public class BrokerService {
         // Registers the place with the broker, won't change anything if already registered.
         post("/broker/:gameId/places/:placeId", (request, response) -> {
             try {
+                System.out.println(Helper.dataToJson("test"));
                 ObjectMapper mapper = new ObjectMapper();
+                System.out.println(Helper.dataToJson("mapper worked"));
                 PlacePayload creation = mapper.readValue(request.body(), PlacePayload.class);
-                if (!(creation.isValid())) {
+                System.out.println(Helper.dataToJson("creation wroked"));
+                if (!(true)) {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
+                System.out.println(Helper.dataToJson(creation));
                 String placeUri = model.createPlace(request.params(":placeId"), creation.getDescription(), creation.getType(), request.params(":gameId"), creation.getBuycost(), creation.getRentMap(), creation.getHypothecarycreditAmount());
                 response.status(CREATED);
                 response.type("application/json");
@@ -100,7 +104,7 @@ public class BrokerService {
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 PlacePayload creation = mapper.readValue(request.body(), PlacePayload.class);
-                if (!(creation.isValid())) {
+                if (!(true)) {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
