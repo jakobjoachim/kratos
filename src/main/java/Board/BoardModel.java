@@ -401,7 +401,7 @@ public class BoardModel {
         movePawn(creation.getNumber(), gameId, pawnId);
 
         UserPayload userPayload = new UserPayload();
-        userPayload.setUserId(pawn.getPlayer());
+        userPayload.setUserId(pawn.getId());
         String url = YellowService.getServiceUrlForType(ServiceType.BROKER) + "/" + gameId + "/places/" + pawn.getPosition() + "/owner";
         HttpResponse<JsonNode> jsonResponse = Unirest.post(url).body(Helper.dataToJson(userPayload)).asJson();
         if (jsonResponse.getStatus() == 409) {
