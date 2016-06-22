@@ -387,7 +387,7 @@ public class BoardModel {
         Pawn pawn = new Pawn();
         if (boards.containsKey(gameId)) {
             for (Pawn paws : boards.get(gameId).getPawns()) {
-                if (paws.getId().equals(pawnId)) {
+                if (paws.getPlayer().equals(pawnId)) {
                     pawn = paws;
                 }
             }
@@ -401,13 +401,15 @@ public class BoardModel {
         movePawn(creation.getNumber(), gameId, pawnId);
 
         UserPayload userPayload = new UserPayload();
-        userPayload.setUserId(pawn.getId());
-        String url = YellowService.getServiceUrlForType(ServiceType.BROKER) + "/" + gameId + "/places/" + pawn.getPosition() + "/owner";
+        userPayload.setUserId(pawn.getPlayer());
+        String brokerUrl = YellowService.getServiceUrlForType(ServiceType.BROKER);
+        String url = brokerUrl + "/" + gameId + "/places/" + pawn.getPosition() + "/owner";
         HttpResponse<JsonNode> jsonResponse = Unirest.post(url).body(Helper.dataToJson(userPayload)).asJson();
+        JSONObject data = jsonResponse.getBody().getObject();
         if (jsonResponse.getStatus() == 409) {
             url = YellowService.getServiceUrlForType(ServiceType.BROKER) + "/" + gameId + "/places/" + pawn.getPosition() + "/visit";
             jsonResponse = Unirest.post(url).body(Helper.dataToJson(userPayload)).asJson();
-            JSONObject data = jsonResponse.getBody().getObject();
+            data = jsonResponse.getBody().getObject();
             if (jsonResponse.getStatus() == 402) {
                 url = YellowService.getServiceUrlForType(ServiceType.GAME) + "/" + gameId + "/status?status=finished";
                 Unirest.put(url).asJson();
@@ -419,7 +421,6 @@ public class BoardModel {
             }
             return Helper.dataToJson(data);
         }
-        JSONObject data = jsonResponse.getBody().getObject();
 
         return pawn.getId() + " bought the place";
     }
