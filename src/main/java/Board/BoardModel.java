@@ -14,11 +14,8 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import org.json.JSONObject;
 
-
-
 import java.util.*;
 
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 
 public class BoardModel {
     private static Map<String, Board> boards = new HashMap<>();
@@ -33,8 +30,7 @@ public class BoardModel {
         place.setHypothecarycreditAmount(hypoAmount);
         String url = brokerUri + "/" + gameId + "/places/" + fieldId;
         try {
-            String plac = Helper.dataToJson(place);
-            HttpResponse<JsonNode> jsonResponse = Unirest.post(url).body(plac).asJson();
+            HttpResponse<JsonNode> jsonResponse = Unirest.post(url).header("Content-Type", "application/json").body(Helper.dataToJson(place)).asJson();
             JSONObject data = jsonResponse.getBody().getObject();
             ObjectMapper mapper = new ObjectMapper();
             PlaceUriPayload creation = mapper.readValue(data.toString(), PlaceUriPayload.class);
@@ -389,7 +385,6 @@ public class BoardModel {
         return null;
     }
 
-    //TODO Würfeln klappt, Broker will nichts ordentliches zurückgeben
     public String rollDice(String gameId, String pawnId) throws Exception {
         Pawn pawn = new Pawn();
         if (boards.containsKey(gameId)) {
@@ -415,8 +410,8 @@ public class BoardModel {
             url = YellowService.getServiceUrlForType(ServiceType.BROKER) + gameId + "/places/" + pawn.getPosition() + "/visit";
             jsonResponse = Unirest.post(url).body(Helper.dataToJson(userPayload)).asJson();
             JSONObject data = jsonResponse.getBody().getObject();
-            if(jsonResponse.getStatus() == 402){
-                url =YellowService.getServiceUrlForType(ServiceType.GAME) + gameId + "/status?status=finished";
+            if (jsonResponse.getStatus() == 402) {
+                url = YellowService.getServiceUrlForType(ServiceType.GAME) + gameId + "/status?status=finished";
                 Unirest.put(url).asJson();
                 EventPayload eventPayload = new EventPayload("Player is broke", gameId, "player_is_broke", "Player has no money to pay the rent", "/games/" + gameId + "/status", pawn.getPlayer());
                 Helper.broadcastEvent(eventPayload);
