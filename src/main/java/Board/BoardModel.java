@@ -28,9 +28,11 @@ public class BoardModel {
         place.setBuycost(buyCost);
         place.setRentMap(rentMap);
         place.setHypothecarycreditAmount(hypoAmount);
+        brokerUri = "172.18.0.15:4567/broker";
         String url = brokerUri + "/" + gameId + "/places/" + fieldId;
+        System.out.println(url);
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.post(url).header("Content-Type", "application/json").body(Helper.dataToJson(place)).asJson();
+            HttpResponse<JsonNode> jsonResponse = Unirest.post(url).body(Helper.dataToJson(place)).asJson();
             JSONObject data = jsonResponse.getBody().getObject();
             ObjectMapper mapper = new ObjectMapper();
             PlaceUriPayload creation = mapper.readValue(data.toString(), PlaceUriPayload.class);
@@ -400,14 +402,14 @@ public class BoardModel {
 
         UserPayload userPayload = new UserPayload();
         userPayload.setUserId(pawn.getPlayer());
-        String url = YellowService.getServiceUrlForType(ServiceType.BROKER) + gameId + "/places/" + pawn.getPosition() + "/owner";
+        String url = YellowService.getServiceUrlForType(ServiceType.BROKER) + "/" + gameId + "/places/" + pawn.getPosition() + "/owner";
         HttpResponse<JsonNode> jsonResponse = Unirest.post(url).body(Helper.dataToJson(userPayload)).asJson();
         if (jsonResponse.getStatus() == 409) {
-            url = YellowService.getServiceUrlForType(ServiceType.BROKER) + gameId + "/places/" + pawn.getPosition() + "/visit";
+            url = YellowService.getServiceUrlForType(ServiceType.BROKER) + "/" + gameId + "/places/" + pawn.getPosition() + "/visit";
             jsonResponse = Unirest.post(url).body(Helper.dataToJson(userPayload)).asJson();
             JSONObject data = jsonResponse.getBody().getObject();
             if (jsonResponse.getStatus() == 402) {
-                url = YellowService.getServiceUrlForType(ServiceType.GAME) + gameId + "/status?status=finished";
+                url = YellowService.getServiceUrlForType(ServiceType.GAME) + "/" + gameId + "/status?status=finished";
                 Unirest.put(url).asJson();
                 EventPayload eventPayload = new EventPayload("Player is broke", gameId, "player_is_broke", "Player has no money to pay the rent", "/games/" + gameId + "/status", pawn.getId());
                 Helper.broadcastEvent(eventPayload);

@@ -19,6 +19,7 @@ public class BrokerService {
     private static final int PAYMENT_REQUIRED = 402;
 
     public static void main(String[] args) {
+        port(4568);
         BrokerModel model = new BrokerModel();
 
         get("/", (request, response) -> {
