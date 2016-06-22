@@ -420,6 +420,8 @@ public class BoardModel {
                 Unirest.put(url).asJson();
                 EventPayload eventPayload = new EventPayload("Player is broke", gameId, "player_is_broke", "Player has no money to pay the rent", "/games/" + gameId + "/status", pawn.getPlayer());
                 Helper.broadcastEvent(eventPayload);
+                EventPayload eventPayloadFinished = new EventPayload("Games is over", gameId, "game_has_finished", "Player is, so the game is over", "/games/" + gameId + "/status", pawn.getPlayer());
+                Helper.broadcastEvent(eventPayloadFinished);
                 return "Player is Broke and the game is over";
             }
             return Helper.dataToJson(data);
