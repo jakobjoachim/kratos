@@ -44,16 +44,12 @@ public class BrokerService {
         // Registers the place with the broker, won't change anything if already registered.
         post("/broker/:gameId/places/:placeId", (request, response) -> {
             try {
-                System.out.println(Helper.dataToJson("test"));
                 ObjectMapper mapper = new ObjectMapper();
-                System.out.println(Helper.dataToJson("mapper worked"));
                 PlacePayload creation = mapper.readValue(request.body(), PlacePayload.class);
-                System.out.println(Helper.dataToJson("creation wroked"));
                 if (!(true)) {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
-                System.out.println(Helper.dataToJson(creation));
                 String placeUri = model.createPlace(request.params(":placeId"), creation.getDescription(), creation.getType(), request.params(":gameId"), creation.getBuycost(), creation.getRentMap(), creation.getHypothecarycreditAmount());
                 response.status(CREATED);
                 response.type("application/json");
