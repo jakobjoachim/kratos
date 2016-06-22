@@ -287,10 +287,6 @@ public class BoardModel {
             }
         }
         boards.get(id).getPawns().add(pawn);
-        PayloadPayload payloadPayload = new PayloadPayload(before, Helper.dataToJson(boards.get(id).getPawns().size()));
-        EventPayload eventPayload = new EventPayload("Player has been added", "none", "Player_added_to_game", "Pawn added to the board", "boards/" + id, pawn.getPlayer());
-        eventPayload.setPayload(payloadPayload);
-        Helper.broadcastEvent(eventPayload);
         return Helper.dataToJson("Player successfully created");
     }
 
@@ -360,7 +356,7 @@ public class BoardModel {
                     String before = Helper.dataToJson(paws.getPosition());
                     paws.move(steps);
                     PayloadPayload payloadPayload = new PayloadPayload(before, Helper.dataToJson(paws.getPosition()));
-                    EventPayload eventPayload = new EventPayload("Player has been added", gameId, "player_position_changed", "Player has changed his positon", "/boards/" + gameId + "/" + paws.getId(), paws.getPlayer());
+                    EventPayload eventPayload = new EventPayload("Player Pawn moved", gameId, "player_position_changed", "Player has changed his positon", "/boards/" + gameId + "/" + paws.getId(), paws.getId());
                     eventPayload.setPayload(payloadPayload);
                     Helper.broadcastEvent(eventPayload);
                     return Helper.dataToJson("The new position from " + pawnId + " is " + paws.getPosition());
@@ -413,9 +409,9 @@ public class BoardModel {
             if (jsonResponse.getStatus() == 402) {
                 url = YellowService.getServiceUrlForType(ServiceType.GAME) + gameId + "/status?status=finished";
                 Unirest.put(url).asJson();
-                EventPayload eventPayload = new EventPayload("Player is broke", gameId, "player_is_broke", "Player has no money to pay the rent", "/games/" + gameId + "/status", pawn.getPlayer());
+                EventPayload eventPayload = new EventPayload("Player is broke", gameId, "player_is_broke", "Player has no money to pay the rent", "/games/" + gameId + "/status", pawn.getId());
                 Helper.broadcastEvent(eventPayload);
-                EventPayload eventPayloadFinished = new EventPayload("Games is over", gameId, "game_has_finished", "Player is, so the game is over", "/games/" + gameId + "/status", pawn.getPlayer());
+                EventPayload eventPayloadFinished = new EventPayload("Games is over", gameId, "game_has_finished", "Player is, so the game is over", "/games/" + gameId + "/status", pawn.getId());
                 Helper.broadcastEvent(eventPayloadFinished);
                 return "Player is Broke and the game is over";
             }
