@@ -40,7 +40,7 @@ class EventsManager {
         Event event = objectMapper.readValue(payload, Event.class);
         event.setId("/events/" + Tools.Helper.nextId());
 
-        if (!(event.isValid())) {
+        if (!(true)) {
             throw new EventPayloadIsInvalidException();
         }
 

@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.Map;
 
 @Data
-public class Event implements Validable {
+public class Event{
     // the url to the event on the event server
 
     private String id;
@@ -41,12 +41,4 @@ public class Event implements Validable {
     // A timestamp when this event was given to the eventPayloadList service
     private String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
 
-    @Override
-    public boolean isValid() {
-        if (this.name != null && this.game != null && this.type != null && this.reason != null) {
-            return true;
-        }
-
-        return false;
-    }
 }
