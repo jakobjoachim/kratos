@@ -364,7 +364,7 @@ public class BoardModel {
                     String before = Helper.dataToJson(paws.getPosition());
                     paws.move(steps);
                     PayloadPayload payloadPayload = new PayloadPayload(before, Helper.dataToJson(paws.getPosition()));
-                    EventPayload eventPayload = new EventPayload("Player has been added", gameId, "Player_position_changed", "Player has changed his positon", "/boards/" + gameId + "/" + paws.getId(), paws.getPlayer());
+                    EventPayload eventPayload = new EventPayload("Player has been added", gameId, "player_position_changed", "Player has changed his positon", "/boards/" + gameId + "/" + paws.getId(), paws.getPlayer());
                     eventPayload.setPayload(payloadPayload);
                     Helper.broadcastEvent(eventPayload);
                     return Helper.dataToJson("The new position from " + pawnId + " is " + paws.getPosition());
