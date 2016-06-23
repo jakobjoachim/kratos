@@ -130,6 +130,7 @@ class BrokerModel {
     private boolean buyThePlace(String buyer, int amount, Place place, String gameId) throws NoBankRegisteredException {
         PlaceTransfer placeTransfer = new PlaceTransfer(buyer, place);
         String bankUri = getBankUri(gameId);
+        System.out.println("place buyy");
         if (placeTransfer.commit()) {
             try {
                 String url = bankUri + "/transfer/from/" + buyer + "/" + amount;
@@ -175,6 +176,7 @@ class BrokerModel {
 
     private String transferMoney(String uri, String jsonBody) throws Exception{
         try {
+            System.out.println(uri);
             HttpResponse<JsonNode> jsonResponse = Unirest.post(uri).body(jsonBody).asJson();
             JSONObject data = jsonResponse.getBody().getObject();
             return (String) data.get("transactionId");

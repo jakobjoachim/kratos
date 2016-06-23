@@ -71,8 +71,10 @@ public class BrokerService {
         // Buy the estate in question. It will fail if it is not for sale
         post("/broker/:gameId/places/:placeId/owner", (request, response) -> {
             try {
+                System.out.println(request.params(":placeId") + request.params(":gameId"));
                 ObjectMapper mapper = new ObjectMapper();
                 UserPayload creation = mapper.readValue(request.body(), UserPayload.class);
+                System.out.println(creation.getUserId());
                 if (!(creation.isValid())) {
                     response.status(HTTP_BAD_REQUEST);
                     return "";
@@ -90,6 +92,9 @@ public class BrokerService {
                 }
                 if (e instanceof GameDoesNotExistException) {
                     response.status(RESOURCE_NOT_FOUND);
+                }
+                if (e instanceof PlaceNotSoldException) {
+                    response.status(PAYMENT_REQUIRED);
                 }
                 return "";
             }
