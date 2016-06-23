@@ -1,16 +1,17 @@
 package Dice;
 
 import Enums.ServiceType;
-import Events.EventPayload;
+import Exceptions.BadDicePayloadException;
 import Tools.Helper;
-import Yellow.YellowService;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
+import Tools.JsonErrorGenerator;
+import Tools.SharedPayloads.EventPayload;
+import Tools.SharedPayloads.PayloadPayload;
+import Tools.YellowService;
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.json.JSONObject;
 
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import static spark.Spark.*;
@@ -19,44 +20,47 @@ public class DiceService {
 
     public static void main(String[] args) {
 
-        before((request, response) -> response.type("application/json"));
-        before((request, response) -> response.header("Desciption", "Gives you a single dice roll"));
+        before((request, response) -> response.header("Description", "Gives you a single dice roll"));
+
+        get("/", (request, response) -> {
+            response.status(200);
+            return "OK";
+        });
+
         get("/dice", (request, response) -> {
+
+            if (request.queryMap().get("player").value() == null
+                    || request.queryMap().get("game").value() == null) {
+
+                throw new BadDicePayloadException();
+            }
+
             createEvent(request.queryMap().get("player").value(), request.queryMap().get("game").value());
-            //TODO: without queryParams
+
+            response.header("Content-Type", "application/json");
             return randomDice();
+        });
+
+        exception(BadDicePayloadException.class, (exception, request, response) -> {
+            response.status(422);
+            response.header("Content-Type", "application/json");
+            response.body(JsonErrorGenerator.getErrorJsonString(422, "game and/or player missing"));
         });
 
     }
 
-    public static String randomDice() {
+    private static String randomDice() {
         int random = (int) (Math.random() * 6) + 1;
-        String result = ("{ \"number\": " + random + " }");
-        return result;
+        return ("{ \"number\": " + random + " }");
     }
 
 
-    public static void createEvent(String player, String game) {
+    private static void createEvent(String player, String game) {
+        EventPayload eventPayload =
+                new EventPayload("dice roll", game, "dice roll", "dice roll occured", "", player);
 
-        String eventCreationUrl = YellowService.getServiceUrlForType(ServiceType.EVENTS);
-        System.out.println(eventCreationUrl);
-
-        DicePayload dicePayload = new DicePayload();
-        dicePayload.setGame(game);
-        dicePayload.setPlayer(player);
-
-        try {
-            Unirest.post(eventCreationUrl)
-                    .header("Content-Type", "application/json")
-                    .body(Helper.dataToJson(dicePayload))
-                    .asJson();
-
-        } catch (Exception e) {
-
-            System.out.print(e.getMessage());
-
-        }
-
+        eventPayload.setPayload(new PayloadPayload("", ""));
+        Helper.broadcastEvent(eventPayload);
     }
 
 }

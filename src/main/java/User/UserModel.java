@@ -3,30 +3,44 @@ package User;
 import Exceptions.UserAlreadyExistsException;
 import Exceptions.UserDoesNotExistException;
 import Tools.Helper;
+import Tools.SharedPayloads.EventPayload;
 
 import java.util.*;
 
-public class UserModel {
+class UserModel {
     private static Map<String, User> userMap = new HashMap<>();
 
-    public String createUser(String name, String uri) throws UserAlreadyExistsException {
+    String createUser(String name, String uri) throws UserAlreadyExistsException {
         User user = new User();
         user.setName(name);
         user.setUri(uri);
-        String url = ("\"/users/" + name + "\"").toLowerCase();
+        String url = ("/users/" + name).toLowerCase();
+
         if (userMap.containsKey(url)) {
             throw new UserAlreadyExistsException();
         }
+
+        Helper.broadcastEvent(
+                new EventPayload(
+                        "user created",
+                        "none",
+                        "user created",
+                        "A new user has been added to the system",
+                        url.toLowerCase(),
+                        "none"
+                )
+        );
+
         userMap.put(url, user);
-        return url;
+        return url.toLowerCase();
     }
 
-    public Set<String> getAllUsers(){
-        return userMap.keySet();
+    String getAllUsers() {
+        return Helper.dataToJson(userMap.keySet());
     }
 
-    public String getUserInfo(String user) throws UserDoesNotExistException {
-        String searching = "\"/users/" + user + "\"";
+    String getUserInfo(String user) throws UserDoesNotExistException {
+        String searching = "/users/" + user;
         if (userMap.keySet().contains(searching)) {
             UserInfoPayload result = new UserInfoPayload();
             String id = "/users/" + user;
@@ -39,8 +53,8 @@ public class UserModel {
         }
     }
 
-    public String editUser(String url, String name, String uri) throws UserDoesNotExistException {
-        String searching = "\"/users/" + url + "\"";
+    String editUser(String url, String name, String uri) throws UserDoesNotExistException {
+        String searching = "/users/" + url;
         if (userMap.containsKey(searching)){
             userMap.get(searching).setName(name);
             userMap.get(searching).setUri(uri);
@@ -48,8 +62,8 @@ public class UserModel {
         return getUserInfo(url);
     }
 
-    public static void deleteUser(String id) throws UserDoesNotExistException {
-        String searching = "\"/users/" + id + "\"";
+    static void deleteUser(String id) throws UserDoesNotExistException {
+        String searching = "/users/" + id;
         if (!(userMap.containsKey(searching))) {
             throw new UserDoesNotExistException();
         }

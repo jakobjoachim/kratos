@@ -1,8 +1,7 @@
 package Game;
 
 import Enums.GameStatus;
-import Exceptions.GameAlreadyExistsException;
-import Exceptions.GameDoesNotExistException;
+import Exceptions.*;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -14,9 +13,16 @@ public class GameService {
     private static final int UNPROCESSABLE_ENTITY = 422;
     private static final int RESOURCE_NOT_FOUND = 404;
     private static final int OK = 200;
+    private static final int TEAPOT = 418;
 
     public static void main(String[] args) {
         GameModel model = new GameModel();
+
+        get("/", (request, response) -> {
+            response.status(OK);
+            response.type("application/json");
+            return "";
+        });
 
         get("/games", (request, response) -> {
             response.status(OK);
@@ -75,18 +81,23 @@ public class GameService {
             String game = request.params(":gameId");
             try {
                 GameStatus status = GameStatus.valueOf(request.queryMap().get("status").value());
+
                 return model.setStatus(game, status);
             } catch (Exception e) {
                 if (e instanceof GameDoesNotExistException) {
                     response.status(RESOURCE_NOT_FOUND);
-                } else {
+                } else if (e instanceof WrongDataTypeException) {
+                    response.status(TEAPOT);
+                } else if (e instanceof IllegalArgumentException) {
                     response.status(UNPROCESSABLE_ENTITY);
+                } else {
+                    response.status(HTTP_BAD_REQUEST);
                 }
                 return "";
             }
         });
 
-        get("/games/:gameId/player", (request, response) -> {
+        get("/games/:gameId/players", (request, response) -> {
             response.status(OK);
             response.type("application/json");
             try {
@@ -104,10 +115,15 @@ public class GameService {
                 response.status(HTTP_BAD_REQUEST);
                 return "";
             }
-            String result = model.addUser(creation.getName(), creation.isReady(), request.params(":gameId"));
-            response.status(OK);
-            response.type("application/json");
-            return result;
+            try {
+                String result = model.addUser(creation.getName(), creation.isReady(), request.params(":gameId"));
+                response.status(OK);
+                response.type("application/json");
+                return result;
+            } catch (GameDoesNotExistException e) {
+                response.status(RESOURCE_NOT_FOUND);
+                return "";
+            }
         });
 
         get("/games/:gameId/services", (request, response) -> {
@@ -127,6 +143,21 @@ public class GameService {
             try {
                 return model.getComponents(request.params(":gameId"));
             } catch (GameDoesNotExistException e) {
+                response.status(RESOURCE_NOT_FOUND);
+                return "";
+            }
+        });
+
+        delete("/games/:gameId/players/turn", (request, response) -> {
+            response.status(OK);
+            response.type("application/json");
+            try {
+                return model.endTurn(request.params(":gameId"));
+            } catch (Exception e) {
+                if (e instanceof NoTurnActiveException) {
+                    response.status(OK);
+                    return "Turn Already free";
+                }
                 response.status(RESOURCE_NOT_FOUND);
                 return "";
             }
@@ -154,7 +185,7 @@ public class GameService {
             }
         });
 
-        post("/games/:gameId/players/:playerId/ready", (request, response) -> {
+        put("/games/:gameId/players/:playerId/ready", (request, response) -> {
             response.status(OK);
             response.type("application/json");
             try {
@@ -180,18 +211,7 @@ public class GameService {
             response.status(OK);
             response.type("application/json");
             try {
-                return model.getCurrentPlayer(request.params(":gameId"));
-            } catch (Exception e) {
-                response.status(RESOURCE_NOT_FOUND);
-                return "";
-            }
-        });
-
-        delete("/games/:gameId/players/turn", (request, response) -> {
-            response.status(OK);
-            response.type("application/json");
-            try {
-                return model.endTurn(request.params(":gameId"));
+                return model.getTurnHolder(request.params(":gameId"));
             } catch (Exception e) {
                 response.status(RESOURCE_NOT_FOUND);
                 return "";
@@ -202,8 +222,13 @@ public class GameService {
             response.status(OK);
             response.type("application/json");
             try {
-                String id = request.queryMap().get("id").value();
-                return model.nextPlayer(request.params(":gameId"), id);
+                String player = request.queryMap().get("player").value();
+                int status = model.putTurn(request.params(":gameId"), player);
+                response.status(status);
+                if (status == 200) return "already holding the mutex";
+                if (status == 201) return "aquired the mutex";
+                if (status == 409) return "already aquired by an other player";
+                return "";
             } catch (Exception e) {
                 response.status(RESOURCE_NOT_FOUND);
                 return "";

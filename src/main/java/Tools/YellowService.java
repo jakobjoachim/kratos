@@ -1,4 +1,4 @@
-package Yellow;
+package Tools;
 
 import Enums.ServiceType;
 import com.mashape.unirest.http.HttpResponse;
@@ -19,7 +19,7 @@ public class YellowService {
         switch (type) {
 
             case EVENTS:
-                String eventTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSEventsService";
+                String eventTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSEventService";
 
                 try {
                     result = getServiceUrl(eventTypeServiceURL);
@@ -64,6 +64,35 @@ public class YellowService {
 
                 try {
                     result = getServiceUrl(userTypeServiceURL);
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
+
+                break;
+            case BANK:
+                String bankTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSBankService";
+
+                try {
+                    result = getServiceUrl(bankTypeServiceURL);
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
+            case BROKER:
+                String brokerTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSBrokerService";
+
+                try {
+                    result = getServiceUrl(brokerTypeServiceURL);
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
+
+                break;
+
+            case CLIENT:
+                String clientTypeServiceURL = yellowServiceUrl + "/services/of/name/KRATOSClientService";
+
+                try {
+                    result = getServiceUrl(clientTypeServiceURL);
                 } catch (UnirestException e) {
                     e.printStackTrace();
                 }

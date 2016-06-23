@@ -1,0 +1,864 @@
+#%RAML 0.8
+title: RESTopoly
+version: 0.3
+baseUri: http://localhost:4567
+schemas:
+  - place: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "place",
+        "properties": {
+          "name": { "type": "string",  "required": true  },
+          "broker": {"type": "string", "required": true, "description":"uri to the place at the broker"}
+        }
+      }
+  - user: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "user",
+        "required": true,
+        "description":"Information about a user of a game",
+        "properties": {
+          "id":  { "type": "string", "required": true, "description":"uri of the resource" },
+          "name":{ "type": "string", "required": true, "description":"human readable name of the user"},
+          "uri":{ "type": "string", "description":"uri used later for a client service" }
+        }
+      }
+  - player: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "player",
+        "required": true,
+        "description":"Information about a player of a game",
+        "properties": {
+          "id":  { "type": "string", "required": true, "description":"uri the resource" },
+          "user": {"type":"string", "description":"uri to the user resource"},
+          "pawn": {"type":"string", "description":"uri to the pawn on the board belonging to the player"},
+          "account": {"type":"string", "description":"uri to the account in the bank belonging to the player"},
+          "ready": {"type":"string", "description":"uri to the ready resource"}
+        }
+      }
+  - pawn:  |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "user",
+        "required": true,
+        "description":"Information about a pawn in a game",
+        "properties": {
+          "id":  { "type": "string", "required": true, "description":"uri of the resource itself" },
+          "player":{ "type": "string", "description":"uri to the player resource" },
+          "place": { "type":"string", "description":"uri of the place the player stands on" },
+          "position": { "type": "int", "description":"numeric position on the board" },
+          "roll": {"type":"string", "description":"uri to the rolls of the player"},
+          "move": {"type":"string", "description":"uri to the moves or the player"}
+        }
+      }
+  - game: |
+      {
+         "type": "object",
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "game",
+          "properties": {
+              "id": { "type": "string", "required": true, "description":"unique identity of the game (uri)"},
+              "name": { "type": "string", "description":"A name to identify the games for humans" },
+              "players":{ "type": "string", "description":"uri to the list of players" },
+              "services": { "$ref": "components", "description":"all used services, uri to the service root"},
+              "components": { "$ref": "components", "description":"specific game components (resources created for this game)"}
+            }
+      }
+  - components: |
+      {
+         "type": "object",
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "components",
+          "description": "game components as full, absolute url",
+          "properties": {
+              "game": {"type": "string"},
+              "dice": {"type": "string"},
+              "board": {"type": "string"},
+              "bank": {"type": "string"},
+              "broker": {"type": "string"},
+              "decks": {"type": "string"},
+              "events": {"type": "string"}
+              }
+      }
+  - roll: |
+      {
+         "type": "object",
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id":"roll",
+          "properties": {
+              "number": {"type": "int"}
+            },
+          "required": ["number"]
+      }
+  - throw: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "throw",
+        "required": true,
+        "description":"two rolls together as a throw",
+        "properties": {
+          "roll1": {
+            "$ref": "roll",
+            "required": true
+          },
+          "roll2": {
+            "$ref": "roll",
+            "required": true
+          }
+        }
+      }
+  - field: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "field",
+        "required": true,
+        "properties": {
+          "place": { "type":"string",  "required": true , "description":"the uri of the place place on this field (Badstrase, Jail...)" },
+          "players":  { "type":"array", "items":{"type":"string"}, "required": true, "description":"list of uris to players on the field e.g. [/boards/42/players/zieger]"  }
+        }
+      }
+  - board: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "board",
+        "required": true,
+        "properties": {
+          "fields": { "type": "array", "items": {"$ref": "field" }, "required": true, "description":"list of fields of the board"  },
+          "positions":  { "type": "array", "items": { "type":"int" },  "required": true, "description":"a list of positions on the board related to the players list (position of players[i] is positions[i])",
+          "players": { "type": "string", "description":"uri to the list of players on the board" }  }
+        }
+      }
+  - bank: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "bank",
+        "properties": {
+            "accounts": {"type":"string", "description":"uri to the accounts of players of the bank" },
+            "transfers": {"type":"string", "description":"uri to the transfers of the bank" }
+        }
+      }
+  - transfer: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "transfer",
+        "properties": {
+          "from": { "type": "string", "description":"uri of player account or 'bank' from where the money comes from", "required": true  },
+          "to":   { "type": "string", "description":"uri of player account or 'bank' to where the money goes", "required": true },
+          "amount":   { "type": "int", "description":"the amount of money transfered", "required": true },
+          "reason": { "type": "string", "required": true , "description":"the given reason why the transfer was issued" }
+        }
+      }
+  - account: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "account",
+        "properties": {
+          "player": {"type":"string", "description":"uri of the player", "required":"true"},
+          "saldo": {"type":"int", "required":"true"}
+        }
+      }
+  - deck: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "deck",
+        "properties": {
+          "id": { "type": "string", "required": true, "description":"the url to the deck resource itself"  },
+          "chance": { "type": "string", "required": true, "description":"uri to the chance cards"  },
+          "community": { "type": "string", "required": true, "description":"uri to the chance cards"  }
+        }
+      }
+  - card: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "card",
+        "properties": {
+          "name": { "type": "string", "required": true, "description":"human readable name of the card"  },
+          "text": { "type": "string", "required": true, "description":"the text of the card, describing it's effect"  }
+        }
+      }
+  - event:  |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "event",
+        "properties": {
+          "id": { "type":"string", "required":true, "description":"the url to the event on the event server"},
+          "game": {"type":"string", "required":true, "description":"the uri of the game this event belongs to"},
+          "type": { "type": "string", "required": true , "description":"internal type of the event (e.g bank transfer, rent, got to jail, estate transfer)" },
+          "name": { "type": "string", "required": true, "description":"human readable name for this event"  },
+          "reason": { "type": "string", "required": true, "description":"a description why this event occured"  },
+          "resource": {"type": "string", "description": "the uri of the resource related to this event where more information may be found (e.g. an uri to a transfer or similar)" },
+          "player": { "type": "string", "description": "The uri of the player having triggered the event" }
+        }
+      }
+  - events: |
+      {
+        "type": "array",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "events",
+        "description":"a list of events",
+        "items": { "$ref": "event" }
+      }
+  - broker: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "broker",
+        "properties": {
+          "id": {"type": "string", "description":"the uri to the broker itself"},
+          "game": {"type": "string", "description":"the uri the game the broker belongs to"},
+          "estates": { "type":"string", "required": true, "description":"uri to the estates managed by the broker" }
+        }
+      }
+  - estate: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "estate",
+        "properties": {
+          "id": {"type": "string", "description":"the uri to the estate itself"},
+          "place": { "type":"string", "required": true, "description":"uri to the place on the board" },
+          "owner": { "type": "string", "description":"the uri to the owner resource of the estate" },
+          "value": { "type":"int", "description":"The value of the place, i.e. for how much it may be bought or sold"},
+          "rent": { "type":"array", "items": {"type":"int"}, "required": true, "description": "Rent at current level" },
+          "cost": { "type":"array", "items": {"type":"int"}, "required": true, "description": "Cost for house upgrade"},
+          "houses": { "type":"int", "description":"amount of houses set on the estate" },
+          "visit": { "type": "string", "description":"the uri to the visit resource" },
+          "hypocredit": { "type": "string", "description":"the uri to the hypocredit of the estate" }
+        }
+      }
+  - subscription: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "subscription",
+        "description":"a subscription indicating an interesst in some particular event",
+        "properties": {
+          "game": { "type":"string", "required": true, "description":"uri to the game resources this subscription belongs to"},
+          "uri": {"type":"string", "description":"the resource interessted in the event - will be called with post"},
+          "event": { "$ref": "event",
+             "description": "A sample event, values filled with regex to match. If all match, event matches as a whole"
+            }
+        }
+      }
+resourceTypes:
+  - list:
+      get:
+        description: List of available <<resourcePathName|!singularize>>
+        responses:
+          200:
+            body:
+              application/json:
+                schema: |
+                  {
+                    "type": "object",
+                    "$schema": "http://json-schema.org/draft-03/schema",
+                    "id": "http://jsonschema.net",
+                    "required": true,
+                    "properties": {"<<schema|!pluralize>>":
+                       {
+                        "type": "array",
+                        "$schema": "http://json-schema.org/draft-03/schema",
+                        "id": "http://jsonschema.net",
+                        "required": true,
+                        "items": {"type": "string", "description":"uri of the resource" }
+                      }
+                   }
+                  }
+                example: <<example>>
+  - item:
+      get:
+        description: Gets a <<resourcePathName>>
+        responses:
+          200:
+            body:
+              application/json:
+                schema: <<schema>>
+                example: <<example>>
+          404:
+            description: Resource could not be found
+      put:
+        description: places a <<resourcePathName>>
+        body:
+          application/json:
+            schema: <<schema>>
+            example: <<example>>
+  - collection:
+      type:
+        list:
+          schema: <<schema>>
+          example: <<getexample>>
+      post:
+        description: creates a new <<resourcePathName|!singularize>>
+        body:
+          application/json:
+            schema: <<schema>>
+            example: <<postexample>>
+traits:
+  - gcomp:
+      displayName: GameComponent
+      queryParameters:
+        gameid:
+          description: The id of the game
+          example: 42
+          required: true
+  - transactional:
+      displayName: Transactional
+      description: This resource may be added to a transaction, thus changes will be linked to the outcome of the transaction
+      queryParameters:
+        transaction:
+          description: The uri of the transaction to be added to
+          example: /transactions/42
+          required: false
+  - action:
+      responses:
+        200:
+          body:
+            application/json:
+              schema: events
+/dice:
+  get:
+    protocols: [HTTP]
+    description: Gives you a single dice roll
+    responses:
+      200:
+        body:
+          application/json:
+            schema: "roll"
+            example: |
+              { "number": 4 }
+/users:
+  type:
+    collection:
+      schema: "user"
+      getexample: |
+        { "users": ["/users/mario"] }
+      postexample: |
+        {"id":"/users/mario","name":"Mario","uri":"http://somehost:4567/client/mario"}
+  /{userid}:
+      type:
+        item:
+          schema: "user"
+          example: |
+            {"id":"/users/mario","name":"Mario","uri":"http://localhost:4567/client/mario"}
+      put:
+        description: Registers the user/player
+        queryParameters:
+          name:
+            displayName: Playername
+            type: string
+            description: Name of the player
+            example: Mario
+          uri:
+            displayName: Clienturi
+            type: string
+            description: Resource identification (uri) of the client service
+            example: http://localhost:4567/client/mario
+      delete:
+        description: "Unregisters the user"
+/games:
+  get:
+    description: returns all available games
+    responses:
+      200:
+        body:
+          application/json:
+            schema: "game"
+            example: |
+              [ {id: "/games/42", players: "/games/42/players } ]
+  post:
+    description: creates a new game. Values may optionaly be set within the body parameter.
+    body:
+      application/json:
+        schema: game
+        example: |
+          { "name":"VSP Game 0", "services":{"dice":"http://1.2.3.4:6789/dice"} }
+    responses:
+      201:
+  /{gameid}:
+    get:
+      description: returns the current game status
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {"id":"/games/42",
+                 "players": "/games/42/players",
+                 "started":false,
+                 "services":"/games/42/services",
+                 "components":"/games/42/components"
+                 }
+    /status:
+      get:
+        description: returns the status of the game (registration|running|finished)
+      put: 
+        description: |
+          sets the status of the game.
+          registration : the initial state after creation. Players may join the game. Set automatically
+          running : may be set when all players are ready to begin the game
+          finished : after an ending criteria is reached, the game is set into the state finished
+        responses:
+          200:
+            description: The change has been appliedi
+          409:
+            description: Conflicting situation, such as at least one player is not ready or ending criteria not reached  
+    /services:
+      type:
+        item:
+          schema: "components"
+          example: |
+            {"dice":"http://1.2.3.4:6789/dice", "board":"http://1.2.3.4:6789/boards", ...}
+    /components:
+      type:
+        item:
+          schema: "components"
+          example: |
+            {"dice":"http://1.2.3.4:6789/dice", "board":"http://1.2.3.4:6789/boards/42", ...}
+    /players:
+      type:
+        collection:
+          schema: "player"
+          getexample: |
+            { "players": ["/games/0/players/mario"] }
+          postexample: |
+            {"user":"/user/mario","ready":false}
+      get:
+        description: returns all joined players
+      /{playerid}:
+        type:
+          item:
+            schema: "player"
+            example: |
+              {"id":"/games/42/players/mario", "user":"/user/mario","ready":false,
+                "pawn":"/board/21/pawns/mario", "account":"/banks/4711/accounts/mario",
+                "ready":"/games/42/players/mario/ready" }
+        delete:
+          description: "Removes the player from the game"
+        /ready:
+          put:
+            description: signals that the player is ready to start the game / is finished with his turn
+          get:
+            description: tells if the player is ready to start the game
+            responses:
+              200:
+                body:
+                  application/json:
+                    example: "true"
+      /current:
+        get:
+          description: gets the currently active player that shall take action
+          responses:
+            200:
+              body:
+                application/json:
+                  schema: "player"
+                  example: |
+                          { id:"mario", name:"Mario", uri:"http://localhost:4567/player/mario", ready:false }
+      /turn:
+        type: { item: { schema: "player", "example":"" } }
+        get:
+          description: gets the player holding the turn mutex
+        put:
+          description: tries to aquire the turn mutex (player is given either as query or body parameter)
+          queryParameters:
+            player:
+              description: the player id (uri) of the player trying to aquire the lock
+              type: string
+              example: "/games/42/players/mario"
+          responses:
+            200:
+              description: already holding the mutex
+            201:
+              description: aquired the mutex
+            409:
+              description: already aquired by an other player
+        delete:
+          description: releases the mutex
+
+/boards:
+  type:
+    collection:
+      schema: "board"
+      getexample: |
+        { "boards": [ "/boards/41"  ] }
+      postexample: |
+        { "game":"/games/42" }
+  get:
+    description: returns all active games (both running and joinable)
+  post:
+    description: creates a new board. A game url must be given in the body.
+    body:
+      application/json:
+        schema: |
+          { "type":"object",
+            "properties":{
+              "game":{"type":"string", "description":"url to the game resource for which the board is created"}
+            }
+          }
+  /{gameid}:
+    type:
+      item:
+        schema: "board"
+        example: |
+          {
+            "id":"/boards/41"
+            "fields":[
+              {"place": "/boards/42/places/0" ,"pawns":[]},
+              {"place": "/boards/42/places/1" ,"pawns":[]},
+              {"place": "/boards/42/places/2" ,"pawns":[]},
+              {"place": "/boards/42/places/3" ,"pawns":[]},
+              {"place": "/boards/42/places/4" ,"pawns":[/boards/41/pawns/mario]}
+            ],
+            "positions" : [4]
+          }
+    get:
+      description: gets the board belonging to the game
+    delete:
+      description: deletes the board to the game, effectivly ending the game
+    /pawns:
+      type:
+        collection:
+          schema: "pawn"
+          getexample: |
+            { "pawns": ["/boards/0/pawns/mario"] }
+          postexample: |
+            {"player":"/games/42/players/mario","place":"/boards/42/places/4", "position":4}
+      get:
+        description: returns a list of all player positions
+      /{pawnid}:
+        put:
+          description: puts a pawn on the board. Does nothing if already placed
+        delete:
+          description: removes a pawn from the board
+        type:
+          item:
+            schema: "pawn"
+            example: |
+              {"id":"Mario","place":"/boards/42/places/4", "position":4}
+      /{pawnid}/move:
+        post:
+          description: moves a pawn relative to its current position
+          body:
+            application/json:
+              schema: '{"type":"int", "required":true}'
+      /{pawnid}/roll:
+        type: 
+          list:
+            schema: "throw"
+            example: |
+              {
+                "throws":[ {  "roll1": {"number":4 }, "roll2": {"number":2 }} ]
+              }
+                
+        get:
+          description: returns all rolls done for the paw
+        post:
+          description: rolls on the board and executes associated actions
+          responses:
+            200:
+              description: Successful move. Returns all events happened with this throw
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "events": { "ref": "events" }
+                    }
+                  example: |
+                    {
+                      events: [ { action: "transfer", uri: "/banks/42/transfer/12345", name:"Bank Transfer", reason:"Rent for Badstrasse" } ]
+                    }
+    /places:
+      type:
+        list: { schema: "place", example: '["/boards/42/places/0", "/boards/42/places/1"]' }
+      /{place}:
+        type: { item: {schema: "place", "example":'{"name":"Los"}'} }
+/decks:
+  type:
+    collection:
+      schema: "deck"
+      getexample: |
+        { "decks": [ "/decks/41"  ] }
+      postexample: |
+        { "game":"/games/42" }
+  /{gameid}:
+    /chance:
+      get:
+        description: Gets a chance card
+        body:
+          application/json:
+            schema: game
+        responses:
+          200:
+            body:
+              application/json:
+                schema: card
+                example: |
+                  { "name": "Go to Jail", "text":"Go to jail, do not travel across 'go' and don't receive $200 "}
+    /community:
+      get:
+        description: Gets a community card
+        responses:
+          200:
+            body:
+              application/json:
+                schema: card
+                example: |
+                  { "name": "Go to Jail", "text":"Go to jail, do not travel across 'go' and don't receive $200 "}
+/banks:
+  type:
+    collection:
+      schema: "bank"
+      getexample: |
+        { "banks": [ "/banks/41"  ] }
+      postexample: |
+        { "game":"/games/42" }
+  /{bankid}:
+    type: { item: { schema: "bank", "example":"" } }
+    /transfers:
+      type: { list: { schema: "transfer", "example":"" } }
+      /{transferid}:
+        get:
+          description: Gets a <<resourcePathName>>
+          responses:
+            200:
+              body:
+                application/json:
+                  schema: transfer
+                  example: |
+                    {
+                    "from": "/banks/42/accounts/mario",
+                    "to":   "/banks/42/accounts/luigi",
+                    "amount":   200,
+                    "reason": "Rent for Badstrasse"
+                    }
+    /transfer/from/{from}/to/{to}/{amount}:
+      post:
+        is: [transactional]
+        description: creates a new bank transfer from a account id to an other
+        body:
+          application/json:
+            schema: '{"type":"string", "required":true}'
+            example: Rent for Badstrasse
+        responses:
+          201:
+            description: A new bank transfer has been created
+            body:
+              application/json:
+                schema: events
+          403:
+            description: insufficient fonds
+    /transfer/to/{to}/{amount}:
+      post:
+        is: [transactional]
+        description: creates a new bank transfer from the bank itself
+        body:
+          application/json:
+            schema: '{"type":"string", "required":true, "description":"the reason why the money is transfered"}'
+            example: Starting Money
+        responses:
+          201:
+            description: A new bank transfer has been created
+            body:
+              application/json:
+                schema: events
+    /transfer/from/{from}/{amount}:
+      post:
+        is: [transactional]
+        description: creates a new bank transfer to the bank itself
+        body:
+          application/json:
+            schema: '{"type":"string", "required":true, "description":"the reason why the money is transfered"}'
+            example: Starting Money
+        responses:
+          201:
+            description: A new bank transfer has been created
+            body:
+              application/json:
+                schema: events
+          403:
+            description: insufficient fonds
+    /transaction:
+      post:
+        description: begins a new transaction
+        queryParameters:
+          phases: 
+            description: tells if it is a 1- or 2-phase
+            enum: 
+              - 1
+              - 2
+            default: "1"
+      /{tid}:
+        get:
+          description: returns the state of the transaction
+        put:
+          description: commits/readies the transaction
+          queryParameters:
+            state:
+              description: "sets the sate of the transaction. Default: commit"
+              enum: [ "ready", "commit" ]
+              default: "commit"
+        delete:
+          description: abort/rollback an transaction
+                
+    /accounts:
+      type:
+        collection:
+          schema: "account"
+          getexample: "['/banks/42/accounts/mario']"
+          postexample: "{ 'player':'/games/42/players/mario', 'saldo':4000 }"
+      post:
+        description: creates a bank account
+        responses:
+          201:
+            description: bank account has been created
+          409:
+            description: player already got a bank account
+      /{accountid}:
+        get:
+          description: returns account the saldo of the player
+          responses:
+            200:
+              body:
+                application/json:
+                  schema: "account"
+                  example: "{ 'player':'/games/42/players/mario', 'saldo':4000 }"
+/broker:
+  type:
+    collection:
+      schema: "broker"
+      getexample: "['/brokers/42']"
+      postexample: |
+        { "game":"/games/42" }
+  /{gameid}:
+    type: { item: { schema: "broker", "example":"" } }
+    put:
+      body:
+        application/json:
+          schema: game
+          example:
+    /places:
+      type: { list: { schema: "estate", "example":"" } }
+      /{placeid}:
+        type: {item: { schema: "estate", "example":""} }
+        put:
+          description: Registers the place with the broker, won't change anything if already registered
+          responses:
+           200:
+             description: Place is already present, nothing changed
+             body:
+                application/json:
+                  schema: '{"type":"string", "description":"uri of the new place"}'
+           201:
+             description: Place has been registered
+             body:
+                application/json:
+                  schema: '{"type":"string", "description":"uri of the new place"}'
+        /owner:
+          type: {item: { schema: "player", "example":""} }
+          post:
+            is: [ action ]
+            description: Buy the estate in question. It will fail if it is not for sale
+            responses:
+             409:
+               description: The place is not for sale - either not buyable or already sold (Conflict)
+            body:
+              application/json:
+                schema: |
+                  { "type":"string", "description":"the uri of the player buying the estate" }
+                example: "/games/42/player/mario"
+          put:
+            is: [ action ]
+            description: Trade the place - changing the owner
+            body:
+              application/json:
+                schema: |
+                  { "type":"string", "description":"the uri of the player buying the estate" }
+                example: "/games/42/player/mario"
+        /hypothecarycredit:
+          put:
+            is: [ action ]
+            description: takes a hypothecary credit onto the place
+          delete:
+            is: [ action ]
+            description: removes the hypothecary credit from the place
+        /visit:
+          post:
+            is: [ action ]
+            description: indicates, that the player has visited this place, may be resulting in money transfer
+            body:
+              application/json:
+                schema: |
+                  {"type":"string", "description":"uri to the player "}
+                example: |
+                  "/games/42/players/mario"
+
+/client:
+  description: |
+    A service which acts as a representant of a player/client. The endpoint may be found at any other uri, but it must
+    offer the described mehtods and the full uri must be submitted when registering a player
+  get:
+    description: gets the details about the player
+    responses:
+      200:
+        body:
+          application/json:
+            schema: user
+  /turn:
+    post:
+      description: Informs the player, that it is his turn
+      body:
+        application/json:
+          example: |
+            { "player":"/games/42/player/mario" }
+  /event:
+    post:
+      description: inform a player about a new event
+      body:
+        application/json:
+          schema: "events"
+/events:
+    type: { collection: { schema: "event", "getexample":"", "postexample":"" } }
+    post:
+      description: adds a new event to the collection of events
+    get:
+      description: returns all matching events according to query parameters
+      queryParameters:
+        game: {"description":"a regex matching for game uri"}
+        type: {"description":"a regex matching for event type"}
+        name: {"description":"a regex matching for the readable name"}
+        reason: {"description":"a regex matching for the reason"}
+        resource: {"description":"a regex matching for the uri referenced by this event"}
+        player: {"description":"a regex matching for the player uri issuing the event"}
+    delete:
+      description: removes all matching events
+      queryParameters:
+        game: {"description":"a regex matching for game uri"}
+        type: {"description":"a regex matching for event type"}
+        name: {"description":"a regex matching for the readable name"}
+        reason: {"description":"a regex matching for the reason"}
+        resource: {"description":"a regex matching for the uri referenced by this event"}
+        player: {"description":"a regex matching for the player uri issuing the event"}
+    /{eventid}:
+      get:
+        description: gets the event details
+    /subscriptions:
+      type: { collection: { schema: "subscription", "getexample":"", "postexample":"" } }
+      /subscriptions/{subscription}:
+        delete:
+          description: removes the subscription from the service
+

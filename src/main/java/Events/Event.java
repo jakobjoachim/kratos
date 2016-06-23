@@ -1,11 +1,19 @@
 package Events;
 
 import Interfaces.Validable;
+import Tools.SharedPayloads.PayloadPayload;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+import java.security.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 
 @Data
-public class EventPayload implements Validable {
+public class Event{
     // the url to the event on the event server
+
     private String id;
 
     // human readable name for this event
@@ -26,16 +34,11 @@ public class EventPayload implements Validable {
     // The uri of the player triggering it
     private String player;
 
+    private boolean submitted;
+
+    private Map<String, String> payload;
+
     // A timestamp when this event was given to the eventPayloadList service
-    private String time;
+    private String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
 
-
-    @Override
-    public boolean isValid() {
-        if (this.name != null && this.game != null && this.type != null && this.reason != null) {
-            return true;
-        }
-
-        return false;
-    }
 }

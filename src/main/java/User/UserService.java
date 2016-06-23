@@ -2,11 +2,11 @@ package User;
 
 import Exceptions.UserAlreadyExistsException;
 import Exceptions.UserDoesNotExistException;
+import Exceptions.UserPayloadIsInvalidException;
+import Tools.Helper;
+import Tools.JsonErrorGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import java.io.IOException;
-import java.io.StringWriter;
 
 import static spark.Spark.*;
 
@@ -20,30 +20,25 @@ public class UserService {
     public static void main(String[] args){
         UserModel model = new UserModel();
 
-        post("/users", (request, response) -> {
-            try{
-                ObjectMapper mapper = new ObjectMapper();
-                UserPayload creation = mapper.readValue(request.body(), UserPayload.class);
-                if (!(creation.isValid())){
-                    response.status(HTTP_BAD_REQUEST);
-                    return "";
-                }
-                String createdUrl = model.createUser(creation.getName(), creation.getUri());
-                response.status(OK);
-                response.type("application/json");
-                return createdUrl;
-            }catch(Exception e){
-                if (e instanceof UserAlreadyExistsException) {
-                    response.status(UNPROCESSABLE_ENTITY);
-                }
-                if (e instanceof JsonParseException) {
-                    response.status(HTTP_BAD_REQUEST);
-                }
-                return "";
-            }
+        get("/", (request, response) -> {
+            response.status(200);
+            return "OK";
         });
 
-        //TODO: exception(UserAlreadyExistsException.class, );
+        post("/users", (request, response) -> {
+            ObjectMapper mapper = new ObjectMapper();
+            UserPayload creation = mapper.readValue(request.body(), UserPayload.class);
+
+            if (!(creation.isValid())){
+                throw new UserPayloadIsInvalidException();
+            }
+
+            String createdUrl = model.createUser(creation.getName(), creation.getUri());
+            response.status(OK);
+            response.type("application/json");
+
+            return String.format("{ \"id\" : \"%s\", \"success\" : true }", createdUrl);
+        });
 
         get("/users", (request, response) -> {
             response.status(OK);
@@ -54,13 +49,8 @@ public class UserService {
         get("/users/:userId", (request, response) -> {
             response.status(OK);
             response.type("application/json");
-            try {
-                return model.getUserInfo(request.params(":userId"));
-            }
-            catch (UserDoesNotExistException e) {
-                response.status(RESOURCE_NOT_FOUND);
-                return "";
-            }
+
+            return model.getUserInfo(request.params(":userId"));
         });
 
         put("/users/:userId", (request, response) -> {
@@ -70,6 +60,7 @@ public class UserService {
             String url = request.params(":userId");
             String name = request.queryMap().get("name").value();
             String uri = request.queryMap().get("uri").value();
+            
             try {
                 return model.createUser(name, uri);
             }
@@ -83,13 +74,37 @@ public class UserService {
             response.type("application/json");
 
             String id = request.params(":userId");
-            try {
-                UserModel.deleteUser(id);
-            } catch (UserDoesNotExistException e) {
-                response.status(RESOURCE_NOT_FOUND);
-                return "";
-            }
-            return "{ \"status\": \"success\" }";
+            UserModel.deleteUser(id);
+
+            return "{ \"success\": true }";
         });
+
+        exception(UserAlreadyExistsException.class, (e, request, response) -> {
+            response.status(UNPROCESSABLE_ENTITY);
+            response.type("application/json");
+
+            response.body(
+                    JsonErrorGenerator.getErrorJsonString(UNPROCESSABLE_ENTITY, "user already exists")
+            );
+        });
+
+        exception(UserDoesNotExistException.class, (e, request, response) -> {
+            response.status(RESOURCE_NOT_FOUND);
+            response.type("application/json");
+
+            response.body(
+                    JsonErrorGenerator.getErrorJsonString(RESOURCE_NOT_FOUND, "user does not exist")
+            );
+        });
+
+        exception(JsonParseException.class, (e, request, response) -> {
+            response.status(HTTP_BAD_REQUEST);
+            response.type("application/json");
+
+            response.body(
+                    JsonErrorGenerator.getErrorJsonString(HTTP_BAD_REQUEST, "json could not be parsed")
+            );
+        });
+
     }
 }
